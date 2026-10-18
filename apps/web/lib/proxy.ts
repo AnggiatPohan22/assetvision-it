@@ -4,6 +4,7 @@ const endpoints = new Map<string, readonly string[]>([
   ["auth/session", ["GET"]], ["admin/status", ["GET"]],
 ]);
 const MAX_BODY_BYTES = 16384;
+const MAX_CSV_REQUEST_BYTES = 1024 * 1024;
 const MAX_UPLOAD_BYTES = 8 * 1024 * 1024 + 65536;
 const catalogResources = new Set(["device-categories", "manufacturers", "device-models"]);
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -17,6 +18,19 @@ function proxyError(detail: string, status: number): Response {
 function allowedMethods(path: string[]): readonly string[] | undefined {
   const existing = endpoints.get(path.join("/"));
   if (existing) return existing;
+  if (path[0] === "assets") {
+    if (path.length === 2 && path[1] === "export.csv") return ["GET"];
+    if (path.length === 3 && path[1] === "imports" && ["preview", "commit"].includes(path[2])) return ["POST"];
+    if (path.length === 1) return ["GET", "POST"];
+    if (!uuid.test(path[1])) return undefined;
+    if (path.length === 2) return ["GET", "PATCH"];
+    if (path.length === 3 && path[2] === "archive") return ["POST"];
+    if (path[2] === "identifiers") {
+      if (path.length === 3) return ["GET", "POST"];
+      if (path.length === 4 && uuid.test(path[3])) return ["PATCH", "DELETE"];
+    }
+    return undefined;
+  }
   if (!catalogResources.has(path[0])) return undefined;
   if (path.length === 1) return ["GET", "POST"];
   if (!uuid.test(path[1])) return undefined;
@@ -80,7 +94,9 @@ export async function proxyRequest(request: Request, path: string[]): Promise<Re
   let body: ArrayBuffer | undefined;
   if (request.method === "POST" || request.method === "PATCH") {
     const imageUpload = path.length === 3 && path[0] === "device-models" && path[2] === "reference-images";
-    const result = await readBody(request, imageUpload ? MAX_UPLOAD_BYTES : MAX_BODY_BYTES);
+    const csvImport = path.length === 3 && path[0] === "assets" && path[1] === "imports";
+    const limit = imageUpload ? MAX_UPLOAD_BYTES : csvImport ? MAX_CSV_REQUEST_BYTES : MAX_BODY_BYTES;
+    const result = await readBody(request, limit);
     if (result instanceof Response) return result;
     body = result;
   }

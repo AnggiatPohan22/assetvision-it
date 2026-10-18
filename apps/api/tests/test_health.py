@@ -31,7 +31,17 @@ def test_not_ready_on_db_failure(client: TestClient) -> None:
     assert response.json()["detail"] == "Database or schema is not ready"
 
 
-@pytest.mark.parametrize("version", ["0001_sprint0", "0002_device_catalog", "old_revision", None])
+@pytest.mark.parametrize(
+    "version",
+    [
+        "0001_sprint0",
+        "0002_device_catalog",
+        "0003_image_cleanup",
+        "0004_asset_registry",
+        "old_revision",
+        None,
+    ],
+)
 def test_not_ready_on_schema_mismatch(client: TestClient, db: Session, version: str | None) -> None:
     db.execute(text("DELETE FROM alembic_version"))
     if version:
@@ -42,5 +52,22 @@ def test_not_ready_on_schema_mismatch(client: TestClient, db: Session, version: 
 
 def test_not_ready_when_catalog_table_missing(client: TestClient, db: Session) -> None:
     db.execute(text("DROP TABLE device_reference_images"))
+    db.commit()
+    assert client.get("/api/v1/ready").status_code == 503
+
+
+def test_not_ready_when_import_receipts_missing(client: TestClient, db: Session) -> None:
+    db.execute(text("DROP TABLE asset_import_batches"))
+    db.commit()
+    assert client.get("/api/v1/ready").status_code == 503
+
+
+@pytest.mark.parametrize("table", ["asset_change_events", "asset_identifiers", "assets"])
+def test_not_ready_when_asset_table_missing(client: TestClient, db: Session, table: str) -> None:
+    # Drop dependents first on PostgreSQL; schema corruption is confined to the fixture DB.
+    for dependent in ("asset_change_events", "asset_identifiers", "assets"):
+        db.execute(text(f"DROP TABLE {dependent}"))
+        if dependent == table:
+            break
     db.commit()
     assert client.get("/api/v1/ready").status_code == 503

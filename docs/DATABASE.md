@@ -113,7 +113,84 @@ volume atau memindahkan IMAGE_STORAGE_ROOT tanpa prosedur pemindahan dan backup.
 Downgrade 0003 menghapus intent cleanup, bukan foto/metadata existing; pastikan tidak ada
 intent tertunda sebelum downgrade operasional. Roundtrip hanya diuji pada database sementara.
 
-## Pengujian dan backup
+## Schema Sprint 1B-01
+
+Revisi `0004_asset_registry` di atas `0003_image_cleanup` menambah tiga tabel, index,
+CHECK/FK, serta trigger PostgreSQL (padanan SQLite untuk pengujian). Tidak mengedit migration lama,
+memindahkan data katalog, mengisi seed, atau mengubah audit autentikasi/katalog existing.
+
+| Tabel | Kolom dan batasan |
+|---|---|
+| assets | UUID PK; asset_code varchar(50) unique; device_model_id FK RESTRICT terindeks; lifecycle_status terindeks; condition; notes; purchase_date/installed_at nullable; created_at/updated_at; version positif |
+| asset_identifiers | UUID PK; asset_id FK RESTRICT terindeks; identifier_type; raw_value/normalized_value wajib; verification_status; source wajib; notes; created_at; deleted_at nullable; version positif |
+| asset_change_events | UUID PK; asset_id/actor_id FK RESTRICT terindeks; event_type; before_json nullable; after_json wajib; recorded_at server timestamp terindeks |
+
+Lifecycle: IN_STOCK (default), IN_USE, MAINTENANCE, RETIRED, ARCHIVED.
+Kondisi: UNKNOWN (default), GOOD, DAMAGED, UNUSABLE. Ini vocabulary awal, belum workflow transisi.
+Identifier: SERIAL_NUMBER, MAC_LAN, MAC_WLAN, BSSID, HOSTNAME, MANAGEMENT_ID.
+Source: MANUAL, IMPORT, CONTROLLER. Verifikasi: UNVERIFIED (default), VERIFIED, DISPUTED.
+Event: CREATE, UPDATE, ARCHIVE, IDENTIFIER_ADD, IDENTIFIER_UPDATE, IDENTIFIER_REMOVE.
+
+Partial unique index `(asset_id, identifier_type, normalized_value) WHERE deleted_at IS NULL`
+mencegah duplikasi klaim aktif pada unit yang sama. Index `(identifier_type, normalized_value)`
+menyediakan lookup collision lintas unit; tidak ada uniqueness global SN/MAC/BSSID.
+Baris yang soft-deleted tetap tersimpan; klaim pengganti mendapat UUID baru.
+Serial kosong berarti tidak ada klaim serial, bukan baris identifier kosong.
+ORM menghitung normalized_value dari raw_value pada insert/update. SQL langsung wajib
+menyediakan nilai kanonis; trigger memeriksa format MAC dan kesesuaian normalized/raw.
+
+Trigger menolak perubahan UUID/asset_code dan DELETE aset, perubahan pemilik/UUID klaim,
+DELETE identifier, serta UPDATE/DELETE audit. Asset code tetap dipesan setelah archive.
+Version ORM tersedia untuk aset dan identifier; API 1B-02 memeriksa request version dan
+menulis audit transaksional otomatis. JSONB dipakai untuk snapshot di PostgreSQL, JSON pada SQLite.
+Tidak ada kolom lokasi bebas. updated_at dikelola ORM; bulk SQL tidak menaikkan version
+atau timestamp secara otomatis. Task 1B-01 tidak membuat API/seed; API ditambahkan oleh 1B-02.
+
+Task 1B-02 tidak mengubah schema/migration: head tetap 0004_asset_registry. Service API
+mengunci aset induk untuk mutasi metadata/identifier, memeriksa version client, lalu menaikkan
+version unit (dan version klaim pada update/remove) serta mencatat snapshot dalam satu commit.
+Tidak menambah tabel audit paralel atau kolom lokasi. Tidak ada seed otomatis.
+
+Readiness source baru mensyaratkan revision 0004 dan ketiga tabel. Deploy berurutan:
+build API/migrate dari source sama → upgrade head → recreate API. Web tidak berubah.
+Downgrade ke 0003 menghapus seluruh tabel/data aset baru dan function trigger terkait;
+tabel/data Sprint 0/1A dipertahankan. Downgrade hanya diuji pada DB sementara; butuh
+persetujuan dan backup sebelum dilakukan pada data operasional.
+
+Pada 18 Oktober 2026, development di-upgrade ke 0004 dan API diganti ke image baru.
+Alembic current/check lulus. Fingerprint SHA-256 seluruh baris delapan tabel existing dan
+seluruh file reference_images identik sebelum/sesudah upgrade. users=1, auth_sessions=1,
+audit_events=5; tabel katalog/cleanup tetap kosong, ketiga tabel baru kosong, file foto=0.
+Tidak menjalankan seed/login/mutasi domain di development. Rincian ada di laporan 1B-01.
+
+Pada 19 Oktober 2026, Task 1B-02 memperbarui runtime API/web tanpa migration baru.
+Alembic current tetap 0004 dan check tanpa operasi baru. Fingerprint seluruh 11 tabel
+aplikasi, alembic_version, spatial_ref_sys dan file storage identik sebelum/sesudah;
+tidak melakukan login/seed/mutasi pada development. Database container/volume existing
+dipertahankan. Rincian pengujian CRUD/RBAC dan smoke ada di laporan 1B-02.
+
+## Receipt CSV — Task 1B-03
+
+Revision 0005_asset_imports menambah asset_import_batches tanpa mengubah tabel/domain existing:
+id UUID PK (idempotency key), actor_id FK users RESTRICT/index, request_sha256 varchar(64)
+dengan CHECK panjang 64, result_json JSONB (SQLite JSON), created_at timestamp server.
+Receipt sukses disimpan dalam transaksi batch bersama aset/identifier/asset_change_events.
+Placeholder internal tidak pernah committed; kegagalan me-rollback semuanya. Preview tidak
+membuat receipt. Tidak menyimpan CSV mentah; result menyimpan row/asset/version dan hint staging.
+Tidak ada lokasi aktif, tabel AI, cache proses atau pruning receipt otomatis.
+
+Deploy: build API/migrate/web → migrate upgrade head → recreate API/web saja. Readiness wajib
+0005 dan ledger. Downgrade 0005 hanya menghapus receipt/hint dan kemampuan replay key lama,
+tidak menghapus aset/identifier/audit yang telah dibuat. Hanya diuji pada DB sementara;
+jangan downgrade operasional tanpa backup karena kehilangan jaminan retry receipt.
+
+Pada 19 Oktober 2026, development di-upgrade 0004→0005 dan API/web diperbarui tanpa
+mengganti database container/volume. Alembic current/check lulus. Fingerprint seluruh 11
+tabel aplikasi existing, spatial_ref_sys dan file foto identik sebelum/sesudah; hanya
+revision berubah dan ledger baru kosong. Tidak melakukan login/seed/import/mutasi domain
+di development. Laporan dan hasil regresi/smoke ada di SPRINT_1B_03_REPORT.md.
+
+## Pengujian dan backup existing
 
 Task 1A-05 tidak menambah atau mengubah schema/migration. Audit tetap pada audit_events;
 catalog_create/update/archive merekam table/id/version dan reference_image_upload/delete

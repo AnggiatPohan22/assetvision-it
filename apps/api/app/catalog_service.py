@@ -23,7 +23,7 @@ def get_record[T: Record](db: Session, entity: type[T], record_id: uuid.UUID) ->
     return record
 
 
-def list_records[T: Record](
+def list_records[T](
     db: Session,
     statement: Select[tuple[T]],
     page: int,

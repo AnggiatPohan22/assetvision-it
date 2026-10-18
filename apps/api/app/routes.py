@@ -6,6 +6,8 @@ from pydantic import BaseModel, ConfigDict, EmailStr, Field
 from sqlalchemy import select, text
 from sqlalchemy.exc import SQLAlchemyError
 
+from app.asset_imports import AssetImportBatch
+from app.assets import AssetChangeEvent, AssetIdentifier, AssetUnit
 from app.catalog import (
     DeviceCategory,
     DeviceModel,
@@ -57,7 +59,7 @@ def ready(db: Database) -> dict[str, str]:
         if db.bind is not None and db.bind.dialect.name == "postgresql":
             db.execute(text("SELECT PostGIS_Version()"))
         version = db.execute(text("SELECT version_num FROM alembic_version")).scalar_one()
-        if version != "0003_image_cleanup":
+        if version != "0005_asset_imports":
             raise ValueError("Schema not current")
         db.execute(select(User.id).limit(1))
         db.execute(select(AuthSession.id).limit(1))
@@ -68,6 +70,10 @@ def ready(db: Database) -> dict[str, str]:
             DeviceModel,
             DeviceReferenceImage,
             StorageCleanupJob,
+            AssetUnit,
+            AssetIdentifier,
+            AssetChangeEvent,
+            AssetImportBatch,
         ):
             db.execute(select(model.id).limit(1))
     except (SQLAlchemyError, ValueError):

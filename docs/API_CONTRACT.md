@@ -3,7 +3,9 @@
 Base path /api/v1. JSON; OpenAPI interaktif tersedia pada localhost:8000/docs.
 
 Sprint 1A-02 menyediakan CRUD katalog di bawah. Tabel aktual didokumentasikan di DATABASE.md.
-Endpoint `/ready` memeriksa revisi `0003_image_cleanup`, tabel katalog, dan intent cleanup.
+Endpoint `/ready` memeriksa revisi `0005_asset_imports`, tabel katalog, intent cleanup,
+serta assets/asset_identifiers/asset_change_events/asset_import_batches. Task 1B-02 menyediakan endpoint
+`/assets` dan allowlist CRUD proxy frontend; kontraknya ada di bagian terakhir.
 Endpoint gambar tersedia pada Task 1A-03 di bawah; UI katalog tersedia sejak Task 1A-04.
 Browser memakai localhost:3000/api/v1 melalui proxy allowlist.
 Respons dari FastAPI memiliki Cache-Control: no-store dan X-Request-ID; proxy meneruskan keduanya dari upstream.
@@ -284,3 +286,134 @@ Upload sequential memakai model_version dari list kemudian response upload terak
 DELETE memakai query version. Tidak ada retry otomatis untuk mutasi yang gagal.
 Frontend menampilkan pesan Indonesia untuk 401/403/404/409/413/415/422/5xx;
 backend tetap melakukan validasi authoritative, termasuk MIME/decode dan batas workspace.
+
+## Physical asset CRUD — Task 1B-02
+
+Semua rute di bawah memakai prefix `/api/v1`, cookie dan CSRF existing. GET untuk
+ADMIN/OFFICER/VIEWER aktif; seluruh mutasi hanya ADMIN. Respons privat/no-store.
+
+| Method | Route | Kontrak |
+|---|---|---|
+| GET | /assets | Page[AssetOutput], search/model_id/status/page/page_size |
+| POST | /assets | AssetCreate → 201 AssetOutput dan event CREATE |
+| GET | /assets/{asset_id} | AssetOutput atau 404 |
+| PATCH | /assets/{asset_id} | version + field berubah → AssetOutput |
+| POST | /assets/{asset_id}/archive | {version} → AssetOutput |
+| GET | /assets/{asset_id}/identifiers | Array klaim aktif; urut created_at, UUID |
+| POST | /assets/{asset_id}/identifiers | asset_version + klaim → 201 IdentifierMutation |
+| PATCH | /assets/{asset_id}/identifiers/{identifier_id} | version + asset_version + field berubah |
+| DELETE | /assets/{asset_id}/identifiers/{identifier_id} | Query version dan asset_version → 200 IdentifierMutation |
+
+AssetCreate wajib asset_code dan device_model_id. Code di-trim/uppercase, ASCII huruf/angka
+di awal lalu huruf/angka/_/-, 1–50 karakter. Lifecycle default IN_STOCK, condition UNKNOWN.
+Field lain: notes (nullable, maks. 4000), purchase_date (nullable YYYY-MM-DD), installed_at
+(nullable ISO datetime dengan timezone). Tidak ada field serial_number tunggal, lokasi,
+atau identifiers nested. Buat klaim secara eksplisit melalui endpoint identifier.
+AssetOutput berisi id, asset_code, device_model_id, lifecycle_status, condition, notes,
+purchase_date, installed_at, created_at, updated_at, version. Model dan unit tetap terpisah.
+
+PATCH aset menerima device_model_id/lifecycle_status/condition/notes/purchase_date/installed_at;
+minimal satu field selain version, hanya notes/tanggal boleh null. asset_code/id dan field
+lain ditolak 422. Version JSON wajib integer (bukan bool/string), rentang 1–2147483647.
+Version stale/limit mendapat 409. Asset PATCH yang sukses menaikkan version; archive berulang
+dengan version terkini adalah no-op. PATCH status ARCHIVED juga diaudit sebagai ARCHIVE;
+ADMIN dapat mengubahnya kembali lewat PATCH tanpa mengganti identitas.
+Model tidak dikenal 422; model inactive untuk create/reassignment 409. Referensi historis
+yang tidak berubah tetap boleh diedit. Tidak ada DELETE unit.
+
+List: default page=1/page_size=25, maksimum page=1000000/page_size=100; status memakai enum
+lifecycle, model_id UUID. Default mencakup semua status termasuk ARCHIVED. Urutan asset_code
+lalu UUID; total_pages=0 jika kosong, page di luar rentang items=[]. Offset pagination bukan
+snapshot lintas request. Search substring case-insensitive pada code atau nilai identifier
+aktif (termasuk SN/hostname/management ID); input MAC lengkap compact/colon/hyphen/dotted
+juga dicocokkan terhadap nilai kanonis. Karakter wildcard diperlakukan literal. Query asing
+ditolak 422. Beberapa klaim cocok tetap menghasilkan satu unit.
+
+Klaim wajib identifier_type, raw_value (1–255 printable, bukti asli dipertahankan), source;
+verification_status default UNVERIFIED dan notes opsional. Enum mengikuti DATABASE.md.
+MAC dinormalisasi; SN kosong/UNKNOWN/N/A/NA/- ditolak (SN hilang berarti tanpa baris).
+PATCH boleh mengganti tipe/raw/source/verification_status/notes, wajib minimal satu perubahan;
+normalisasi memvalidasi pasangan tipe+raw setelah digabung dengan nilai existing. normalized_value,
+id, asset_id, created_at dan deleted_at tidak dapat ditulis client.
+
+IdentifierMutation = {identifier: IdentifierOutput, asset_version: int}. IdentifierOutput:
+id, asset_id, identifier_type, raw_value, normalized_value, source, verification_status,
+notes, created_at, deleted_at, version, collision_asset_ids. Version identifier naik saat
+PATCH/DELETE dan version aset induk naik pada add/PATCH/DELETE. Gunakan version terbaru
+dari setiap respons; jangan retry konflik secara otomatis. DELETE mengembalikan klaim
+soft-deleted beserta version terbaru; retry dengan version terkini no-op. PATCH klaim
+terhapus mendapat 409. Klaim milik unit lain mendapat 404.
+
+Duplikat aktif satu aset+tipe+nilai mendapat 409; lintas aset diperbolehkan dan ditampilkan
+melalui collision_asset_ids, tanpa overwrite/merge. Collision hanya tipe/nilai sama dan
+klaim aktif, termasuk unit archived. Audit CREATE/UPDATE/ARCHIVE/IDENTIFIER_ADD/UPDATE/REMOVE
+memuat aktor/waktu dan before/after snapshot dalam transaksi domain yang sama. Field snapshot
+`asset` berisi AssetOutput; event identifier juga berisi `identifier` (tanpa collision_asset_ids).
+Audit belum diekspos lewat API. Error mengikuti envelope detail existing; tidak membuka SQL.
+Proxy web hanya mengizinkan rute/metode di atas, batas body CRUD 16 KiB.
+CSV tersedia pada Task 1B-03 di bawah. Foto unit dan UI aset belum tersedia.
+
+## Asset CSV — Task 1B-03
+
+Ketiga route khusus ADMIN aktif; OFFICER/VIEWER 403, anonim/nonaktif/revoked 401.
+POST membutuhkan Origin dan X-CSRF-Token sesi existing. Tidak ada public import/link export.
+
+| Method | Route | Request / response |
+|---|---|---|
+| POST | /api/v1/assets/imports/preview | JSON {csv_text} → 200 CsvPreview; tanpa DB write |
+| POST | /api/v1/assets/imports/commit | JSON {csv_text, idempotency_key, allow_identifier_collisions?: false} → 200 CsvCommitResult atau 409 |
+| GET | /api/v1/assets/export.csv | search/model_id/status opsional → CSV UTF-8 BOM attachment assets.csv |
+
+Input file dibaca menjadi teks UTF-8 oleh client; endpoint menerima JSON, bukan multipart.
+Batas stream JSON 1 MiB pada backend/proxy sebelum JSON parse, juga tanpa Content-Length.
+Batas csv_text 256 KiB UTF-8, 500 data row, header wajib unik/known. CSV comma delimiter,
+quoted commas/newlines didukung, CRLF/LF dan satu BOM UTF-8 didukung. Blank data lines diabaikan;
+header harus record pertama. Nomor row memakai urutan record logis (header=1), bukan baris fisik
+di dalam quoted multiline. Empty/header-only/malformed CSV atau header asing → 422.
+Unknown JSON fields/UUID key invalid/flag non-bool/CSV melebihi batas → 422; body >1 MiB → 413;
+media selain application/json → 415. Semua batas tetap berlaku pada API langsung.
+
+Header wajib: asset_code,manufacturer,model. Opsional: serial_number,mac_address,hostname,
+condition,status,notes,location_hint. Nama header di-trim, case-sensitive. Field opsional kosong
+diabaikan (status IN_STOCK, condition UNKNOWN). Nama produsen/model dikanonisasi whitespace
+dan case-insensitive; kode di-trim/uppercase. Model wajib dikenal/aktif dan tidak dibuat otomatis.
+SN/MAC/hostname mengikuti validasi API 1B-02; source IMPORT/verifikasi UNVERIFIED.
+Notes maks. 4000, location_hint maks. 1000 dan hanya staging di receipt, bukan field aset.
+CSV tidak menerima UUID aset, version, source, tanggal atau field lain sebagai jalan update.
+
+CsvPreview = {total_rows, valid_rows, invalid_rows, has_collisions, rows}. Setiap row:
+{row, asset_code, valid, errors: string[], collisions: [...], location_hint, asset_id:null,
+version:null}. Collision = {identifier_type, normalized_value, asset_ids: UUID[], csv_rows:int[]}.
+Duplikat code internal menandai semua row terkait invalid; code existing/archived invalid.
+Collision tipe/nilai sama lintas unit/CSV adalah warning yang memerlukan flag pengakuan eksplisit
+pada commit; klaim terhapus tidak dihitung. Model/format/column-count errors ditampilkan per row.
+
+Commit memvalidasi ulang CSV dan kondisi DB, tidak mempercayai report preview client.
+Batch atomik: semua row berhasil atau tidak ada row yang ditulis. CsvCommitResult:
+{import_id: UUID, status: COMMITTED|REJECTED, created_count, failed_count, rows, errors}.
+COMMITTED row berisi asset_id dan version baru (1 + jumlah klaim), serta staged hint.
+REJECTED memakai 409, created_count=0, failed_count=total; errors row dan/atau errors batch
+menjelaskan kegagalan. Konflik SQL/audit di tengah batch juga rollback receipt/domain/audit,
+asset_id/version hasil kerja sementara dihapus dari report. Field valid pada row adalah
+hasil validasi row, bukan klaim row sudah committed; periksa status batch.
+
+Idempotency key UUID dibuat client satu kali per payload. Receipt sukses persisten dalam DB,
+transactional dengan aset/audit, unique global key dan terikat aktor serta SHA-256 CSV persis
+(termasuk whitespace/BOM) + flag collision. Retry identik mengembalikan report sukses yang sama,
+tanpa create/event tambahan, dan tidak terpengaruh perubahan katalog sesudah sukses. Key reuse
+dengan aktor/payload berbeda → 409 envelope {detail:string}; OpenAPI mendokumentasikan kedua
+bentuk 409. Payload gagal tidak menyimpan receipt/reservasi key. Jangan membuat key baru hanya
+karena timeout; retry key lama. Baseline version dari receipt adalah saat import, bukan latest.
+
+Export memakai filter pencarian 1B-02 tanpa pagination, urut code/UUID, default seluruh status.
+Maksimum 5000 unit atau 16 MiB output; lebih → 413 dan gunakan filter. Query asing termasuk
+page/page_size ditolak. Kolom: seluruh header import di atas, lalu id,version,purchase_date,
+installed_at,identifiers_json. Scalar SN/MAC_LAN/hostname memakai nilai kanonis, banyak nilai
+dipisah newline dalam quoted cell. identifiers_json memuat semua klaim aktif beserta tipe,
+raw/normalized, source/verifikasi/notes/id/version/waktu; termasuk MAC_WLAN/BSSID/MANAGEMENT_ID.
+Klaim soft-deleted tidak diekspor. location_hint kosong karena bukan lokasi master.
+CSV writer mengutip delimiter/newline/quote; sel formula (=,+,-,@ sesudah whitespace) atau
+berawalan tab/CR/LF diberi apostrof, termasuk notes/nama/SN. Tidak mengubah nilai database.
+Export adalah laporan, bukan roundtrip import/backup: ada kolom tambahan dan sanitasi nilai.
+Seluruh response private/no-store/nosniff, attachment tanpa path/credential/storage key.
+UI upload/preview/confirm baru menjadi Task 1B-04 dan belum tersedia.

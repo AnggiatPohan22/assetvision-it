@@ -36,6 +36,18 @@ bernama `tsc`, yang bukan paket compiler resmi TypeScript. Lockfile proyek memua
 
 ## Build targets
 
+### Schema aset (Task 1B-01)
+
+`tests/test_assets.py` menguji unit tanpa SN, relasi model, code kanonis/immutable/reserved,
+SQL langsung, enum/version/FK, normalisasi dan duplikasi MAC, collision lintas unit/tipe,
+soft-delete, ownership klaim, optimistic concurrency, snapshot audit/rollback/retensi,
+index/JSONB, dan upgrade/downgrade yang mempertahankan seluruh baris sintetis delapan tabel lama.
+`test_migrations.py` memeriksa head 0004, metadata (`alembic check`), roundtrip base/head.
+`test_health.py` memeriksa penolakan schema lama dan tabel aset yang hilang.
+Jalankan suite sama melalui `bash infra/check.sh --postgres`; fixture tetap hanya memakai
+SQLite in-memory atau db-test/assetvision_test, tanpa port host maupun volume development.
+Pembuatan audit pada tests ini eksplisit dalam transaksi, belum lewat API aset (Task 1B-02).
+
 ### Smoke katalog end-to-end (Task 1A-05)
 
 ```bash
@@ -186,3 +198,46 @@ Final review menambahkan regresi untuk stabilitas CSRF/logout, penolakan token n
 dan penghentian stream body proxy yang terlalu besar. Seluruh tes diulang pada source final.
 Audit dependency kanonis npm audit --package-lock-only melaporkan 0 vulnerabilities.
 Laporan penutupan dan inventaris commit tersedia di [SPRINT0_REPORT.md](SPRINT0_REPORT.md).
+# Task 1B-02 — API unit fisik
+
+`tests/test_asset_api.py` memeriksa CRUD tanpa SN, referensi model aktif/historis,
+immutability code, bounded Pydantic, RBAC semua role, anon/nonaktif/logout, CSRF,
+filter/search/pagination, collision dan duplikat, soft-delete, audit snapshot dan
+rollback keenam jenis mutasi saat audit gagal. PostgreSQL menjalankan dua tes balapan
+session independen: update/update dan update/identifier pada version induk sama,
+tepat satu sukses dan satu 409. SQLite melewati tes row-lock tersebut.
+Tes OpenAPI/proxy memeriksa rute/metode/version dan tidak membuka CSV/task berikutnya.
+
+```bash
+bash infra/check.sh --postgres
+bash infra/smoke-catalog.sh
+bash infra/smoke-assets.sh
+```
+
+Jalankan berurutan karena memakai db-test sama. Smoke aset memanfaatkan helper smoke katalog
+dengan guard db-test/assetvision_test/test_runner dan akun sintetis baru. Semua mutasi domain
+lewat HTTP Next.js/API; DB langsung hanya membuat akun dan memverifikasi audit persisten.
+Runner menghentikan stack smoke/db-test dan mempertahankan database/storage development.
+Tidak menjalankan seed delapan AP atau UI aset pada 1B-02.
+
+## Task 1B-03 — CSV
+
+tests/test_asset_csv.py memeriksa parser/header/quoted/BOM/row limit, validation/unknown model,
+preview read-only via fingerprint semua tabel, duplikat CSV/DB, collision dan pengakuan,
+commit ulang setelah perubahan DB, receipt actor/payload/role, rollback audit di tengah batch,
+MAC/source/verification, hint staging, formula-safe export seluruh klaim dan filter,
+stream/body/UTF-8 limits, dan migration 0004→0005→0004→0005 tanpa kehilangan domain.
+Dua tes PostgreSQL memakai barrier/session terpisah: key sama menghasilkan receipt identik;
+key berbeda dengan kode sama menghasilkan satu batch sukses dan satu ditolak tanpa parsial.
+
+```bash
+bash infra/check.sh --postgres
+bash infra/smoke-catalog.sh
+bash infra/smoke-assets.sh
+bash infra/smoke-asset-csv.sh
+```
+
+Jalankan berurutan karena berbagi db-test sementara. Smoke CSV melalui Next.js/API/PG nyata,
+memverifikasi preview tanpa write, commit tanpa SN, retry/key conflict, formula-safe export,
+ADMIN-only/CSRF dan receipt/audit persisten. Guard helper mensyaratkan db-test/assetvision_test
+sebagai test_runner. Semua domain sintetis, tidak membuat seed development atau UI task berikutnya.

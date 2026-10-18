@@ -13,9 +13,9 @@ def catalog_openapi(app: FastAPI) -> dict[str, Any]:
         title=app.title,
         version=app.version,
         description=(
-            "Local device model catalog, separate from physical asset units. "
+            "Local device model catalog and separate physical asset registry. "
             "Login issues HttpOnly cookies; obtain CSRF from /auth/csrf before login, "
-            "then /auth/session for authenticated writes. All catalog writes require ADMIN; "
+            "then /auth/session for authenticated writes. Catalog and asset writes require ADMIN; "
             "OFFICER and VIEWER are read-only. PATCH/archive/upload/delete require the "
             "current record/model version; stale versions return 409 without overwriting. "
             "List order has UUID tie-breakers. Offset pagination is not a snapshot across "
@@ -61,5 +61,22 @@ def catalog_openapi(app: FastAPI) -> dict[str, Any]:
                 operation["description"] = (
                     operation.get("description", "") + " ADMIN only."
                 ).strip()
+            if path.startswith("/api/v1/assets"):
+                policy = (
+                    " ADMIN only. CSV preview is read-only; commit revalidates the full CSV and "
+                    "requires a UUID idempotency_key. Replays return the stored result."
+                    if "/imports/" in path
+                    else " ADMIN only. Asset mutations require current version; identifier writes "
+                    "require asset_version and PATCH/DELETE also require identifier version. "
+                    "Successful identifier writes return the new asset_version."
+                )
+                operation["description"] = (operation.get("description", "") + policy).strip()
+            if path.endswith("/imports/commit"):
+                operation["responses"]["409"]["content"]["application/json"]["schema"] = {
+                    "anyOf": [
+                        {"$ref": "#/components/schemas/CsvCommitResult"},
+                        {"$ref": "#/components/schemas/ErrorOutput"},
+                    ]
+                }
     app.openapi_schema = schema
     return schema

@@ -4,7 +4,11 @@ Fondasi inventaris dan audit aset IT yang berjalan lokal di Ubuntu WSL2.
 Stack: Next.js App Router/TypeScript, FastAPI, SQLAlchemy 2, Alembic, PostgreSQL 16/PostGIS.
 Fondasi Sprint 0 mencakup akses pengguna, izin, health check, migrasi, dan audit autentikasi.
 Sprint 1A-01 sampai 1A-05 menambahkan skema, CRUD API katalog, foto referensi lokal privat,
-UI katalog, dan pemeriksaan hardening. Belum ada unit fisik. Kontrak tersedia di docs/API_CONTRACT.md.
+UI katalog, dan pemeriksaan hardening. Task 1B-01 menambahkan skema unit fisik,
+identifier dan audit metadata. Task 1B-02 menambahkan CRUD API aset/identifier, RBAC,
+version dan snapshot audit transaksional. Task 1B-03 menyediakan API CSV preview/commit/export
+khusus ADMIN dengan receipt idempotency persisten; UI aset/import belum tersedia.
+Kontrak tersedia di docs/API_CONTRACT.md.
 
 Setelah login, buka `/catalog/models` atau tautan katalog di workspace untuk mencari,
 memfilter, dan membaca model beserta foto referensinya. ADMIN dapat menambah model,
@@ -72,6 +76,10 @@ Perintah lengkap yang membangun image lalu menjalankan pemeriksaan:
 bash infra/check.sh --postgres
 # Smoke katalog lengkap melalui Next.js/API/PostgreSQL asli, data uji sintetis:
 bash infra/smoke-catalog.sh
+# Smoke CRUD aset melalui proxy/API/DB uji terisolasi:
+bash infra/smoke-assets.sh
+# Smoke CSV preview/commit/retry/export melalui proxy terisolasi:
+bash infra/smoke-asset-csv.sh
 ```
 
 Tanpa --postgres, script menjalankan backend SQLite, Ruff, ESLint, TypeScript, dan pengujian frontend.

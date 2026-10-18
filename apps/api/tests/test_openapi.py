@@ -43,3 +43,25 @@ def test_openapi_security_csrf_pagination_and_binary_contract(client):
     assert "content" not in delete["responses"]["204"]
     public_fields = schema["components"]["schemas"]["ImageOutput"]["properties"]
     assert not {"storage_key", "path", "password_hash"} & public_fields.keys()
+
+
+def test_asset_contract_versions_immutability_and_scope(client):
+    schema = client.get("/openapi.json").json()
+    paths = schema["paths"]
+    assert set(paths["/api/v1/assets"]) == {"get", "post"}
+    assert set(paths["/api/v1/assets/{asset_id}"]) == {"get", "patch"}
+    patch = schema["components"]["schemas"]["AssetPatch"]
+    assert "asset_code" not in patch["properties"] and patch["additionalProperties"] is False
+    assert patch["properties"]["version"]["maximum"] == 2_147_483_647
+    assert "asset_version" in schema["components"]["schemas"]["IdentifierCreate"]["required"]
+    assert {"version", "asset_version"} <= set(
+        schema["components"]["schemas"]["IdentifierPatch"]["required"]
+    )
+    delete = paths["/api/v1/assets/{asset_id}/identifiers/{identifier_id}"]["delete"]
+    assert {p["name"] for p in delete["parameters"] if p["in"] == "query" and p["required"]} == {
+        "version",
+        "asset_version",
+    }
+    assert set(paths["/api/v1/assets/imports/preview"]) == {"post"}
+    assert set(paths["/api/v1/assets/imports/commit"]) == {"post"}
+    assert set(paths["/api/v1/assets/export.csv"]) == {"get"}

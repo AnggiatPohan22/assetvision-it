@@ -16,10 +16,26 @@ flowchart LR
 
 - apps/api/app/config.py memvalidasi konfigurasi dan menyembunyikan input rahasia pada pesan kesalahan.
 - db.py menyediakan session SQLAlchemy per request, tanpa auto-create schema.
-- models.py mendefinisikan pengguna, sesi, dan audit; belum ada entitas aset.
+- models.py mendefinisikan pengguna, sesi, dan audit serta mendaftarkan seluruh metadata domain.
+- assets.py mendefinisikan unit fisik, klaim identifier, dan snapshot audit metadata (1B-01).
+  Alembic 0004 menambahkan tabel dan trigger pelindung identitas/retensi, tanpa mengubah tabel lama.
+  asset_routes.py/asset_schemas.py/asset_service.py (1B-02) menyediakan API unit/identifier,
+  RBAC dan validasi, memakai autentikasi/CSRF existing. Lock unit induk + version client/ORM
+  mencegah mutasi metadata dan identifier saling menimpa. Snapshot before/after disimpan
+  dalam transaksi yang sama dengan domain; gagal audit menggagalkan mutasi.
+  Proxy existing hanya membuka rute/metode yang eksplisit. Belum ada UI atau seed unit.
+- asset_csv.py/asset_csv_schemas.py/asset_csv_routes.py (1B-03) menambahkan parser dan API CSV
+  ADMIN. Preview tidak menulis DB. Commit memvalidasi ulang payload, mengunci referensi model,
+  dan membuat seluruh unit/identifier/audit/receipt dalam satu transaksi batch. Kegagalan
+  me-rollback seluruh batch. Ledger asset_import_batches menyimpan digest, aktor, hasil,
+  dan location_hint staging; tidak menyimpan CSV mentah atau mengubah lokasi aset.
+  Migration 0005 hanya menambah ledger. Idempotency memakai unique UUID database, tanpa
+  cache proses/Redis. CsvRoute membatasi stream JSON 1 MiB sebelum parsing; proxy memakai
+  ceiling sama hanya pada dua route impor. Batas CRUD/foto existing dipertahankan.
+  Export menggunakan filter aset existing, formula-safe CSV dan JSON seluruh klaim aktif.
 - catalog.py mendefinisikan kategori, manufacturer, model perangkat, dan metadata foto referensi
   (Sprint 1A-01). Model katalog didaftarkan melalui models.py agar metadata Alembic tetap satu.
-  seed_catalog.py menyediakan seed sintetis eksplisit; belum ada unit fisik.
+  seed_catalog.py menyediakan seed katalog sintetis eksplisit.
 - catalog_routes.py, catalog_schemas.py, dan catalog_service.py menyediakan CRUD API Sprint 1A-02:
   RBAC server-side, validasi bounded JSON, filtering/pagination, version client + ORM,
   dan audit transaksional. Tidak ada endpoint penghapusan fisik master katalog.

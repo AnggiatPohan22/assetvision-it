@@ -5,6 +5,82 @@ import { proxyRequest } from "../lib/proxy";
 const originalFetch = globalThis.fetch;
 afterEach(() => { globalThis.fetch = originalFetch; });
 
+test("CSV proxy limits import bodies and preserves export bytes and headers", async () => {
+  let calls = 0;
+  globalThis.fetch = async (url, init) => {
+    calls++;
+    assert.equal(new Headers(init?.headers).get("cookie"), "av_access=opaque");
+    if (String(url).includes("export.csv")) {
+      assert.equal(new URL(String(url)).searchParams.get("status"), "ARCHIVED");
+      return new Response("\ufeffasset_code,notes\r\nAP-001,'=1+1\r\n", { headers: {
+        "Content-Type": "text/csv; charset=utf-8", "Content-Disposition": 'attachment; filename="assets.csv"',
+      } });
+    }
+    assert.equal((init?.body as ArrayBuffer).byteLength, 20000);
+    assert.equal(new Headers(init?.headers).get("x-csrf-token"), "csrf");
+    return Response.json({ status: "REJECTED", created_count: 0 }, { status: 409 });
+  };
+  for (const action of ["preview", "commit"]) {
+    const response = await proxyRequest(new Request("http://local", { method: "POST", body: "x".repeat(20000),
+      headers: { cookie: "av_access=opaque", "x-csrf-token": "csrf" },
+    }), ["assets", "imports", action]);
+    assert.equal(response.status, 409);
+  }
+  const exported = await proxyRequest(new Request("http://local?status=ARCHIVED", {
+    headers: { cookie: "av_access=opaque" },
+  }), ["assets", "export.csv"]);
+  assert.equal(exported.headers.get("content-disposition"), 'attachment; filename="assets.csv"');
+  assert.equal(exported.headers.get("content-type"), "text/csv; charset=utf-8");
+  assert.equal(new Uint8Array(await exported.arrayBuffer())[0], 0xef);
+  assert.equal(exported.headers.get("cache-control"), "no-store");
+  const before = calls;
+  assert.equal((await proxyRequest(new Request("http://local", { method: "POST", body: "x".repeat(1024 * 1024 + 1) }), ["assets", "imports", "commit"])).status, 413);
+  assert.equal((await proxyRequest(new Request("http://local"), ["assets", "imports", "preview"])).status, 405);
+  assert.equal((await proxyRequest(new Request("http://local", { method: "POST" }), ["assets", "export.csv"])).status, 405);
+  let cancelled = false;
+  const stream = new ReadableStream<Uint8Array>({
+    pull(controller) { controller.enqueue(new Uint8Array(256 * 1024)); },
+    cancel() { cancelled = true; },
+  });
+  assert.equal((await proxyRequest(new Request("http://local", {
+    method: "POST", body: stream, duplex: "half",
+  } as RequestInit & { duplex: "half" }), ["assets", "imports", "preview"])).status, 413);
+  assert.equal(cancelled, true);
+  assert.equal(calls, before);
+});
+
+test("asset proxy allows only CRUD and identifier routes, preserving versions and conflicts", async () => {
+  const id = "00000000-0000-0000-0000-000000000001";
+  let calls = 0;
+  globalThis.fetch = async (url, init) => {
+    calls++;
+    assert.equal(new Headers(init?.headers).get("cookie"), "av_access=opaque");
+    assert.equal(new URL(String(url)).search, "?version=2&asset_version=3");
+    return Response.json({ detail: "Asset metadata changed; reload and retry" }, { status: 409 });
+  };
+  const routes: [string[], string[]][] = [
+    [["assets"], ["GET", "POST"]], [["assets", id], ["GET", "PATCH"]],
+    [["assets", id, "archive"], ["POST"]],
+    [["assets", id, "identifiers"], ["GET", "POST"]],
+    [["assets", id, "identifiers", id], ["PATCH", "DELETE"]],
+  ];
+  for (const [path, methods] of routes) for (const method of methods) {
+    const response = await proxyRequest(new Request("http://local?version=2&asset_version=3", {
+      method, headers: { cookie: "av_access=opaque", "x-csrf-token": "csrf" },
+      ...(method === "PATCH" || method === "POST" ? { body: '{"version":2}' } : {}),
+    }), path);
+    assert.equal(response.status, 409);
+    assert.equal(response.headers.get("cache-control"), "no-store");
+  }
+  const before = calls;
+  for (const path of [["assets", "imports", "invalid"], ["assets", "imports"],
+    ["assets", id, "photos"], ["assets", "invalid"], ["assets", id, "identifiers", "invalid"]])
+    assert.equal((await proxyRequest(new Request("http://local"), path)).status, 404);
+  assert.equal((await proxyRequest(new Request("http://local", { method: "DELETE" }), ["assets", id])).status, 405);
+  assert.equal((await proxyRequest(new Request("http://local", { method: "PATCH", body: "x".repeat(17000) }), ["assets", id])).status, 413);
+  assert.equal(calls, before);
+});
+
 test("proxy preserves 401/403 and each cookie without exposing an access-token body", async () => {
   for (const status of [401, 403, 200]) {
     globalThis.fetch = async (_url, init) => {
