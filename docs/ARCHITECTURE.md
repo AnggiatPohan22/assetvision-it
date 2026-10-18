@@ -23,7 +23,7 @@ flowchart LR
   RBAC dan validasi, memakai autentikasi/CSRF existing. Lock unit induk + version client/ORM
   mencegah mutasi metadata dan identifier saling menimpa. Snapshot before/after disimpan
   dalam transaksi yang sama dengan domain; gagal audit menggagalkan mutasi.
-  Proxy existing hanya membuka rute/metode yang eksplisit. Belum ada UI atau seed unit.
+  Proxy existing hanya membuka rute/metode yang eksplisit. Seed unit belum dijalankan.
 - asset_csv.py/asset_csv_schemas.py/asset_csv_routes.py (1B-03) menambahkan parser dan API CSV
   ADMIN. Preview tidak menulis DB. Commit memvalidasi ulang payload, mengunci referensi model,
   dan membuat seluruh unit/identifier/audit/receipt dalam satu transaksi batch. Kegagalan
@@ -84,6 +84,27 @@ Konflik 409 tidak memicu retry otomatis atau menimpa isian. Upload multi-file be
 dengan model_version terbaru dari setiap response; kegagalan parsial tetap terlihat.
 Foto memakai content_url privat dengan cookie sesi, tanpa Next image optimization/cache publik.
 Tidak ada perubahan skema atau layanan runtime baru untuk frontend ini.
+
+UI registry Task 1B-04 memakai `/assets`, `/assets/new`, `/assets/{id}` dan `/assets/import`.
+Layout server memakai getCurrentUser dan provider role existing; halaman tambah/impor memiliki
+guard ADMIN server-side. Komponen memakai proxy same-origin dan session CSRF yang sama dengan
+katalog. Form menyimpan version awal dan mempertahankan isian pada konflik; tidak mengirim ulang
+mutasi otomatis. CRUD unit dan klaim tetap merupakan request terpisah: unit tanpa SN boleh dibuat,
+lalu klaim ditambahkan di detail. Detail mengunci aksi edit metadata/identifier agar tidak saling
+menimpa draft lokal. Backend version tetap menjadi penjaga final terhadap writer lain.
+
+Endpoint GET `/assets/{id}/events` ditambahkan untuk detail riwayat: authenticated read-only,
+pagination bounded, filter asset wajib, sort waktu desc/version snapshot desc/UUID desc.
+Tidak menambah tabel/migration atau mekanisme audit baru. Snapshot dan actor UUID dibaca dari
+asset_change_events existing; tidak membuka user/email/password/session atau mutation audit API.
+Komponen riwayat menampilkan snapshot sebelum/sesudah yang dapat dibuka per event.
+
+File CSV dibaca lokal dengan decoder UTF-8 strict dan batas byte sebelum dikirim menjadi JSON.
+Preview dibatalkan saat file berubah. Commit membuat UUID dan menyimpan request immutable di
+state halaman; hasil tidak pasti hanya dapat diulang dengan CSV/key/flag yang sama. Tidak ada
+retry otomatis atau penyimpanan CSV/secret di localStorage. Setelah navigasi/reload state hilang;
+pengguna diminta memastikan hasil sebelum memulai batch lain. Receipt server tetap persisten.
+Foto unit opsional, lokasi/movement dan seed delapan AP tidak ditambahkan pada slice ini.
 
 Database hanya berada di network internal. API dan web hanya bind host 127.0.0.1.
 Migrasi harus selesai sebelum API berjalan; web menunggu readiness API.

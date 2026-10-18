@@ -65,3 +65,4 @@ def test_asset_contract_versions_immutability_and_scope(client):
     assert set(paths["/api/v1/assets/imports/preview"]) == {"post"}
     assert set(paths["/api/v1/assets/imports/commit"]) == {"post"}
     assert set(paths["/api/v1/assets/export.csv"]) == {"get"}
+    assert set(paths["/api/v1/assets/{asset_id}/events"]) == {"get"}

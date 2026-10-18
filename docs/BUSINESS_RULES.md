@@ -1,5 +1,22 @@
 # Business Rules
 
+## UI registry — Task 1B-04
+
+Daftar/detail dan riwayat metadata dapat dibaca ADMIN/OFFICER/VIEWER. Halaman tambah/impor
+dibatasi ADMIN di server; tombol mutasi disembunyikan untuk role baca. Backend tetap memeriksa
+role, CSRF dan version setiap request. Asset ID tidak pernah dikirim dalam PATCH. Draft memakai
+version saat edit dimulai, konflik mempertahankan isian dan tidak memicu retry otomatis.
+SN tidak tersedia/rusak ditampilkan sebagai badge informasi, bukan identifier placeholder.
+Unit dibuat terlebih dahulu, identifier ditambah terpisah agar kegagalan klaim tidak dianggap
+sebagai kegagalan pembuatan unit. Sumber/verifikasi bukti dipilih eksplisit dan collision
+menautkan unit lain tanpa merge. Penghapusan klaim tetap soft-delete dengan konfirmasi.
+
+Impor hanya dapat dikonfirmasi setelah preview valid dan benturan identifier diakui.
+File baru membatalkan preview/acknowledgement. Setelah commit tidak pasti, file/flag dikunci
+dan retry mempertahankan request/key yang sama selama halaman terbuka. Sesudah batch ditolak,
+preview wajib diulang. Riwayat UI membaca snapshot existing, tidak menyediakan edit audit.
+Foto unit opsional dan seed delapan AP (1B-05) belum ditambahkan.
+
 Aturan domain berikut tetap berlaku untuk sprint berikutnya. Sprint 0 tidak membuat tabel aset atau alur operasional.
 
 1. DeviceModel (definisi model perangkat) dan AssetUnit (unit fisik) merupakan entitas terpisah.

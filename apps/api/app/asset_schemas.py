@@ -141,3 +141,14 @@ class IdentifierOutput(BaseModel):
 class IdentifierMutation(BaseModel):
     identifier: IdentifierOutput
     asset_version: int
+
+
+class AssetEventOutput(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: uuid.UUID
+    asset_id: uuid.UUID
+    actor_id: uuid.UUID
+    event_type: str
+    before_json: dict[str, Any] | None
+    after_json: dict[str, Any]
+    recorded_at: datetime

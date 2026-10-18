@@ -61,6 +61,7 @@ test("asset proxy allows only CRUD and identifier routes, preserving versions an
   const routes: [string[], string[]][] = [
     [["assets"], ["GET", "POST"]], [["assets", id], ["GET", "PATCH"]],
     [["assets", id, "archive"], ["POST"]],
+    [["assets", id, "events"], ["GET"]],
     [["assets", id, "identifiers"], ["GET", "POST"]],
     [["assets", id, "identifiers", id], ["PATCH", "DELETE"]],
   ];
@@ -77,6 +78,7 @@ test("asset proxy allows only CRUD and identifier routes, preserving versions an
     ["assets", id, "photos"], ["assets", "invalid"], ["assets", id, "identifiers", "invalid"]])
     assert.equal((await proxyRequest(new Request("http://local"), path)).status, 404);
   assert.equal((await proxyRequest(new Request("http://local", { method: "DELETE" }), ["assets", id])).status, 405);
+  assert.equal((await proxyRequest(new Request("http://local", { method: "POST" }), ["assets", id, "events"])).status, 405);
   assert.equal((await proxyRequest(new Request("http://local", { method: "PATCH", body: "x".repeat(17000) }), ["assets", id])).status, 413);
   assert.equal(calls, before);
 });

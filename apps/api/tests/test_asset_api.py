@@ -66,6 +66,37 @@ def claim(client, headers, asset, raw="aabb.ccdd.eeff", kind="MAC_LAN"):
     )
 
 
+@pytest.mark.parametrize("role", list(Role))
+def test_event_history_scoped_paginated_read_only(client, headers, model, db, user, role):
+    asset = create(client, headers, model)
+    other = create(client, headers, model, "AP-002")
+    path = f"{ROOT}/{asset['id']}"
+    client.patch(path, headers=headers, json={"version": 1, "notes": "Synthetic diff"})
+    user.role = role
+    db.commit()
+    events_path = path + "/events"
+    page = client.get(events_path, params={"page_size": 1}).json()
+    assert page["total"] == 2 and page["total_pages"] == 2
+    entry = page["items"][0]
+    assert entry["asset_id"] == asset["id"] and entry["actor_id"] == str(user.id)
+    assert entry["event_type"] == "UPDATE" and entry["recorded_at"]
+    assert entry["before_json"]["asset"]["notes"] is None
+    assert entry["after_json"]["asset"]["notes"] == "Synthetic diff"
+    second = client.get(events_path, params={"page_size": 1, "page": 2}).json()
+    assert second["items"][0]["event_type"] == "CREATE"
+    assert client.get(events_path, params={"page": 50}).json()["items"] == []
+    assert client.get(f"{ROOT}/{other['id']}/events").json()["total"] == 1
+    assert client.get(events_path, params={"page": 0}).status_code == 422
+    assert client.get(events_path, params={"page_size": 101}).status_code == 422
+    assert client.get(events_path, params={"unexpected": "bad"}).status_code == 422
+    assert client.get(f"{ROOT}/{uuid.uuid4()}/events").status_code == 404
+    for method in (client.post, client.patch, client.delete):
+        assert method(events_path, headers=headers).status_code == 405
+    assert db.scalar(select(func.count()).select_from(AssetChangeEvent)) == 3
+    client.cookies.clear()
+    assert client.get(events_path).status_code == 401
+
+
 def test_crud_snapshots_and_archive(client, headers, model, db, user):
     asset = create(
         client,

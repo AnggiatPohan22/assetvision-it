@@ -1,5 +1,22 @@
 # Testing and development dependencies
 
+## Task 1B-04 UI registry
+
+`bash infra/check.sh --postgres` mencakup tests/assets-ui.test.tsx: list/filter/pagination,
+role baca, loading/empty/error/session, form create tanpa SN, immutable code/frozen version,
+konflik draft, archive confirmation, identifier type/source/verification/parent+claim versions,
+collision links dan soft-delete confirmation. Alur CSV menguji UTF-8/byte bound, row errors,
+staging hint, collision acknowledgement, confirm/success, 409 REJECTED, pergantian file,
+serta retry hasil tidak pasti memakai payload/key/flag identik. Tes komponen menggunakan
+React DOM/JSDOM dan mocked fetch; bukan klaim browser E2E atau pemeriksaan visual.
+
+`bash infra/smoke-asset-ui.sh` membangun produksi dan menjalankan HTTP terhadap Next.js/API/PG
+nyata: anonymous redirect, ADMIN SSR/navigation, detail, audit read, server guard tambah/impor
+untuk OFFICER/VIEWER, backend write denial, logout. Memakai helper database guard existing,
+db-test tmpfs dan data sintetis; tidak mengubah DB development. Runner stop stack uji saat selesai.
+Endpoint events ditest semua role, scope antar-aset, pagination, snapshot, urutan timestamp sama,
+unknown/invalid query, missing unit/anonymous dan tidak adanya metode tulis; proxy GET-only.
+
 Pengujian dijalankan di image khusus. `api` dan `web` adalah layanan runtime:
 image API tidak memasang pytest, sedangkan image web hanya membawa keluaran Next.js standalone.
 Menjalankan pytest/ESLint/tsc melalui `docker compose exec api/web` akan gagal karena alat development tidak berada di image tersebut.

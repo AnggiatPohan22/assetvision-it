@@ -25,6 +25,7 @@ function allowedMethods(path: string[]): readonly string[] | undefined {
     if (!uuid.test(path[1])) return undefined;
     if (path.length === 2) return ["GET", "PATCH"];
     if (path.length === 3 && path[2] === "archive") return ["POST"];
+    if (path.length === 3 && path[2] === "events") return ["GET"];
     if (path[2] === "identifiers") {
       if (path.length === 3) return ["GET", "POST"];
       if (path.length === 4 && uuid.test(path[3])) return ["PATCH", "DELETE"];

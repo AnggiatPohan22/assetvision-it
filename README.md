@@ -7,7 +7,8 @@ Sprint 1A-01 sampai 1A-05 menambahkan skema, CRUD API katalog, foto referensi lo
 UI katalog, dan pemeriksaan hardening. Task 1B-01 menambahkan skema unit fisik,
 identifier dan audit metadata. Task 1B-02 menambahkan CRUD API aset/identifier, RBAC,
 version dan snapshot audit transaksional. Task 1B-03 menyediakan API CSV preview/commit/export
-khusus ADMIN dengan receipt idempotency persisten; UI aset/import belum tersedia.
+khusus ADMIN dengan receipt idempotency persisten. Task 1B-04 menyediakan UI daftar/detail,
+form unit/identifier, riwayat metadata, dan upload CSV dengan preview serta konfirmasi.
 Kontrak tersedia di docs/API_CONTRACT.md.
 
 Setelah login, buka `/catalog/models` atau tautan katalog di workspace untuk mencari,
@@ -16,6 +17,17 @@ mengedit detail, mengarsipkan/memulihkan model, serta mengunggah/menghapus foto.
 Kategori dan produsen dikelola ADMIN melalui `/catalog/settings`.
 OFFICER/VIEWER memiliki tampilan baca saja; API tetap memeriksa semua izin.
 Konflik perubahan mempertahankan isian agar dapat diperiksa sebelum memuat ulang.
+
+Registry unit fisik tersedia di `/assets`. Gunakan pencarian Asset ID/SN/MAC, filter model/status,
+dan pagination; ADMIN dapat menambah/edit/archive, mengelola identifier, serta mengunduh CSV
+sesuai filter. Form edit mempertahankan version awal. SN kosong/rusak tidak membuat SN palsu.
+Riwayat detail menampilkan aktor UUID, waktu, dan snapshot sebelum/sesudah perubahan.
+Impor di `/assets/import` membaca berkas UTF-8 maksimal 256 KiB/500 baris. Tinjau error dan
+akui benturan identifier secara eksplisit sebelum konfirmasi. Bila commit terputus, tetap di
+halaman dan gunakan retry permintaan yang sama; jangan mulai batch baru atau reload dulu.
+Kunci/payload retry hanya bertahan selama halaman terbuka. Export adalah laporan, bukan template
+impor. `location_hint` hanya staging. Foto unit opsional belum tersedia; foto referensi model
+tetap ada di katalog. Seed delapan AP sintetis belum dikerjakan (1B-05).
 
 ## Mulai dari Ubuntu WSL2
 
@@ -80,6 +92,8 @@ bash infra/smoke-catalog.sh
 bash infra/smoke-assets.sh
 # Smoke CSV preview/commit/retry/export melalui proxy terisolasi:
 bash infra/smoke-asset-csv.sh
+# Smoke server-rendered pages, role guards dan riwayat melalui proxy terisolasi:
+bash infra/smoke-asset-ui.sh
 ```
 
 Tanpa --postgres, script menjalankan backend SQLite, Ruff, ESLint, TypeScript, dan pengujian frontend.

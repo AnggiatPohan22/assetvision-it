@@ -1,5 +1,23 @@
 # API Contract
 
+## Riwayat unit untuk UI — Task 1B-04
+
+`GET /api/v1/assets/{asset_id}/events?page=1&page_size=10` tersedia untuk semua role
+terautentikasi yang dapat membaca unit. Unit tidak ada → 404; anonim → 401.
+Query hanya page (1–1.000.000) dan page_size (1–100), unknown query → 422.
+Response Page memuat items/total/page/page_size/total_pages. Item berisi id, asset_id,
+actor_id (UUID, tanpa email/password/session), event_type, recorded_at, before_json nullable,
+after_json. Snapshot berasal dari transaksi audit existing. Urutan recorded_at desc,
+version asset pada after_json desc untuk timestamp sama, lalu UUID desc.
+Offset pagination bukan snapshot antar-request bila ada writer baru. Tidak tersedia
+POST/PATCH/DELETE event; proxy hanya mengizinkan GET. Tidak mengubah kontrak CRUD/CSV.
+
+UI `/assets/import` mengirim JSON csv_text dari file UTF-8, bukan multipart. Preview dan
+collision acknowledgement dilakukan sebelum konfirmasi. Retry setelah hasil tidak pasti
+menggunakan CSV/idempotency_key/flag persis sama dalam state halaman; navigasi/reload
+menghilangkan state client. Receipt server tidak hilang. Jangan memulai batch baru sebelum
+memastikan hasil yang tidak pasti. Export memakai filter yang telah diterapkan tanpa pagination.
+
 Base path /api/v1. JSON; OpenAPI interaktif tersedia pada localhost:8000/docs.
 
 Sprint 1A-02 menyediakan CRUD katalog di bawah. Tabel aktual didokumentasikan di DATABASE.md.

@@ -9,6 +9,7 @@ from sqlalchemy import Select, func, or_, select
 
 from app.asset_schemas import (
     AssetCreate,
+    AssetEventOutput,
     AssetOutput,
     AssetPatch,
     AssetVersion,
@@ -25,6 +26,7 @@ from app.asset_service import (
     update_asset,
 )
 from app.assets import (
+    AssetChangeEvent,
     AssetIdentifier,
     AssetUnit,
     IdentifierType,
@@ -146,6 +148,33 @@ def identifiers(asset_id: uuid.UUID, db: Database, user: CurrentUser) -> list[Id
         .order_by(AssetIdentifier.created_at, AssetIdentifier.id)
     )
     return [identifier_output(db, claim) for claim in claims]
+
+
+class EventQuery(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    page: int = Field(default=1, ge=1, le=1_000_000)
+    page_size: int = Field(default=10, ge=1, le=100)
+
+
+@router.get("/{asset_id}/events", response_model=Page[AssetEventOutput])
+def asset_events(
+    asset_id: uuid.UUID,
+    db: Database,
+    user: CurrentUser,
+    query: Annotated[EventQuery, Query()],
+) -> dict[str, Any]:
+    """Read-only metadata history for the same roles allowed to read the unit."""
+    get_asset(db, asset_id)
+    statement = (
+        select(AssetChangeEvent)
+        .where(AssetChangeEvent.asset_id == asset_id)
+        .order_by(
+            AssetChangeEvent.recorded_at.desc(),
+            AssetChangeEvent.after_json["asset"]["version"].as_integer().desc(),
+            AssetChangeEvent.id.desc(),
+        )
+    )
+    return list_records(db, statement, query.page, query.page_size)
 
 
 @router.post("/{asset_id}/identifiers", response_model=IdentifierMutation, status_code=201)
