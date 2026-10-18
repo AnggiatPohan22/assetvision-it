@@ -15,7 +15,20 @@ Impor hanya dapat dikonfirmasi setelah preview valid dan benturan identifier dia
 File baru membatalkan preview/acknowledgement. Setelah commit tidak pasti, file/flag dikunci
 dan retry mempertahankan request/key yang sama selama halaman terbuka. Sesudah batch ditolak,
 preview wajib diulang. Riwayat UI membaca snapshot existing, tidak menyediakan edit audit.
-Foto unit opsional dan seed delapan AP (1B-05) belum ditambahkan.
+Foto unit opsional belum ditambahkan. Seed delapan AP disediakan pada 1B-05.
+
+## Seed sintetis — Task 1B-05
+
+Seed hanya development/test, aktor ADMIN aktif, konfirmasi CLI eksplisit. Batch berisi
+AP-001…AP-008 pada Ruijie AP680-L, tidak menyatakan unit produksi. SN contoh AP-001 123456789,
+AP-002 2158763; AP-004/AP-005 tidak punya klaim SN. Notes unit/klaim dan snapshot CREATE
+menandai SYNTHETIC; seluruh klaim bersumber IMPORT dan belum diverifikasi.
+Kategori/produsen/model existing tidak diubah, termasuk metadata, versi dan status arsip.
+Kode existing tidak boleh diadopsi walau nilai/model sama. Model dengan unit non-seed,
+collision identifier, UUID terpakai, referensi tidak aktif atau batch parsial ditolak atomik.
+Tidak mengisi kekurangan/menimpa edit pada rerun batch lengkap. Audit aktor/waktu/before/after
+memakai transaksi yang sama; gagal audit membatalkan katalog, unit dan klaim sekaligus.
+Contoh delapan unit bukan batas jumlah unit sebuah model pada domain normal.
 
 Aturan domain berikut tetap berlaku untuk sprint berikutnya. Sprint 0 tidak membuat tabel aset atau alur operasional.
 

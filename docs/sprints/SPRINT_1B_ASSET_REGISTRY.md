@@ -1,6 +1,10 @@
 # AssetVision IT — Sprint 1B: Physical Asset Registry
 
-**Status:** Planned · **Prasyarat:** Sprint 1A selesai · **Estimasi:** 6–9 hari kerja · **Prioritas:** P0
+**Status:** Implemented & verified (1B-01–05, 19 Oktober 2026) · **Prasyarat:** Sprint 1A selesai · **Estimasi awal:** 6–9 hari kerja · **Prioritas:** P0
+
+Hasil aktual dan batas ada di [laporan 1B-05](SPRINT_1B_05_REPORT.md). Foto unit opsional
+belum ditambahkan; foto referensi model tetap tersedia. Seed sintetis telah diverifikasi
+pada database uji dan development tanpa mengubah baris existing. Sprint berikutnya belum dimulai.
 
 ## Tujuan
 
@@ -68,16 +72,16 @@ Membangun daftar **unit fisik aset** terpisah dari katalog model. Satu model Rui
 
 ## Acceptance criteria
 
-- [ ] Satu model Ruijie AP680-L memiliki tepat 8 unit contoh berbeda (`AP-001`…`AP-008`).
-- [ ] `AP-001` SN `123456789`, `AP-002` SN `2158763`; sisanya data sintetis, bukan data produksi.
-- [ ] Asset code tidak dapat diubah lewat API atau import.
-- [ ] Unit dengan SN kosong tetap dapat dibuat.
-- [ ] Pencarian Asset ID, SN, MAC mengembalikan unit yang benar.
-- [ ] Identifier duplicate/collision ditangani jelas, tidak ditimpa diam-diam.
-- [ ] CSV preview tidak mengubah database; commit terotorisasi dan idempotent.
-- [ ] User non-ADMIN tidak dapat mengubah master asset.
-- [ ] Event audit tercatat untuk create/update/archive/identifier change.
-- [ ] Tests migrasi, API, CSV, RBAC, UI lulus.
+- [x] Satu model Ruijie AP680-L memiliki tepat 8 unit contoh berbeda (`AP-001`…`AP-008`).
+- [x] `AP-001` SN `123456789`, `AP-002` SN `2158763`; sisanya data sintetis, bukan data produksi.
+- [x] Asset code tidak dapat diubah lewat API atau import.
+- [x] Unit dengan SN kosong tetap dapat dibuat.
+- [x] Pencarian Asset ID, SN, MAC mengembalikan unit yang benar.
+- [x] Identifier duplicate/collision ditangani jelas, tidak ditimpa diam-diam.
+- [x] CSV preview tidak mengubah database; commit terotorisasi dan idempotent.
+- [x] User non-ADMIN tidak dapat mengubah master asset.
+- [x] Event audit tercatat untuk create/update/archive/identifier change.
+- [x] Tests migrasi, API, CSV, RBAC, UI lulus.
 
 ## Handoff ke Sprint 2
 

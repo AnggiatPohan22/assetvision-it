@@ -1,5 +1,21 @@
 # Database
 
+## Seed aset sintetis — 1B-05
+
+Tidak ada perubahan skema/migration pada hardening 1B-05; head tetap 0005_asset_imports.
+CLI `python -m app.seed_assets --actor-id UUID_ADMIN_AKTIF --confirm-synthetic` hanya untuk
+development/test, tidak dijalankan saat startup. Satu transaksi menambah katalog yang belum
+ada, delapan unit AP-001…AP-008, 22 klaim dan 30 asset_change_events. Katalog baru juga
+mempunyai catalog_create audit. Ledger CSV tidak digunakan karena seed adalah CLI terpisah.
+Unit diberi UUID deterministik; CREATE snapshot marker membuktikan kepemilikan batch seed.
+Rerun batch lengkap tidak melakukan UPDATE atau menambah audit; edit sesudahnya dipertahankan.
+Benturan atau batch parsial ditolak, tidak ada repair/upsert/delete otomatis.
+
+Preservasi saat seed diperiksa per primary key dan hash tiap baris existing, bukan hanya
+jumlah tabel: baris baru yang diharapkan boleh bertambah, seluruh nilai baris lama tetap sama.
+Storage file tidak disentuh. Untuk membatalkan contoh yang telah dipakai, archive melalui
+API/UI normal agar kode tetap dicadangkan dan audit terpelihara; jangan SQL DELETE/reset volume.
+
 PostgreSQL 16 dengan PostGIS 3.4. Compose tidak mempublikasikan port 5432.
 Volume bernama postgres_data menyimpan data; image menginisialisasi database hanya saat volume kosong.
 

@@ -1,5 +1,5 @@
 "use client";
-import { useRef, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import { assetMutation, errorFrom, readCsv, type CsvRow, type ImportPayload, type ImportResult, type Preview } from "../../lib/assets";
 import { ConfirmButton, ErrorNotice } from "../catalog/shared";
 
@@ -17,6 +17,13 @@ export default function CsvImport() {
   const lock = useRef(false);
   const selection = useRef(0);
   const [error, setError] = useState<Error>();
+  const unresolved = !!pending && result?.status !== "COMMITTED";
+  useEffect(() => {
+    if (!unresolved) return;
+    const warn = (event: BeforeUnloadEvent) => { event.preventDefault(); event.returnValue = ""; };
+    window.addEventListener("beforeunload", warn);
+    return () => window.removeEventListener("beforeunload", warn);
+  }, [unresolved]);
   async function choose(file?: File) {
     const generation = ++selection.current;
     setCsv(""); setFileName(""); setPreview(undefined); setResult(undefined); setAck(false); setError(undefined);
@@ -37,9 +44,10 @@ export default function CsvImport() {
     if (lock.current || !preview || preview.invalid_rows || (preview.has_collisions && !ack && !pending) || result?.status === "COMMITTED") return;
     lock.current = true; setBusy(true); setError(undefined);
     // A retry always uses this immutable request, even after an uncertain network result.
-    const payload = pending ?? { csv_text: csv, idempotency_key: crypto.randomUUID(), allow_identifier_collisions: ack };
-    setPending(payload);
     try {
+      if (!pending && typeof crypto.randomUUID !== "function") throw new Error("Browser belum mendukung kunci impor aman. Gunakan browser terbaru pada localhost atau HTTPS.");
+      const payload = pending ?? { csv_text: csv, idempotency_key: crypto.randomUUID(), allow_identifier_collisions: ack };
+      setPending(payload);
       const response = await assetMutation<ImportResult>("/assets/imports/commit", "POST", payload);
       setResult(response);
       if (response.status === "REJECTED") { setPending(undefined); setPreview(undefined); setAck(false); }

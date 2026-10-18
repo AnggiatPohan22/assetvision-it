@@ -27,7 +27,31 @@ akui benturan identifier secara eksplisit sebelum konfirmasi. Bila commit terput
 halaman dan gunakan retry permintaan yang sama; jangan mulai batch baru atau reload dulu.
 Kunci/payload retry hanya bertahan selama halaman terbuka. Export adalah laporan, bukan template
 impor. `location_hint` hanya staging. Foto unit opsional belum tersedia; foto referensi model
-tetap ada di katalog. Seed delapan AP sintetis belum dikerjakan (1B-05).
+tetap ada di katalog. Task 1B-05 menambahkan seed delapan AP sintetis eksplisit dan pengujian
+hardening/audit serta regresi Sprint 0/1A/1B.
+
+## Seed contoh Sprint 1B
+
+Gunakan hanya pada database development/demo yang memang akan menerima data sintetis.
+Seed tidak berjalan otomatis saat startup/migrasi dan menolak APP_ENV=production.
+Pilih UUID ADMIN aktif existing sebagai aktor; tidak membuat akun atau kredensial baru:
+
+```bash
+docker compose exec api python -m app.seed_assets --actor-id UUID_ADMIN_AKTIF --confirm-synthetic
+```
+
+Perintah membuat kategori Access Point (`access-point`), produsen Ruijie dan model `AP680-L`
+jika belum ada, lalu tepat delapan contoh `AP-001`…`AP-008` untuk model itu. Existing katalog
+aktif dipakai tanpa mengubah metadata. AP-001/AP-002 memakai SN contoh 123456789/2158763;
+AP-004/AP-005 tanpa SN. Semua unit/identifier ditandai SYNTHETIC, bukan data produksi.
+MAC memakai prefix locally administered `02`, hostname memakai domain `.invalid`.
+Total 22 klaim IMPORT/UNVERIFIED dan 30 event audit aset, ditambah audit katalog bila dibuat.
+
+Seed adalah satu transaksi. Benturan kode/UUID/identifier, referensi archived, model yang
+sudah mempunyai unit lain, atau batch parsial membuat seluruh seed ditolak tanpa overwrite.
+Pengulangan batch lengkap menjadi no-op, termasuk mempertahankan edit user sesudah seed;
+tidak memperbaiki/menghidupkan klaim/arsip otomatis. Penambahan unit lain ke model sesudahnya
+boleh melalui API normal, tetapi seed ulang akan menolak membership yang berubah.
 
 ## Mulai dari Ubuntu WSL2
 
@@ -94,6 +118,8 @@ bash infra/smoke-assets.sh
 bash infra/smoke-asset-csv.sh
 # Smoke server-rendered pages, role guards dan riwayat melalui proxy terisolasi:
 bash infra/smoke-asset-ui.sh
+# Regresi HTTP Sprint 0/1A/1B + CLI seed pada db-test tmpfs yang dibuat ulang:
+bash infra/smoke-sprint1b.sh
 ```
 
 Tanpa --postgres, script menjalankan backend SQLite, Ruff, ESLint, TypeScript, dan pengujian frontend.

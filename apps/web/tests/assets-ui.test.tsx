@@ -205,7 +205,34 @@ test("CSV uncertain commit retry keeps exact key, payload and collision flag", a
   });
   await render(<CsvImport />); await upload(); await submit(container.querySelector("form")!); await click(button("Konfirmasi impor")); await click(button("Ya, lanjutkan"));
   assert.ok(input("Pilih CSV").disabled); assert.match(container.textContent!, /Hasil commit belum diketahui/);
+  const leaving = new win.Event("beforeunload", { cancelable: true });
+  win.dispatchEvent(leaving); assert.ok(leaving.defaultPrevented);
   await click(button("Coba ulang commit yang sama")); assert.equal(bodies.length, 2); assert.equal(bodies[1], bodies[0]); assert.match(container.textContent!, /Impor berhasil/);
+  const completed = new win.Event("beforeunload", { cancelable: true });
+  win.dispatchEvent(completed); assert.equal(completed.defaultPrevented, false);
+});
+
+test("missing UUID support releases import lock without sending commit", async () => {
+  let writes = 0;
+  mock(url => { if (url.endsWith("/commit")) writes++; return Response.json(preview); });
+  await render(<CsvImport />); await upload(); await submit(container.querySelector("form")!);
+  const original = crypto.randomUUID;
+  Object.defineProperty(crypto, "randomUUID", { configurable: true, value: undefined });
+  try {
+    await click(button("Konfirmasi impor")); await click(button("Ya, lanjutkan"));
+    assert.match(container.textContent!, /kunci impor aman/); assert.equal(writes, 0);
+    assert.equal(button("Konfirmasi impor").disabled, false);
+  } finally { Object.defineProperty(crypto, "randomUUID", { configurable: true, value: original }); }
+});
+
+test("unreadable success response never reports saved or retries non-idempotent create", async () => {
+  let writes = 0;
+  mock(() => { writes++; return new Response("<html>bad gateway response</html>", { status: 200 }); });
+  await render(<NewAsset />); await change(input("Asset ID"), "SYNTHETIC-001"); await change(input("Model perangkat"), model.id);
+  await submit(container.querySelector("form")!);
+  assert.equal(writes, 1); assert.match(container.textContent!, /hasil belum diketahui/);
+  assert.equal(button("Simpan aset").disabled, true);
+  assert.ok(!container.querySelector(`a[href="/assets/${asset.id}"]`));
 });
 
 test("CSV REJECTED 409 renders batch errors and allows fresh preview", async () => {

@@ -1,5 +1,15 @@
 # API Contract
 
+## Hardening 1B-05
+
+Kontrak endpoint, cookie/CSRF/RBAC dan version tetap sama; tidak menambah API seed/reset.
+Seed sintetis adalah CLI dengan ADMIN actor, explicit confirmation dan transaction; lihat
+README/DATABASE. Semua audit domain tetap atomik. Rantai before/after version serta private
+error rollback diuji kembali; tidak membuka SQL/exception/request body pada respons 500.
+Client menganggap sukses dengan JSON tidak terbaca/non-object sebagai hasil belum pasti,
+bukan bukti berhasil atau izin retry create otomatis. Impor mempertahankan key/payload
+yang sama dan memberi peringatan unload best-effort selama hasil belum diketahui.
+
 ## Riwayat unit untuk UI — Task 1B-04
 
 `GET /api/v1/assets/{asset_id}/events?page=1&page_size=10` tersedia untuk semua role

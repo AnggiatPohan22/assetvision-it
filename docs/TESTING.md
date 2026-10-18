@@ -1,5 +1,25 @@
 # Testing and development dependencies
 
+## Penutupan Sprint 1B — Task 1B-05
+
+`bash infra/check.sh --postgres` menambahkan test_seed_assets.py dan test_asset_hardening.py:
+tepat delapan unit satu model, SN contoh, SN absent, MAC search, 30 snapshot/22 klaim,
+idempotent rerun, kode/UUID/identifier/model/category conflict, production/non-ADMIN/inactive
+denied, CLI confirmation, preservation edit existing, rollback katalog/unit/claim saat audit
+gagal di awal/tengah/akhir, dan concurrent seed PostgreSQL dengan dua session independen.
+Hardening API memeriksa rantai enam event/version, actor/time/before/after, read-only history
+semua role, private error 500/audit rollback, dan penolakan field server yang dipalsukan.
+Tes frontend menambah missing crypto.randomUUID recovery, malformed success tidak dianggap
+tersimpan, serta beforeunload saat hasil tidak pasti dan listener dilepas sesudah sukses.
+
+`bash infra/smoke-sprint1b.sh` menjalankan enam script HTTP/CLI secara berurutan: smoke_stack,
+smoke_catalog, smoke_assets, smoke_asset_csv, smoke_asset_ui, smoke_seed_assets. Runner
+**membuat ulang hanya service db-test tmpfs** untuk baseline bootstrap, tidak database db
+development atau volume pengguna. Jangan jalankan bersamaan dengan pengujian PostgreSQL lain.
+Trap menghentikan layanan smoke/test pada sukses/gagal. Smoke seed memakai guard database
+helper existing, memverifikasi CLI dua kali, exact-eight model, search SN/MAC, claim/audit
+dan export melalui proxy nyata. Login smoke memakai akun/password acak sementara.
+
 ## Task 1B-04 UI registry
 
 `bash infra/check.sh --postgres` mencakup tests/assets-ui.test.tsx: list/filter/pagination,

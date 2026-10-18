@@ -32,6 +32,8 @@ def run() -> None:
             },
         )
         source = io.StringIO(newline="")
+        # Isolate evidence from other smoke scripts sharing this temporary database.
+        mac = "02" + run_id[:10]
         writer = csv.writer(source)
         writer.writerow(
             [
@@ -50,7 +52,7 @@ def run() -> None:
                 maker["name"],
                 model["model_name"],
                 "",
-                "aabb.ccdd.eeff",
+                mac,
                 "=1+1",
                 "Staging only",
             ]
@@ -60,7 +62,7 @@ def run() -> None:
                 f"CSV-{run_id}-2",
                 maker["name"],
                 model["model_name"],
-                "SYNTHETIC-123",
+                f"SYNTHETIC-{run_id}",
                 "",
                 "Quoted, note",
                 "",

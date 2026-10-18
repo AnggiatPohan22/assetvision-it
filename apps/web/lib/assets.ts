@@ -43,6 +43,9 @@ export async function assetMutation<T>(path: string, method: "POST" | "PATCH" | 
     response = await fetch(`/api/v1${path}`, { method, credentials: "same-origin", cache: "no-store", headers: { "X-CSRF-Token": csrf_token, "Content-Type": "application/json" }, body: body ? JSON.stringify(body) : undefined });
   } catch { throw new CatalogError(503, "Koneksi terputus; hasil belum diketahui. Periksa data terbaru sebelum menyimpan lagi. Untuk impor, gunakan tombol coba ulang dengan permintaan yang sama."); }
   const result = await response.json().catch(() => null);
+  if (response.ok && (result === null || typeof result !== "object" || Array.isArray(result))) {
+    throw new CatalogError(503, "Respons penyimpanan tidak lengkap; hasil belum diketahui. Periksa data terbaru. Untuk impor, coba ulang permintaan yang sama.");
+  }
   if (response.ok || (response.status === 409 && result?.status === "REJECTED" && path === "/assets/imports/commit")) return result as T;
   if (response.status === 401) throw new CatalogError(401, "Sesi berakhir. Masuk kembali untuk melanjutkan.");
   if (response.status === 403) throw new CatalogError(403, "Akses ditolak atau sesi keamanan berubah. Muat ulang atau masuk kembali.");

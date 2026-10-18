@@ -36,6 +36,12 @@ flowchart LR
 - catalog.py mendefinisikan kategori, manufacturer, model perangkat, dan metadata foto referensi
   (Sprint 1A-01). Model katalog didaftarkan melalui models.py agar metadata Alembic tetap satu.
   seed_catalog.py menyediakan seed katalog sintetis eksplisit.
+  seed_assets.py (1B-05) adalah CLI development/test dengan aktor ADMIN aktif dan konfirmasi
+  eksplisit. Satu transaksi membuat referensi katalog yang hilang, delapan unit sintetis,
+  klaim dan snapshot audit memakai writer audit existing. Tidak memanggil service per-record
+  yang commit sendiri. Advisory lock PostgreSQL menserialisasi seed; row lock melindungi
+  aktor/referensi. UUID unit deterministik + CREATE snapshot marker membedakan batch milik
+  seed dari data existing. Tidak ada upsert, repair, auto-seed atau migration baru.
 - catalog_routes.py, catalog_schemas.py, dan catalog_service.py menyediakan CRUD API Sprint 1A-02:
   RBAC server-side, validasi bounded JSON, filtering/pagination, version client + ORM,
   dan audit transaksional. Tidak ada endpoint penghapusan fisik master katalog.
@@ -105,6 +111,13 @@ state halaman; hasil tidak pasti hanya dapat diulang dengan CSV/key/flag yang sa
 retry otomatis atau penyimpanan CSV/secret di localStorage. Setelah navigasi/reload state hilang;
 pengguna diminta memastikan hasil sebelum memulai batch lain. Receipt server tetap persisten.
 Foto unit opsional, lokasi/movement dan seed delapan AP tidak ditambahkan pada slice ini.
+
+Hardening 1B-05 mempertahankan kontrak UI/API: respons sukses mutasi yang bukan objek JSON
+dianggap hasil tidak pasti, tidak memicu sukses palsu atau retry create otomatis.
+Pembuatan UUID impor berada di try/finally agar error browser tidak meninggalkan form terkunci.
+Listener beforeunload dipasang selama commit belum pasti dan dilepas sesudah sukses/ditolak.
+Ini peringatan browser yang bersifat best-effort, bukan penyimpanan request tahan reload;
+CSV/key tetap di memori halaman dan retry tetap memakai payload persis sama.
 
 Database hanya berada di network internal. API dan web hanya bind host 127.0.0.1.
 Migrasi harus selesai sebelum API berjalan; web menunggu readiness API.
