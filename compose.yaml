@@ -1,0 +1,100 @@
+name: assetvision-it
+
+x-api-env: &api-env
+  APP_ENV: ${APP_ENV:-development}
+  POSTGRES_DB: ${POSTGRES_DB:-assetvision}
+  POSTGRES_USER: ${POSTGRES_USER:-assetvision}
+  POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Generate POSTGRES_PASSWORD in .env}
+  POSTGRES_HOST: db
+  JWT_SECRET: ${JWT_SECRET:?Generate JWT_SECRET in .env}
+  ACCESS_TOKEN_EXPIRE_MINUTES: ${ACCESS_TOKEN_EXPIRE_MINUTES:-15}
+  COOKIE_SECURE: ${COOKIE_SECURE:-false}
+  ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:3000,http://127.0.0.1:3000}
+  LOG_LEVEL: ${LOG_LEVEL:-INFO}
+
+services:
+  db:
+    image: postgis/postgis:16-3.4
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-assetvision}
+      POSTGRES_USER: ${POSTGRES_USER:-assetvision}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Generate POSTGRES_PASSWORD in .env}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U \"$POSTGRES_USER\" -d \"$POSTGRES_DB\""]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    mem_limit: 768m
+    cpus: 1.0
+    networks: [internal]
+
+  migrate:
+    build: {context: ./apps/api, target: runtime}
+    environment: *api-env
+    command: ["alembic", "upgrade", "head"]
+    depends_on:
+      db: {condition: service_healthy}
+    mem_limit: 256m
+    networks: [internal]
+
+  api:
+    build: {context: ./apps/api, target: runtime}
+    restart: unless-stopped
+    environment: *api-env
+    ports: ["127.0.0.1:8000:8000"]
+    depends_on:
+      migrate: {condition: service_completed_successfully}
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/v1/ready', timeout=3)"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    mem_limit: 512m
+    cpus: 1.0
+    networks: [internal, frontend]
+
+  web:
+    build: {context: ./apps/web, target: runtime}
+    restart: unless-stopped
+    environment:
+      INTERNAL_API_URL: http://api:8000
+      NEXT_TELEMETRY_DISABLED: "1"
+    ports: ["127.0.0.1:3000:3000"]
+    depends_on:
+      api: {condition: service_healthy}
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/login').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+    mem_limit: 512m
+    cpus: 1.0
+    networks: [frontend]
+
+  api-test:
+    profiles: [test]
+    # Run pytest in this image, not the runtime api service.
+    build: {context: ./apps/api, target: test}
+    command: ["python", "-m", "pytest", "-q"]
+    environment:
+      <<: *api-env
+      APP_ENV: test
+    networks: [internal]
+    mem_limit: 768m
+
+  web-check:
+    profiles: [test]
+    # npm ci --include=dev installs the lint/typecheck/test tools here.
+    build: {context: ./apps/web, target: check}
+    command: ["npm", "run", "check"]
+
+volumes:
+  postgres_data:
+
+networks:
+  internal: {internal: true}
+  frontend:

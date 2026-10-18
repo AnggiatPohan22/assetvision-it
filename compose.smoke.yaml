@@ -1,0 +1,40 @@
+# Run after the integration suite; this stack uses only db-test's temporary data.
+services:
+  migrate-smoke:
+    profiles: [test]
+    image: assetvision-it-api
+    environment: &smoke-env
+      APP_ENV: test
+      POSTGRES_DB: assetvision_test
+      POSTGRES_USER: test_runner
+      POSTGRES_HOST: db-test
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Run init-env.py}
+      JWT_SECRET: ${JWT_SECRET:?Run init-env.py}
+      ALLOWED_ORIGINS: http://localhost:3002
+    command: ["alembic", "upgrade", "head"]
+    depends_on:
+      db-test: {condition: service_healthy}
+    networks: [internal]
+  api-smoke:
+    profiles: [test]
+    image: assetvision-it-api
+    environment: *smoke-env
+    depends_on:
+      migrate-smoke: {condition: service_completed_successfully}
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/v1/ready')"]
+      interval: 2s
+      timeout: 5s
+      retries: 20
+    networks: [internal, frontend]
+  web-smoke:
+    profiles: [test]
+    image: assetvision-it-web
+    environment:
+      INTERNAL_API_URL: http://api-smoke:8000
+    ports: ["127.0.0.1:3002:3000"]
+    depends_on:
+      api-smoke: {condition: service_healthy}
+    networks: [frontend]
+  api-test:
+    networks: [internal, frontend]

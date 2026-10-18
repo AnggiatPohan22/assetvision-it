@@ -1,0 +1,23 @@
+# Tests use an isolated PostgreSQL instance with ephemeral data, never the application DB.
+services:
+  db-test:
+    profiles: [test]
+    image: postgis/postgis:16-3.4
+    environment:
+      POSTGRES_DB: assetvision_test
+      POSTGRES_USER: test_runner
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Run init-env.py}
+    tmpfs:
+      - /var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U test_runner -d assetvision_test"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+    networks: [internal]
+    mem_limit: 768m
+  api-test:
+    environment:
+      TEST_DATABASE_URL: postgresql+psycopg://test_runner@db-test:5432/assetvision_test
+    depends_on:
+      db-test: {condition: service_healthy}
