@@ -7,8 +7,11 @@ from fastapi import Depends, FastAPI, Request, Response
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
+from app.catalog_routes import router as catalog_router
 from app.config import get_settings
+from app.image_routes import router as image_router
 from app.logging_config import configure_logging
+from app.openapi import catalog_openapi
 from app.routes import router
 from app.security import validate_csrf
 
@@ -16,6 +19,9 @@ configure_logging(get_settings().log_level)
 logger = logging.getLogger("assetvision")
 app = FastAPI(title="AssetVision IT", version="0.1.0", dependencies=[Depends(validate_csrf)])
 app.include_router(router)
+app.include_router(catalog_router)
+app.include_router(image_router)
+app.openapi = lambda: catalog_openapi(app)
 
 
 @app.exception_handler(RequestValidationError)

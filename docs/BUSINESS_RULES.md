@@ -30,3 +30,18 @@ dan menggunakan transaksi serta advisory lock PostgreSQL agar bootstrap bersamaa
 
 Jejak audit autentikasi disimpan dalam transaksi yang sama dengan perubahan sesi.
 Tidak ada API untuk mengubah atau menghapus jejak audit pada Sprint 0.
+
+## Access dan audit katalog Sprint 1A
+
+ADMIN dapat mengelola kategori/produsen/model dan upload/delete foto. OFFICER/VIEWER
+hanya membaca, termasuk content foto privat. Backend memeriksa role database pada setiap request;
+kontrol UI tidak menggantikan pemeriksaan API. Referensi model historis tetap ada setelah archive.
+
+Create/update/archive memakai audit catalog_create/catalog_update/catalog_archive dengan actor,
+table, record UUID, version, timestamp. Perubahan status melalui PATCH dicatat sebagai update.
+Archive berulang pada version terbaru tidak mengubah data dan tidak membuat audit tambahan.
+Upload/delete foto memakai reference_image_upload/reference_image_delete dengan model_id,
+image_id, dan version model baru. Kegagalan audit menggagalkan perubahan domain pada transaksi itu.
+Penolakan validasi/RBAC/konflik tidak menghasilkan audit sukses. Failed login memiliki event sendiri;
+tidak semua percobaan API yang ditolak disimpan sebagai event domain. Belum ada diff field penuh,
+UI audit, retensi otomatis, atau jaminan tamper-proof terhadap administrator database.

@@ -1,0 +1,1 @@
+export default function NotFound() { return <section className="catalog-panel"><h1>Model tidak ditemukan</h1><p>Periksa alamat atau kembali ke daftar model.</p><a href="/catalog/models" className="catalog-link">Kembali ke katalog</a></section>; }

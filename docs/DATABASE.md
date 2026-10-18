@@ -34,7 +34,97 @@ hanya diuji pada database sementara. Extension PostGIS tidak dihapus oleh downgr
 Jangan menjalankan downgrade pada database berisi data tanpa persetujuan dan backup.
 Koneksi PostgreSQL aplikasi dan Alembic memakai search_path=public agar skema extension tiger/topology tidak ikut dikelola. Alembic mengabaikan spatial_ref_sys yang dimiliki extension saat membandingkan model.
 
+## Schema Sprint 1A-01
+
+Revisi `0002_device_catalog` menambahkan katalog model, bukan unit fisik:
+
+| Tabel | Kolom utama dan batasan |
+|---|---|
+| device_categories | UUID PK; code varchar(50) unik lowercase tanpa spasi; name varchar(100); description nullable |
+| manufacturers | UUID PK; name varchar(150); normalized_name generated lower(trim(name)) unik; website nullable |
+| device_models | UUID PK; manufacturer_id/category_id FK terindeks; model_name varchar(200); normalized_model_name generated dan terindeks; unique(manufacturer_id, normalized_model_name); aliases JSONB; description nullable; environment CHECK indoor/outdoor/both; specs JSONB |
+| device_reference_images | UUID PK; device_model_id FK terindeks; storage_key relatif unik; sha256 panjang 64; mime_type CHECK JPEG/PNG/WebP; byte_size positif; angle nullable; is_primary; uploaded_by FK users; created_at |
+
+Tiga tabel master memiliki `is_active`, `created_at`, `updated_at`, `created_by/updated_by`
+nullable (FK users), dan `version` positif. Nilai awal version 1; SQLAlchemy version counter
+menolak update/delete ORM yang stale. Endpoint task 1A-02 mewajibkan version dari client
+dan menulis audit dalam transaksi yang sama. Bulk SQL tidak memakai pemeriksaan versi ORM.
+`updated_at` diperbarui oleh SQLAlchemy, bukan trigger untuk SQL langsung.
+
+Nama display melalui ORM dirapikan dengan split/join whitespace; kapitalisasi dipertahankan.
+Database menghitung sendiri normalized key sehingga tidak dapat dipalsukan oleh caller.
+SQL langsung wajib memberi nama nonkosong tanpa spasi tepi/ganda atau tab/newline/CR;
+pelanggaran ditolak CHECK. Case-insensitive memakai `lower` database, bukan transliterasi
+atau Unicode casefold. SQLite memakai JSON untuk pengujian cepat; PostgreSQL memakai JSONB.
+Validasi bentuk/batas aliases dan specs melalui Pydantic tersedia pada task CRUD API 1A-02;
+lihat API_CONTRACT.md. SQL langsung tetap menjadi tanggung jawab operator.
+
+FK tidak memakai cascade delete: kategori/manufacturer/model yang direferensikan tidak dapat
+dihapus. Archive memakai `is_active=false`; UUID dan reservasi nama tetap dipertahankan.
+Gambar memiliki partial unique index: maksimal satu foto primary per model, sementara
+beberapa foto non-primary diperbolehkan. Tabel hanya metadata, belum menyimpan/melayani file.
+Storage key menolak path absolut Unix/Windows, backslash, dan traversal `..`.
+Pemeriksaan magic bytes, dimensi, hash file, dan storage provider masuk task 1A-03.
+
+Seed sintetis bersifat eksplisit, idempotent, dan satu transaksi (advisory lock PostgreSQL):
+
+```bash
+# Sesudah image baru dibangun dan migrasi diterapkan:
+docker compose exec api python -m app.seed_catalog
+```
+
+Seed membuat kategori Access Point, Router, Switch, CCTV, Printer dan manufacturer Ruijie,
+Ubiquiti, MikroTik. Tidak membuat model/unit/foto/akun atau mengubah baris yang sudah ada,
+termasuk baris nonaktif. Tidak ada seed otomatis saat startup atau migrasi.
+
+Readiness versi baru mensyaratkan revisi `0002_device_catalog` dan keempat tabel tambahan.
+Deploy harus membangun API/migrate dari source yang sama, menjalankan upgrade, lalu mengganti
+API. API Sprint 0 lama akan menolak readiness sesudah upgrade; jadwalkan pergantian bersama.
+Downgrade ke `0001_sprint0` menghapus seluruh data katalog tetapi mempertahankan tabel Sprint 0.
+Roundtrip hanya dijalankan pada database pengujian; jangan downgrade data operasional tanpa
+persetujuan dan backup. Tidak ada migrasi database aplikasi yang dijalankan oleh task ini.
+
+Pada task **1A-02**, database development telah di-upgrade dari `0001_sprint0` ke
+`0002_device_catalog`. Upgrade hanya menambah tabel/index/constraint katalog. Verifikasi
+dalam transaksi memastikan jumlah dan fingerprint isi seluruh tabel Sprint 0 tidak berubah
+(users=1, auth_sessions=1, audit_events=5). Tidak ada seed development atau migrasi baru untuk
+CRUD. Detail eksekusi tersedia di sprints/SPRINT_1A_02_REPORT.md.
+
+## Image storage — Task 1A-03
+
+Revisi `0003_image_cleanup` hanya menambah tabel `storage_cleanup_jobs`:
+id UUID PK, storage_key varchar(255) unique, created_at UTC terindeks. Metadata foto tetap
+di device_reference_images; file privat di volume Docker `reference_images`, path container
+`/var/lib/assetvision/uploads`. File di dalamnya memakai key UUID acak berekstensi jpg/png/webp.
+Tidak ada perubahan isi tabel existing pada migrasi ini.
+Development telah berada di `0003_image_cleanup`. Upgrade transaksional dan Alembic check
+lulus; jumlah serta fingerprint semua tujuh tabel existing tetap sama (users=1, sessions=1,
+audit=5, seluruh tabel katalog=0). Tabel cleanup dan volume gambar tetap kosong setelah verifikasi.
+
+Intent upload committed sebelum put/fsync; sukses metadata/audit menghapus intent pada transaksi
+yang sama. Gagal upload menghapus file melalui kompensasi; crash/failure menyisakan intent retryable.
+Delete metadata dan pembuatan intent cleanup berada dalam satu transaksi sebelum unlink.
+Cleanup CLI hanya memproses intent tersimpan berusia >10 menit, maksimum 100/run, dan selalu
+melindungi key yang masih direferensikan DB. Tidak melakukan directory scan atau GC file asing.
+
+Backup/restore harus mencakup database **dan** volume reference_images secara terkoordinasi
+(hentikan mutasi API saat snapshot). Backup DB saja tidak membawa bytes foto. Jangan menghapus
+volume atau memindahkan IMAGE_STORAGE_ROOT tanpa prosedur pemindahan dan backup.
+Downgrade 0003 menghapus intent cleanup, bukan foto/metadata existing; pastikan tidak ada
+intent tertunda sebelum downgrade operasional. Roundtrip hanya diuji pada database sementara.
+
 ## Pengujian dan backup
+
+Task 1A-05 tidak menambah atau mengubah schema/migration. Audit tetap pada audit_events;
+catalog_create/update/archive merekam table/id/version dan reference_image_upload/delete
+merekam model_id/image_id/version (version model sesudah mutasi), actor_id dan created_at.
+Detail audit sengaja tidak memuat body input, cookie/token, path storage, atau foto.
+Pengujian rollback audit melindungi transaksi create/update/archive/upload/delete.
+Tidak ada hard-delete model/master atau endpoint edit/delete audit.
+
+Smoke katalog menggunakan db-test tmpfs dan direktori foto tmpfs milik api-smoke uid 10001,
+tanpa mount postgres_data/reference_images. Guard pada smoke memeriksa backend PostgreSQL,
+host db-test, nama assetvision_test, dan user test_runner sebelum menulis fixture akun.
 
 compose.test.yaml menyediakan database assetvision_test di container db-test dengan tmpfs.
 Fixture memvalidasi nama database sebelum menghapus tabel. Pengujian menjalankan migrasi yang sama,

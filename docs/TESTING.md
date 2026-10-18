@@ -36,6 +36,44 @@ bernama `tsc`, yang bukan paket compiler resmi TypeScript. Lockfile proyek memua
 
 ## Build targets
 
+### Smoke katalog end-to-end (Task 1A-05)
+
+```bash
+bash infra/smoke-catalog.sh
+```
+
+Runner membangun API/test/web, menjalankan migrate-smoke/api-smoke/web-smoke, lalu
+`python tests/smoke_catalog.py` melalui api-test. Seluruh request katalog melewati
+HTTP Next.js proxy → FastAPI → PostgreSQL/PostGIS → private local storage; bukan mock.
+Hanya akun sintetis yang dibuat langsung di DB, dengan password acak per run yang tidak dicetak.
+Guard menolak host/nama DB/user selain db-test/assetvision_test/test_runner sebelum membuat akun.
+Script tidak reset/hapus tabel; prefix acak memungkinkan pengulangan. Jangan jalankan bersamaan
+dengan pytest PostgreSQL, karena fixture suite tersebut mereset tabel database uji.
+
+Cakupan: anonymous/login/HttpOnly cookies/SSR gates, CRUD, duplikasi case/spasi,
+model sama pada produsen lain, CSRF/stale version, filter/page/empty, lima foto dan hash
+content privat, invalid/oversized upload, seluruh mutasi OFFICER/VIEWER 403, archive/history,
+delete/primary promotion, logout, audit persisten tepat, serta cleanup backlog kosong.
+Database db-test dan storage api-smoke memakai tmpfs; tidak me-mount volume aplikasi.
+Trap menghentikan web-smoke/api-smoke/db-test saat exit. Data tmpfs hilang saat container
+berhenti; akun/catalog sintetis tidak masuk ke development. API/web/db aplikasi tetap berjalan.
+Ini tes HTTP full-stack dan SSR, bukan otomasi browser JavaScript. Tes DOM frontend tetap terpisah.
+Smoke autentikasi Sprint 0 `tests/smoke_stack.py` tetap tersedia, membutuhkan suite PG bersih
+sebelum mengulang bootstrap dengan email fixture yang sama.
+
+Tes frontend katalog memakai `node:test`, React `act`, dan jsdom (dependensi development saja).
+`npm run check` menjalankan ESLint, TypeScript, dan seluruh tes proxy/API client/form/interaksi UI.
+Fetch pada tes UI dimock dengan data sintetis; tes tidak terhubung ke database development.
+Suite backend PostgreSQL tetap memverifikasi otorisasi, validasi gambar, dan konkurensi API nyata.
+Tes DOM tidak membuktikan layout browser atau end-to-end authenticated upload.
+
+Untuk review visual terisolasi, `apps/web/tests/fixtures/catalog-preview.mjs` menyediakan
+API sintetis read-only pada port 8000. Jalankan hanya di network Docker preview terpisah,
+arahkan INTERNAL_API_URL container web preview ke fixture, dan bind preview ke loopback
+port berbeda (misalnya 3002). Jangan mengganti INTERNAL_API_URL layanan development ke fixture.
+Fixture menolak semua mutasi dan tidak membuka koneksi DB/storage. Hentikan container/network
+preview setelah review. Fixture ini bukan seed database atau layanan autentikasi production.
+
 | Service / target | Dependency yang dipasang | Tujuan |
 |---|---|---|
 | api / runtime | requirements.txt + requirements.lock | Menjalankan API |

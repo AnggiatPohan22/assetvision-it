@@ -22,9 +22,9 @@ export default async function Dashboard() {
         <article><span className="card-number">03</span><h2>Fondasi audit</h2>
           <p>Aktivitas autentikasi memiliki jejak audit.</p></article>
       </div>
-      <aside className="notice"><span className="role">SPRINT 0</span>
-        <div><h2>Workspace sedang dibangun</h2>
-          <p>Inventaris perangkat dan alur operasional akan hadir pada sprint berikutnya.</p></div></aside>
+      <aside className="notice"><span className="role">KATALOG</span>
+        <div><h2>Kenali model perangkat Anda</h2>
+          <p>Telusuri model, spesifikasi, dan foto referensi. <Link href="/catalog/models" style={{ textDecoration: "underline" }}>Buka katalog perangkat →</Link></p></div></aside>
     </section>
   </main>;
 }

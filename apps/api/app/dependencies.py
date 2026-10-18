@@ -5,7 +5,8 @@ from datetime import UTC, datetime
 from typing import Annotated
 
 import jwt
-from fastapi import Depends, HTTPException, Request
+from fastapi import Depends, HTTPException, Request, Security
+from fastapi.security import APIKeyCookie
 from sqlalchemy.orm import Session
 
 from app.config import get_settings
@@ -14,12 +15,22 @@ from app.models import AuthSession, Role, User
 from app.security import ACCESS_COOKIE, CSRF_COOKIE, csrf_digest
 
 Database = Annotated[Session, Depends(get_db)]
+session_cookie = APIKeyCookie(
+    name=ACCESS_COOKIE,
+    scheme_name="SessionCookie",
+    auto_error=False,
+    description="HttpOnly session cookie issued by POST /api/v1/auth/login; no bearer auth.",
+)
 
 
-def current_session(request: Request, db: Database) -> AuthSession:
+def current_session(
+    request: Request,
+    db: Database,
+    token: Annotated[str | None, Security(session_cookie)],
+) -> AuthSession:
     try:
         payload = jwt.decode(
-            request.cookies.get(ACCESS_COOKIE, ""),
+            token or "",
             get_settings().jwt_secret.get_secret_value(),
             algorithms=["HS256"],
             audience="assetvision-web",

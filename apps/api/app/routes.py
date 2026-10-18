@@ -6,6 +6,13 @@ from pydantic import BaseModel, ConfigDict, EmailStr, Field
 from sqlalchemy import select, text
 from sqlalchemy.exc import SQLAlchemyError
 
+from app.catalog import (
+    DeviceCategory,
+    DeviceModel,
+    DeviceReferenceImage,
+    Manufacturer,
+    StorageCleanupJob,
+)
 from app.config import get_settings
 from app.dependencies import CurrentUser, Database, current_session, require_roles
 from app.models import AuditEvent, AuthSession, Role, User
@@ -50,11 +57,19 @@ def ready(db: Database) -> dict[str, str]:
         if db.bind is not None and db.bind.dialect.name == "postgresql":
             db.execute(text("SELECT PostGIS_Version()"))
         version = db.execute(text("SELECT version_num FROM alembic_version")).scalar_one()
-        if version != "0001_sprint0":
+        if version != "0003_image_cleanup":
             raise ValueError("Schema not current")
         db.execute(select(User.id).limit(1))
         db.execute(select(AuthSession.id).limit(1))
         db.execute(select(AuditEvent.id).limit(1))
+        for model in (
+            DeviceCategory,
+            Manufacturer,
+            DeviceModel,
+            DeviceReferenceImage,
+            StorageCleanupJob,
+        ):
+            db.execute(select(model.id).limit(1))
     except (SQLAlchemyError, ValueError):
         raise HTTPException(503, "Database or schema is not ready") from None
     return {"status": "ready"}

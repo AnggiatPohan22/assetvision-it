@@ -11,6 +11,11 @@ x-api-env: &api-env
   COOKIE_SECURE: ${COOKIE_SECURE:-false}
   ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:3000,http://127.0.0.1:3000}
   LOG_LEVEL: ${LOG_LEVEL:-INFO}
+  IMAGE_STORAGE_ROOT: /var/lib/assetvision/uploads
+  IMAGE_MAX_BYTES: ${IMAGE_MAX_BYTES:-8388608}
+  IMAGE_MAX_DIMENSION: ${IMAGE_MAX_DIMENSION:-8192}
+  IMAGE_MAX_PIXELS: ${IMAGE_MAX_PIXELS:-16000000}
+  IMAGE_MAX_PER_MODEL: ${IMAGE_MAX_PER_MODEL:-20}
 
 services:
   db:
@@ -44,6 +49,8 @@ services:
     build: {context: ./apps/api, target: runtime}
     restart: unless-stopped
     environment: *api-env
+    volumes:
+      - reference_images:/var/lib/assetvision/uploads
     ports: ["127.0.0.1:8000:8000"]
     depends_on:
       migrate: {condition: service_completed_successfully}
@@ -94,6 +101,7 @@ services:
 
 volumes:
   postgres_data:
+  reference_images:
 
 networks:
   internal: {internal: true}

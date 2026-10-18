@@ -17,8 +17,21 @@ flowchart LR
 - apps/api/app/config.py memvalidasi konfigurasi dan menyembunyikan input rahasia pada pesan kesalahan.
 - db.py menyediakan session SQLAlchemy per request, tanpa auto-create schema.
 - models.py mendefinisikan pengguna, sesi, dan audit; belum ada entitas aset.
+- catalog.py mendefinisikan kategori, manufacturer, model perangkat, dan metadata foto referensi
+  (Sprint 1A-01). Model katalog didaftarkan melalui models.py agar metadata Alembic tetap satu.
+  seed_catalog.py menyediakan seed sintetis eksplisit; belum ada unit fisik.
+- catalog_routes.py, catalog_schemas.py, dan catalog_service.py menyediakan CRUD API Sprint 1A-02:
+  RBAC server-side, validasi bounded JSON, filtering/pagination, version client + ORM,
+  dan audit transaksional. Tidak ada endpoint penghapusan fisik master katalog.
 - security.py menangani Argon2id, JWT HS256, cookie, dan signed double-submit CSRF.
+- image_routes.py/image_validation.py/image_service.py menyediakan upload/list/content/delete
+  foto berautentikasi. storage.py menyediakan StorageProvider dan LocalStorageProvider.
+  File privat di volume reference_images terpisah dari metadata PostgreSQL.
+  storage_cleanup_jobs menyimpan intent cleanup durable; retry melalui storage_cleanup.py,
+  tanpa worker/service baru atau pemindaian/penghapusan file lain.
 - dependencies.py memeriksa token, sesi DB, status pengguna, serta peran terkini.
+  APIKeyCookie mendeklarasikan kontrak OpenAPI tanpa mengganti validasi JWT/sesi atau status 401.
+  openapi.py mendokumentasikan header CSRF/Origin serta batas penggunaan cookie dan pagination.
 - routes.py menyediakan kontrak REST; bootstrap.py adalah entry point CLI terpisah.
 - apps/web/lib/proxy.ts hanya meneruskan endpoint yang diizinkan, metode, dan header yang dibutuhkan.
   Cookie Set-Cookie diteruskan satu per satu, tanpa mengirim JWT ke JavaScript.
@@ -34,21 +47,39 @@ Penonaktifan akun dan perubahan peran berlaku pada permintaan selanjutnya.
 
 Sebelum login, browser meminta /auth/csrf. Semua metode perubahan data memerlukan Origin yang
 diizinkan dan X-CSRF-Token yang cocok dengan cookie serta signature HMAC. Setelah login token
-dirotasi dan diikat ke sesi; /auth/session menyediakan token sesi bagi aksi logout. Bootstrap CSRF mempertahankan cookie valid yang sudah ada, dan input non-ASCII ditolak 403. Proxy membatasi body POST menjadi 16 KiB saat membacanya sebagai stream.
+dirotasi dan diikat ke sesi; /auth/session menyediakan token sesi bagi aksi logout. Bootstrap CSRF mempertahankan cookie valid yang sudah ada, dan input non-ASCII ditolak 403. Proxy membatasi body CRUD menjadi 16 KiB saat membacanya sebagai stream; upload gambar memiliki ceiling 8 MiB + 64 KiB overhead.
 Tidak ada CORS lintas origin; browser menggunakan BFF satu origin.
 
-Audit database menyimpan bootstrap, login berhasil/gagal, dan logout tanpa password/token.
+Audit database menyimpan bootstrap, login berhasil/gagal, logout, serta create/update/archive katalog
+tanpa password/token. Audit katalog berisi actor, tabel, UUID record, action, version, dan timestamp;
+belum menyimpan diff/snapshot lengkap field domain.
 Log aplikasi berformat JSON berisi request ID, template route, metode, status, dan durasi.
 Body, query string, cookie, authorization header, parameter SQL, serta stack exception tidak dicetak.
 Error validasi tidak mengembalikan input password.
 
 ## Operasi
 
+UI katalog berada di App Router `/catalog`: layout server memeriksa sesi dan memasok role
+ke komponen client. Halaman tambah dan pengaturan juga memeriksa ADMIN di server.
+Komponen memakai proxy same-origin existing; mutasi mengambil CSRF sesi dari `/auth/session`.
+JWT tidak dibaca JavaScript atau disimpan di localStorage. API tetap pemegang otorisasi bisnis.
+Form menyimpan version saat mulai edit; background refresh tidak menaikkan version draft.
+Konflik 409 tidak memicu retry otomatis atau menimpa isian. Upload multi-file berjalan berurutan
+dengan model_version terbaru dari setiap response; kegagalan parsial tetap terlihat.
+Foto memakai content_url privat dengan cookie sesi, tanpa Next image optimization/cache publik.
+Tidak ada perubahan skema atau layanan runtime baru untuk frontend ini.
+
 Database hanya berada di network internal. API dan web hanya bind host 127.0.0.1.
 Migrasi harus selesai sebelum API berjalan; web menunggu readiness API.
 Health memeriksa proses; readiness memeriksa koneksi DB, PostGIS, versi migrasi, serta tabel yang diperlukan.
 Tidak ada perubahan skema otomatis selain Alembic yang dieksekusi eksplisit oleh layanan migrate.
+Revisi 0003_image_cleanup menambah tabel intent tanpa mengubah data katalog existing.
+Upload mereservasi intent sebelum menulis bytes dan menghapus intent dalam transaksi metadata/audit.
+Delete menghapus metadata dan membuat intent dalam satu transaksi, lalu mencoba unlink.
+Jika unlink gagal, konten tidak lagi dapat diakses lewat API; retry CLI menyelesaikannya.
+Lock model menjaga batas foto, primary, dan version saat mutasi bersamaan.
 
-Perubahan data domain pada sprint selanjutnya harus membawa aturan optimistic concurrency
-dan audit transaksi sebelum endpoint mutasi ditambahkan. Interface AI/OCR/storage diperkenalkan
+Mutasi katalog mewajibkan version dari client dan pemeriksaan SQLAlchemy version counter,
+dengan audit dalam transaksi yang sama. Modul domain berikutnya harus mempertahankan pola ini.
+Interface AI/OCR/storage diperkenalkan
 saat fiturnya dibutuhkan, tanpa dependensi inference pada fondasi ini.

@@ -23,6 +23,8 @@ pydantic==2.14.1
 pydantic-settings==2.13.1
 pydantic_core==2.50.1
 PyJWT==2.12.1
+Pillow==13.0.0
+python-multipart==0.0.32
 python-dotenv==1.2.4
 SQLAlchemy==2.0.48
 starlette==1.8.0

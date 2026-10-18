@@ -1,4 +1,5 @@
 from functools import lru_cache
+from pathlib import Path
 from typing import Literal
 
 from pydantic import Field, SecretStr, field_validator, model_validator
@@ -21,6 +22,18 @@ class Settings(BaseSettings):
     cookie_secure: bool = False
     allowed_origins: str = "http://localhost:3000,http://127.0.0.1:3000"
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR"] = "INFO"
+    image_storage_root: Path = Path("/var/lib/assetvision/uploads")
+    image_max_bytes: int = Field(default=8 * 1024 * 1024, ge=1024, le=8 * 1024 * 1024)
+    image_max_dimension: int = Field(default=8192, ge=64, le=16384)
+    image_max_pixels: int = Field(default=16_000_000, ge=4096, le=24_000_000)
+    image_max_per_model: int = Field(default=20, ge=5, le=100)
+
+    @field_validator("image_storage_root")
+    @classmethod
+    def absolute_storage_root(cls, value: Path) -> Path:
+        if not value.is_absolute():
+            raise ValueError("IMAGE_STORAGE_ROOT must be absolute")
+        return value
 
     @field_validator("jwt_secret")
     @classmethod

@@ -2,6 +2,7 @@ FROM python:3.13-slim AS base
 ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1
 WORKDIR /app
 RUN useradd --uid 10001 --create-home app
+RUN mkdir -p /var/lib/assetvision/uploads && chown app:app /var/lib/assetvision/uploads
 
 FROM base AS runtime-dependencies
 COPY requirements.txt requirements.lock ./

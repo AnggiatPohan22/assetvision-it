@@ -42,6 +42,11 @@ def factory() -> Generator[sessionmaker[Session]]:
         engine = create_engine(
             "sqlite://", connect_args={"check_same_thread": False}, poolclass=StaticPool
         )
+        from sqlalchemy import event
+
+        @event.listens_for(engine, "connect")
+        def enable_foreign_keys(connection, record) -> None:
+            connection.execute("PRAGMA foreign_keys=ON")
     with engine.connect() as connection:
         config = Config("alembic.ini")
         if postgres:

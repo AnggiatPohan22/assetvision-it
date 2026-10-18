@@ -1,8 +1,17 @@
-# AssetVision IT — Sprint 0
+# AssetVision IT
 
 Fondasi inventaris dan audit aset IT yang berjalan lokal di Ubuntu WSL2.
 Stack: Next.js App Router/TypeScript, FastAPI, SQLAlchemy 2, Alembic, PostgreSQL 16/PostGIS.
-Sprint ini hanya mencakup akses pengguna, izin, health check, migrasi, dan jejak audit autentikasi.
+Fondasi Sprint 0 mencakup akses pengguna, izin, health check, migrasi, dan audit autentikasi.
+Sprint 1A-01 sampai 1A-05 menambahkan skema, CRUD API katalog, foto referensi lokal privat,
+UI katalog, dan pemeriksaan hardening. Belum ada unit fisik. Kontrak tersedia di docs/API_CONTRACT.md.
+
+Setelah login, buka `/catalog/models` atau tautan katalog di workspace untuk mencari,
+memfilter, dan membaca model beserta foto referensinya. ADMIN dapat menambah model,
+mengedit detail, mengarsipkan/memulihkan model, serta mengunggah/menghapus foto.
+Kategori dan produsen dikelola ADMIN melalui `/catalog/settings`.
+OFFICER/VIEWER memiliki tampilan baca saja; API tetap memeriksa semua izin.
+Konflik perubahan mempertahankan isian agar dapat diperiksa sebelum memuat ulang.
 
 ## Mulai dari Ubuntu WSL2
 
@@ -61,9 +70,15 @@ Perintah lengkap yang membangun image lalu menjalankan pemeriksaan:
 
 ```bash
 bash infra/check.sh --postgres
+# Smoke katalog lengkap melalui Next.js/API/PostgreSQL asli, data uji sintetis:
+bash infra/smoke-catalog.sh
 ```
 
 Tanpa --postgres, script menjalankan backend SQLite, Ruff, ESLint, TypeScript, dan pengujian frontend.
+Smoke katalog membangun image dan memakai db-test tmpfs serta storage foto tmpfs khusus api-smoke.
+Script menghentikan layanan smoke/db-test saat selesai, termasuk bila gagal; development tetap berjalan.
+Setiap run memakai akun/nama sintetis baru sehingga dapat diulang tanpa reset tabel.
+Jangan menjalankannya bersamaan dengan suite PostgreSQL yang mereset database uji.
 Panduan target image, lockfile, dan diagnosis tersedia di [docs/TESTING.md](docs/TESTING.md).
 
 ```bash
@@ -104,6 +119,11 @@ Semua nilai berada di `.env` lokal yang tidak boleh masuk Git. Lihat [.env.examp
 | COOKIE_SECURE | false untuk HTTP localhost; wajib true untuk production/HTTPS |
 | ALLOWED_ORIGINS | http://localhost:3000,http://127.0.0.1:3000; tanpa slash penutup |
 | LOG_LEVEL | INFO; DEBUG, WARNING, ERROR juga didukung |
+| IMAGE_STORAGE_ROOT | /var/lib/assetvision/uploads; absolut; Compose menetapkan lokasi ini dalam volume reference_images |
+| IMAGE_MAX_BYTES | 8388608 (8 MiB); 1024–8388608; input dan hasil sanitasi |
+| IMAGE_MAX_DIMENSION | 8192; panjang sisi maksimum; 64–16384 |
+| IMAGE_MAX_PIXELS | 16000000; jumlah pixel maksimum; 4096–24000000 |
+| IMAGE_MAX_PER_MODEL | 20; jumlah foto maksimum per model; 5–100 |
 | POSTGRES_HOST | db, ditetapkan Compose untuk API/migrasi |
 | POSTGRES_PORT | 5432, hanya jaringan Docker; tidak dipublikasikan |
 | DATABASE_URL | Opsional untuk API di luar Compose; URL SQLAlchemy; mengungguli komponen POSTGRES_* |
@@ -113,6 +133,12 @@ Semua nilai berada di `.env` lokal yang tidak boleh masuk Git. Lihat [.env.examp
 | HOSTNAME / PORT / NODE_ENV | Runtime web: 0.0.0.0 / 3000 / production |
 
 ADMIN_PASSWORD tidak digunakan sebagai environment variable. Password hanya melalui prompt bootstrap.
+
+Foto tidak dipublikasikan sebagai direktori static. Akses melalui endpoint berautentikasi.
+Volume `reference_images` harus dicadangkan bersama database. Retry cleanup yang gagal:
+`docker compose exec api python -m app.storage_cleanup` (maks. 100 intent berusia >10 menit).
+Perintah ini hanya memproses intent tersimpan dan melindungi key yang masih direferensikan DB.
+Jangan mengubah IMAGE_STORAGE_ROOT tanpa memindahkan file dan merencanakan backup/restore.
 Mengganti JWT_SECRET membatalkan token lama. Tidak ada refresh token atau penyimpanan token di localStorage.
 Aplikasi lokal ini belum menyediakan pengelolaan pengguna, pemulihan kata sandi, atau pembatasan percobaan login.
 Jangan publikasikan port pengembangan ke jaringan umum.
