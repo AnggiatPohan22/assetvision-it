@@ -325,4 +325,22 @@ version/origin/eligibility stale, multiple PENDING, rollback keempat event, read
 constraints/FK/retensi dan migration pada seed/initial event predecessor. Race PostgreSQL
 memakai dua session independen: double approve, dua request, approve vs reject/cancel,
 metadata serta archive tujuan. SQLite hanya melewatkan tes PostgreSQL-only. Tidak ada
-klaim pengujian UI movement, timeline atau observasi yang belum diimplementasikan.
+klaim pengujian UI movement. Pengujian timeline/observasi dilanjutkan pada 2-04 di bawah.
+
+## Task 2-04
+
+Jalankan `bash infra/check.sh --postgres`, lalu serial `bash infra/smoke-sprint1b.sh`,
+`bash infra/smoke-locations.sh`, `bash infra/smoke-asset-locations.sh`,
+`bash infra/smoke-movements.sh` dan `bash infra/smoke-observations.sh`.
+Semua menggunakan db-test/assetvision_test tmpfs; jangan jalankan suite PostgreSQL dan smoke
+bersamaan. Runner observasi memakai AP-003/Villa 1/Villa 10 sintetis lewat Next.js/API,
+membuktikan conflict setelah approval, tidak auto-revert, review/unknown evidence, timeline
+aktor/waktu/snapshot, archive retention serta RBAC/logout tanpa mutasi development.
+
+test_observations.py mencakup body/query validation, auth/CSRF semua role, paired version,
+UTC/offset/backdating, latest/stale/match/conflict, ACK/DISMISSED, unlinked/unplaced/archived,
+read-only history/inbox/status/timeline, legacy metadata order dan cross-source UUID ties,
+rollback audit create/review, direct SQL immutability/constraints, migration preserve dan
+downgrade guard. Race PostgreSQL: observation vs approval, double review dan observation vs
+archive. SQLite melewatkan tes lock PostgreSQL-only. Proxy diuji method/size/forwarding.
+UI/UAT Task 2-05 belum diuji atau dimulai.

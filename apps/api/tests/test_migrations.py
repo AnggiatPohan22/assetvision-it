@@ -21,6 +21,7 @@ def test_migration_roundtrip(factory) -> None:
             "locations",
             "asset_events",
             "asset_movements",
+            "location_observations",
         }
         assert {"users", "auth_sessions", "audit_events"} | catalog_tables <= set(
             inspect(connection).get_table_names()
@@ -31,7 +32,7 @@ def test_migration_roundtrip(factory) -> None:
         command.upgrade(config, "head")
         assert (
             connection.execute(text("SELECT version_num FROM alembic_version")).scalar_one()
-            == "0008_asset_movements"
+            == "0009_observations"
         )
         command.check(config)
 

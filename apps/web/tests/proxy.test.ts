@@ -336,3 +336,33 @@ test("movement routes forward history, inbox and explicit decisions only", async
   assert.equal((await proxyRequest(new Request("http://local",{method:"POST",body:"x".repeat(17000)}),["movements",id,"approve"])).status,413);
   assert.equal(calls,7);
 });
+
+
+test("timeline, observation and location status routes enforce explicit methods", async () => {
+  const id="00000000-0000-0000-0000-000000000001";
+  let calls=0;
+  globalThis.fetch=async (url,init)=>{
+    calls++;
+    assert.ok(String(url).includes("api/v1/"));
+    assert.equal(new Headers(init?.headers).get("x-csrf-token"),"opaque");
+    if(init?.method==="POST") assert.equal(new TextDecoder().decode(init.body as ArrayBuffer),'{"version":1}');
+    return Response.json({ok:true});
+  };
+  const headers={"x-csrf-token":"opaque",origin:"http://local",cookie:"session=opaque"};
+  for(const path of [["assets",id,"timeline"],["assets",id,"location-status"],["assets",id,"location-observations"],["location-observations"],["location-observations",id]]) {
+    assert.equal((await proxyRequest(new Request("http://local?page=2",{headers}),path)).status,200);
+  }
+  for(const path of [["location-observations"],["location-observations",id,"review"]]) {
+    assert.equal((await proxyRequest(new Request("http://local",{headers,method:"POST",body:'{"version":1}'}),path)).status,200);
+  }
+  assert.equal(calls,7);
+  for(const [path,method,code] of [
+    [["assets",id,"timeline"],"POST",405],[["assets",id,"location-status"],"PATCH",405],
+    [["location-observations",id],"DELETE",405],[["location-observations",id,"review"],"GET",405],
+    [["location-observations",id,"rewrite"],"POST",404],
+  ] as [string[],string,number][]) {
+    assert.equal((await proxyRequest(new Request("http://local",{method}),path)).status,code);
+  }
+  assert.equal((await proxyRequest(new Request("http://local",{method:"POST",body:"x".repeat(17000)}),["location-observations"])).status,413);
+  assert.equal(calls,7);
+});

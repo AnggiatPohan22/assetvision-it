@@ -1,6 +1,6 @@
 # AssetVision IT — Sprint 2: Location, Movement & Audit Trail
 
-**Status:** In progress — Task 2-01–2-03 diimplementasikan; 2-04–2-05 belum dimulai · **Prasyarat:** Sprint 1B selesai · **Estimasi:** 8–12 hari kerja · **Prioritas:** P0
+**Status:** In progress — Task 2-01–2-04 diimplementasikan; 2-05 belum dimulai · **Prasyarat:** Sprint 1B selesai · **Estimasi:** 8–12 hari kerja · **Prioritas:** P0
 
 Task 2-01 menambah hierarki, tree API adjacency, API ADMIN create/PATCH/archive,
 cycle guards aplikasi/database, version, audit dan migration 0006. Tidak menambah
@@ -10,7 +10,9 @@ Task 2-02 menambah FK nullable, penempatan awal ADMIN/event atomik dan lookup lo
 tanpa pemetaan hint atau penempatan development. Hasil: `SPRINT_2_02_REPORT.md`.
 Task 2-03 menambah movement request/approve/reject/cancel, RBAC, version/atomic event,
 API history/inbox dan tests. Self-approval ADMIN diizinkan untuk pilot dan dicatat eksplisit.
-Hasil: `SPRINT_2_03_REPORT.md`. Belum ada timeline/observasi atau UI movement.
+Hasil: `SPRINT_2_03_REPORT.md`.
+Task 2-04 menambah timeline gabungan read-only, observasi/review dan proyeksi location conflict
+tanpa mengubah master aset. Hasil: `SPRINT_2_04_REPORT.md`. UI/UAT Task 2-05 belum dimulai.
 
 ## Tujuan
 
@@ -105,7 +107,7 @@ ADMIN tidak boleh mengubah lokasi lewat PATCH asset umum; semua perubahan resmi 
 - [x] ADMIN approve → lokasi resmi Villa 10 dan event histori mencatat asal/tujuan/aktor/waktu.
 - [x] Reject → tidak ada perubahan lokasi.
 - [x] Approval ganda/stale menghasilkan konflik, tidak ada lost update.
-- [ ] Observasi AP-003 di Villa 1 setelah pindah ke Villa 10 menimbulkan conflict, bukan auto-revert.
+- [x] Observasi AP-003 di Villa 1 setelah pindah ke Villa 10 menimbulkan conflict, bukan auto-revert.
 - [x] Cycle lokasi (parent menjadi descendant) ditolak (API/SQL langsung dan race PostgreSQL).
 - [x] Non-ADMIN tidak bisa approve/reject.
 - [x] Event historis tetap ada setelah lokasi diarsipkan.

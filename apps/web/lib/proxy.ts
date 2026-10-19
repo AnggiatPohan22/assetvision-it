@@ -18,6 +18,12 @@ function proxyError(detail: string, status: number): Response {
 function allowedMethods(path: string[]): readonly string[] | undefined {
   const existing = endpoints.get(path.join("/"));
   if (existing) return existing;
+  if (path[0] === "location-observations") {
+    if (path.length === 1) return ["GET", "POST"];
+    if (path.length === 2 && uuid.test(path[1])) return ["GET"];
+    if (path.length === 3 && uuid.test(path[1]) && path[2] === "review") return ["POST"];
+    return undefined;
+  }
   if (path[0] === "movements") {
     if (path.length === 1) return ["GET"];
     if (path.length === 2 && uuid.test(path[1])) return ["GET"];
@@ -39,6 +45,7 @@ function allowedMethods(path: string[]): readonly string[] | undefined {
     if (path.length === 3 && path[2] === "archive") return ["POST"];
     if (path.length === 3 && path[2] === "location") return ["GET"];
     if (path.length === 3 && path[2] === "initial-placement") return ["POST"];
+    if (path.length === 3 && ["timeline", "location-status", "location-observations"].includes(path[2])) return ["GET"];
     if (path.length === 3 && path[2] === "movements") return ["GET", "POST"];
     if (path.length === 3 && path[2] === "events") return ["GET"];
     if (path[2] === "identifiers") {

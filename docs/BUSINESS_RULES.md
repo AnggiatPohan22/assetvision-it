@@ -218,3 +218,21 @@ sanitasi formula. Tidak ada penghapusan data/audit atau location workflow melalu
 - Reason keputusan wajib; requested/reviewed/approved/effective time dari server. Tidak ada
   backdating/scheduling. Lokasi asal boleh archived; tujuan harus aktif saat request/approval.
   Arsip setelah keputusan mempertahankan referensi, snapshot dan seluruh event.
+
+## Bukti lokasi dan review — Task 2-04
+
+- Observasi adalah bukti lapangan, bukan perubahan master atau bukti tunggal identitas.
+  OFFICER/ADMIN mencatat lokasi, note dan waktu; asset/version opsional untuk unknown device.
+  Tidak ada auto-link/auto-create berdasarkan lokasi, maupun auto-approve movement.
+- Create/review tidak mengubah official location, verified time, lifecycle atau asset version.
+  Aset archived/unplaced tetap dapat menerima bukti. Lokasi observed harus aktif lokal.
+- Aktor/recorded time/snapshot resmi/comparison ditentukan server; waktu observasi timezone
+  aware, tidak future, boleh backdated. Snapshot dan evidence tidak dapat diedit/dihapus.
+- ADMIN meninjau sekali menjadi ACKNOWLEDGED atau DISMISSED dengan reason/version wajib.
+  ACK tidak menghapus conflict. DISMISS mengeluarkan bukti dari proyeksi, sejarah tetap ada.
+  Koreksi evidence melalui record baru, bukan overwrite/relink. Unknown tetap unlinked.
+- Latest non-dismissed observation dipilih berdasarkan waktu fisik observed_at lalu
+  recorded_at/id. Jika lebih tua daripada verification resmi, status STALE_OBSERVATION;
+  selain itu mismatch adalah LOCATION_CONFLICT, tanpa memindahkan lokasi resmi.
+- Semua role dapat membaca history/timeline/status aset. Inbox/detail/review observasi hanya
+  ADMIN. Linked event dan keputusan append-only; unlinked diaudit tanpa asset palsu.

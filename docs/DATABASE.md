@@ -283,3 +283,23 @@ menggantikan autentikasi atau mencatat audit untuk penulis SQL eksternal.
 Upgrade 0008 tidak UPDATE tabel existing/backfill/seed, hanya menambah tabel kosong. Migration
 0001–0007 tidak diubah. Downgrade ke 0007 hanya jika asset_movements kosong; bila berisi
 request historis ditolak sebelum DROP, apa pun statusnya. Roundtrip hanya pada database test.
+
+## Migration 0009_observations — Task 2-04
+
+Tabel location_observations baru menyimpan UUID PK, asset_id nullable FK RESTRICT,
+observed_location_id/observed_by wajib FK, observed_at/recorded_at timestamptz, evidence_note,
+official_location_id_at_recording nullable FK, asset_version_at_recording nullable,
+comparison_status, snapshot_json JSONB, review_status, reviewed_by/at/review_reason nullable,
+dan optimistic version. Semua FK tanpa cascade. Index latest(asset_id,observed_at,recorded_at,id),
+observed_at dan review_status mendukung history/inbox/status. Tidak mengubah tabel existing.
+
+Checks mengikat asset/version/comparison, lokasi match/conflict, note/reason bounded canonical,
+serta null/non-null kolom review. Trigger PostgreSQL/SQLite memastikan insert PENDING/version1,
+evidence immutable, hanya satu transisi ACKNOWLEDGED/DISMISSED dengan version+1, terminal
+immutable dan DELETE ditolak. Aplikasi wajib menulis linked asset_events atau unlinked
+AuditEvent dalam transaksi sama; trigger bukan pengganti RBAC/audit bagi SQL owner eksternal.
+
+Upgrade tidak backfill/seed/UPDATE data lama. Migration 0001–0008 tidak diubah. Downgrade
+ke 0008 menolak sebelum DROP bila ada observasi, termasuk dismissed. Roundtrip kosong,
+upgrade populated predecessor dan penolakan populated downgrade diuji hanya di database test.
+Readiness memeriksa head 0009 dan tabel baru. Timeline membaca sumber lama tanpa duplikasi.

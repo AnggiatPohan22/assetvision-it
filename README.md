@@ -11,7 +11,9 @@ Migration 0007 menambah FK/kolom nullable dan tabel event kosong, tanpa memetaka
 OFFICER/ADMIN dan approve/reject ADMIN; hanya approve mengubah lokasi resmi dan mencatat
 event atomik. Pembatalan oleh ADMIN/pembuat request. Self-approval ADMIN diizinkan untuk
 pilot dan dicatat eksplisit. Migration 0008 hanya menambah tabel movement kosong.
-Belum ada timeline/observasi atau UI lokasi/movement. Panduan ada di API_CONTRACT.
+Task 2-04 menambah timeline/observasi/review dan location conflict tanpa mutasi master.
+Migration 0009 additive; UI lokasi/movement/timeline Task 2-05 belum dimulai.
+Panduan ada di API_CONTRACT.
 
 Fondasi inventaris dan audit aset IT yang berjalan lokal di Ubuntu WSL2.
 Stack: Next.js App Router/TypeScript, FastAPI, SQLAlchemy 2, Alembic, PostgreSQL 16/PostGIS.
@@ -225,3 +227,16 @@ Jangan publikasikan port pengembangan ke jaringan umum.
 
 Dokumen lanjutan: [arsitektur](docs/ARCHITECTURE.md), [aturan bisnis](docs/BUSINESS_RULES.md),
 [database](docs/DATABASE.md), dan [kontrak API](docs/API_CONTRACT.md).
+
+## Timeline dan observasi — Task 2-04
+
+API timeline aset menggabungkan event metadata dan lokasi existing tanpa backfill atau
+penulisan ulang sejarah. OFFICER/ADMIN dapat mencatat bukti lokasi dengan asset/version
+opsional; ADMIN meninjau ACKNOWLEDGED/DISMISSED. Observasi dan review tidak mengubah lokasi
+resmi, waktu verifikasi atau version aset. Status LOCATION_CONFLICT dibandingkan dengan
+observasi terbaru yang tidak dismissed; bukti sebelum verifikasi resmi diberi STALE_OBSERVATION.
+Unknown device dapat dicatat unlinked tanpa menebak identitas. UI/UAT Task 2-05 belum dimulai.
+
+Validasi: `bash infra/check.sh --postgres`, kemudian `bash infra/smoke-observations.sh`
+secara serial dengan smoke lain. Migration 0009 additive; jangan downgrade tabel observasi
+berisi data. Kontrak rinci ada di docs/API_CONTRACT.md dan laporan SPRINT_2_04_REPORT.md.

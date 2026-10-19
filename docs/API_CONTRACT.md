@@ -553,3 +553,63 @@ asset/detail movement 404; inbox filter asset unknown menghasilkan daftar kosong
 mutasi memakai sesi/Origin/CSRF existing, JSON stream maksimal 16 KiB di API/proxy;
 non-JSON 415, oversized 413. Tidak ada PATCH/delete movement. Frontend hanya proxy allowlist,
 belum ada UI. Tidak ada initial placement massal, auto-approval atau perubahan CSV.
+
+## Timeline dan observasi — Task 2-04
+
+| Method | Route /api/v1 | Role |
+|---|---|---|
+| GET | /assets/{id}/timeline | Semua role authenticated |
+| GET | /assets/{id}/location-status | Semua role authenticated |
+| GET | /assets/{id}/location-observations | Semua role authenticated |
+| POST | /location-observations | OFFICER/ADMIN; 201 |
+| GET | /location-observations | ADMIN inbox |
+| GET | /location-observations/{id} | ADMIN detail |
+| POST | /location-observations/{id}/review | ADMIN; 200 |
+
+Create JSON: `{"asset_id":"UUID","asset_version":3,"observed_location_id":"UUID",
+"evidence_note":"Unit ditemukan di Villa 1","observed_at":"2026-10-19T03:00:00Z"}`.
+asset_id/asset_version harus hadir berpasangan atau sama-sama null/absent untuk perangkat
+unlinked. Note canonical nonblank maksimal 2000 karakter. observed_at opsional (default UTC
+server), wajib berzona waktu dan tidak di masa depan; offset dinormalisasi UTC. recorded_at,
+aktor, comparison, snapshot, reviewer dan version ditentukan server. Unknown field ditolak.
+Unknown aset 404, unknown lokasi 422, stale asset version atau lokasi observed archived 409.
+Aset archived boleh mendapat bukti lapangan; tidak mengaktifkan atau memindahkannya.
+
+Output berisi id, asset_id nullable, observed_location_id, observed_by, observed_at, recorded_at,
+evidence_note, official_location_id_at_recording, asset_version_at_recording, comparison_status
+(UNLINKED/UNPLACED/MATCH/LOCATION_CONFLICT), snapshot_json, review_status, reviewed_by/at,
+review_reason dan version. Snapshot menyimpan observed/official lokasi dan konteks aset saat
+pencatatan. comparison_status adalah perbandingan saat direkam, bukan proyeksi status terkini.
+
+Review JSON: `{"version":1,"review_status":"ACKNOWLEDGED","reason":"Sudah diperiksa"}`
+atau DISMISSED. Hanya PENDING → salah satu terminal sekali; version menjadi 2. Stale/replay
+409. ACKNOWLEDGED berarti telah ditinjau, tetap menjadi bukti aktif; bukan resolusi mismatch.
+DISMISSED mengecualikan bukti dari proyeksi terkini tetapi tidak menghapus sejarah. Koreksi
+melalui observasi baru; tidak ada edit/delete/relink evidence. Semua write memakai sesi,
+Origin/CSRF existing, body JSON maksimal 16 KiB; 415 non-JSON dan 413 oversized. Role 401/403.
+Tidak ada mutasi assets/current_location/version dari create maupun review.
+
+History/inbox menerima review_status/comparison_status, page 1–1 juta, page_size 1–100
+(default 20). Inbox menambah asset_id atau unlinked_only=true (mutually exclusive). Order
+observed_at DESC, recorded_at DESC, id DESC. Unknown query ditolak. Unlinked tidak dimasukkan
+ke timeline aset mana pun; audit create/review tetap tersimpan pada audit_events existing.
+
+Location-status mengembalikan asset_id/version, current_location_id, location_verified_at,
+status, location_conflict dan latest_observation nullable. Latest adalah observasi terkait
+yang tidak DISMISSED, diurutkan observed_at/recorded_at/id DESC. UNPLACED jika lokasi resmi
+null; NO_OBSERVATION jika belum ada bukti aktif; STALE_OBSERVATION jika observed_at sebelum
+location_verified_at. Selain itu MATCH atau LOCATION_CONFLICT menurut lokasi resmi saat
+GET. location_conflict=true hanya untuk LOCATION_CONFLICT. Bukti lama tidak auto-revert
+movement terbaru; observasi bukan verifikasi fisik atau identitas otomatis.
+
+Timeline menerima source=METADATA/LOCATION dan event_type opsional serta pagination bounded
+sama. Item: id, source, asset_id, actor_id, event_type, occurred_at, recorded_at,
+correlation_id nullable, payload_json. METADATA membaca asset_change_events (occurred_at =
+recorded_at legacy, correlation null, payload before_json/after_json); LOCATION membaca
+asset_events termasuk initial placement, movement, LOCATION_OBSERVED dan
+LOCATION_OBSERVATION_REVIEWED. Sort occurred_at DESC, recorded_at DESC, source DESC, id DESC;
+identitas item adalah (source,id). Payload/precision timestamp existing tidak ditulis ulang.
+Backdated observation ditempatkan menurut waktu observasi, review menurut waktu keputusan.
+Offset pagination/count bukan snapshot lintas request saat event baru masuk. Semua GET
+read-only/no-store; unknown aset/detail observation 404. Tidak ada endpoint append/edit/delete
+timeline bebas. Frontend hanya proxy allowlist, tanpa UI Task 2-05.

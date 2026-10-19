@@ -5,7 +5,7 @@
 `locations.py` mendaftarkan model pada metadata existing; `location_schemas.py`,
 `location_service.py` dan `location_routes.py` menambahkan API tanpa sistem auth/audit baru.
 Migration 0006 hanya membuat tabel/index/trigger lokasi; tidak mengubah tabel aset atau
-memetakan hint CSV. Pada 2-01 readiness mensyaratkan revisi 0006 dan tabel locations; head kini 0008 (2-03).
+memetakan hint CSV. Pada 2-01 readiness mensyaratkan revisi 0006 dan tabel locations; head kini 0009 (2-04).
 Tree memakai adjacency list (`id`, `parent_id`) agar tidak bergantung kedalaman JSON.
 Maksimum 5000 node; kelebihan ditolak eksplisit, gunakan daftar paginated.
 
@@ -192,5 +192,26 @@ harus memenuhi RBAC/atomic audit melalui aplikasi; guards bukan proteksi terhada
 
 Pilot mengizinkan ADMIN approve request sendiri dengan pencatatan eksplisit, sehingga satu
 ADMIN lokal dapat bekerja. Tidak menambah akun, config, dependency atau service infrastruktur.
-Migration 0008 hanya membuat tabel/index/check/trigger baru kosong; readiness head 0008.
-Timeline/observasi API dan UI tetap pada Task 2-04/2-05, tidak diterapkan di sini.
+Migration 0008 hanya membuat tabel/index/check/trigger baru kosong; readiness pada 2-03 head 0008.
+Timeline/observasi API dilanjutkan pada Task 2-04 di bawah; UI tetap Task 2-05.
+
+## Timeline dan observasi — Task 2-04
+
+Modul observations/observation_schemas/service/routes memakai auth, bounded body, Page,
+transaction helper dan advisory hierarchy lock existing. Create mengunci hierarchy → aset
+jika linked; review hierarchy → observation → aset. Asset lock/version memastikan snapshot
+resmi konsisten dengan approval/metadata, tanpa increment atau mutasi master oleh evidence.
+Event LOCATION_OBSERVED/LOCATION_OBSERVATION_REVIEWED dan evidence/decision commit atomik;
+kegagalan audit me-rollback keseluruhan. Unlinked memakai AuditEvent existing karena
+asset_events mensyaratkan asset_id; tidak membuat aset palsu atau menebak identitas.
+
+location_status membaca aset dan latest non-dismissed observation dalam satu SELECT untuk
+snapshot konsisten. Status dihitung saat GET tanpa write, bukti sebelum waktu verifikasi
+resmi diberi STALE_OBSERVATION. ACK bukan resolusi; DISMISS tidak menghapus bukti. Evidence
+immutable, satu keputusan terminal/version +1; snapshot nama/lokasi tetap setelah archive.
+
+Timeline adalah UNION ALL read-only dua sumber event existing, dengan pagination/filter
+sebelum bulk fetch payload terbatas per sumber. (source,id) membedakan UUID yang sama.
+Tidak menyalin event lama, mengubah precision timestamp lama atau menambah service/event bus.
+Migration 0009 membuat tabel/index/check/guard kosong; readiness memerlukan head 0009 dan
+tabel observasi. Proxy hanya mengizinkan method/route domain tersebut. UI/UAT tetap 2-05.

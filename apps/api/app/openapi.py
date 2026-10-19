@@ -16,7 +16,8 @@ def catalog_openapi(app: FastAPI) -> dict[str, Any]:
             "Local device model catalog and separate physical asset registry. Login "
             "issues HttpOnly cookies; obtain CSRF from /auth/csrf before login, then "
             "/auth/session for authenticated writes. Catalog and metadata writes require"
-            " ADMIN; OFFICER may request/cancel own movements; ADMIN reviews "
+            " ADMIN; OFFICER may record observations and request/cancel own movements; "
+            "ADMIN reviews "
             "(self-approval allowed for pilot). VIEWER is read-only. "
             "PATCH/archive/upload/delete require the current record/model version; stale"
             " versions return 409 without overwriting. List order has UUID tie-breakers."
@@ -93,6 +94,13 @@ def catalog_openapi(app: FastAPI) -> dict[str, Any]:
                     "Only PENDING can transition. Approve compares captured asset version/origin"
                     " and updates location + version + event atomically; stale/repeat returns "
                     "409."
+                ).strip()
+            if path.startswith("/api/v1/location-observations"):
+                operation["description"] = (
+                    operation.get("description", "")
+                    + " OFFICER/ADMIN record immutable evidence; only ADMIN reviews with version. "
+                    "Linked observations require asset_id/asset_version. Review acknowledges or "
+                    "dismisses evidence; neither action changes official location or asset version."
                 ).strip()
             if path.startswith("/api/v1/locations"):
                 operation["description"] = (

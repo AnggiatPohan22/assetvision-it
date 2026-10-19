@@ -16,6 +16,7 @@ from app.image_routes import router as image_router
 from app.location_routes import router as location_router
 from app.logging_config import configure_logging
 from app.movement_routes import router as movement_router
+from app.observation_routes import router as observation_router
 from app.openapi import catalog_openapi
 from app.routes import router
 from app.security import validate_csrf
@@ -31,6 +32,7 @@ app.include_router(asset_location_router)
 app.include_router(image_router)
 app.include_router(location_router)
 app.include_router(movement_router)
+app.include_router(observation_router)
 app.openapi = lambda: catalog_openapi(app)
 
 
