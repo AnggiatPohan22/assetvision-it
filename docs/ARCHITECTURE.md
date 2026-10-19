@@ -1,5 +1,28 @@
 # Architecture
 
+## Location hierarchy — Task 2-01
+
+`locations.py` mendaftarkan model pada metadata existing; `location_schemas.py`,
+`location_service.py` dan `location_routes.py` menambahkan API tanpa sistem auth/audit baru.
+Migration 0006 hanya membuat tabel/index/trigger lokasi; tidak mengubah tabel aset atau
+memetakan hint CSV. Readiness kini mensyaratkan revisi 0006 dan tabel locations.
+Tree memakai adjacency list (`id`, `parent_id`) agar tidak bergantung kedalaman JSON.
+Maksimum 5000 node; kelebihan ditolak eksplisit, gunakan daftar paginated.
+
+Mutasi hierarki PostgreSQL memakai satu transaction advisory lock sebelum membaca parent/
+version, lalu validasi ancestor dan commit bersama snapshot audit. Ini menserialisasi
+perubahan lintas node agar dua reparent tidak bersama-sama membentuk cycle. Trigger memakai
+lock sama dan recursive CTE UNION untuk melindungi SQL langsung, termasuk cycle lintas node;
+UUID immutable dan DELETE ditolak. SQLite memakai trigger CTE dan unique/check constraints,
+sedangkan pengujian race multi-session memakai PostgreSQL sebagai sumber kebenaran.
+API berjalan dengan isolation READ COMMITTED existing. Semua lokasi tetap dapat dibaca
+setelah arsip. Tidak ada self-approval/movement policy pada task ini.
+
+Koordinat outdoor opsional berupa latitude/longitude berpasangan, akurasi meter dan waktu
+pengambilan timezone-aware. Bukan identitas aset atau lokasi authoritative. Floorplan,
+upload dan pin indoor ditunda bersama fitur opsionalnya; input tersebut belum diterima API.
+Frontend hanya menambah allowlist proxy API; location tree UI berada pada Task 2-05.
+
 AssetVision IT adalah modular monolith lokal. Satu API FastAPI memiliki logika bisnis dan otorisasi,
 satu Next.js menyajikan UI, dan PostgreSQL/PostGIS menjadi sumber kebenaran.
 Tidak ada Redis, worker queue, AI, OCR, kamera, atau dependensi cloud.

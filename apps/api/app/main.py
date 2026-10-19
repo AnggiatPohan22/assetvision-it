@@ -12,6 +12,7 @@ from app.asset_routes import router as asset_router
 from app.catalog_routes import router as catalog_router
 from app.config import get_settings
 from app.image_routes import router as image_router
+from app.location_routes import router as location_router
 from app.logging_config import configure_logging
 from app.openapi import catalog_openapi
 from app.routes import router
@@ -25,6 +26,7 @@ app.include_router(catalog_router)
 app.include_router(asset_csv_router)
 app.include_router(asset_router)
 app.include_router(image_router)
+app.include_router(location_router)
 app.openapi = lambda: catalog_openapi(app)
 
 

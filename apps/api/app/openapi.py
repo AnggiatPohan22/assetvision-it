@@ -71,6 +71,12 @@ def catalog_openapi(app: FastAPI) -> dict[str, Any]:
                     "Successful identifier writes return the new asset_version."
                 )
                 operation["description"] = (operation.get("description", "") + policy).strip()
+            if path.startswith("/api/v1/locations"):
+                operation["description"] = (
+                    operation.get("description", "")
+                    + " ADMIN only. PATCH requires current version. Archive via is_active=false; "
+                    "no hard delete. Hierarchy cycles and stale writes return 409."
+                ).strip()
             if path.endswith("/imports/commit"):
                 operation["responses"]["409"]["content"]["application/json"]["schema"] = {
                     "anyOf": [

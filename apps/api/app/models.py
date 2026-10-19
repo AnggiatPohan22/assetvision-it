@@ -15,6 +15,7 @@ from app.catalog import (  # noqa: F401
     StorageCleanupJob,
 )
 from app.db import Base
+from app.locations import Location  # noqa: F401
 
 
 class Role(enum.StrEnum):

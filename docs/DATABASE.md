@@ -1,5 +1,21 @@
 # Database
 
+## Task 2-01 — locations
+
+Revisi `0006_locations` (parent `0005_asset_imports`) menambah tabel locations kosong:
+UUID PK, parent_id self FK RESTRICT, code/name/kind, is_active, latitude/longitude nullable,
+gps_accuracy_m/gps_recorded_at nullable, created_at/updated_at, created_by/updated_by FK users,
+version ORM positif. Partial unique index root code dan parent_id+code meliputi lokasi arsip;
+index parent_id untuk child lookup. CHECK berpasangan/rentang koordinat dan no-self-parent.
+Trigger recursive CTE mencegah cycle; trigger lain/terpadu menolak UUID update dan DELETE.
+Kode divalidasi pula pada SQL langsung. PostgreSQL advisory key 649237804 digunakan service
+dan trigger untuk serialisasi hierarki. Tidak mengedit migrasi 0001–0005.
+
+Upgrade tidak menulis tabel existing, menambah seed, memetakan location_hint, atau memberi
+current_location_id kepada aset. Downgrade hanya diizinkan bila locations kosong;
+penolakan populated table mencegah hilangnya definisi lokasi. Jangan downgrade development
+untuk testing; gunakan db-test tmpfs. Floorplan/pin dan FK lokasi aset belum ditambahkan.
+
 ## Seed aset sintetis — 1B-05
 
 Tidak ada perubahan skema/migration pada hardening 1B-05; head tetap 0005_asset_imports.

@@ -18,6 +18,12 @@ function proxyError(detail: string, status: number): Response {
 function allowedMethods(path: string[]): readonly string[] | undefined {
   const existing = endpoints.get(path.join("/"));
   if (existing) return existing;
+  if (path[0] === "locations") {
+    if (path.length === 1) return ["GET", "POST"];
+    if (path.length === 2 && path[1] === "tree") return ["GET"];
+    if (path.length === 2 && uuid.test(path[1])) return ["GET", "PATCH"];
+    return undefined;
+  }
   if (path[0] === "assets") {
     if (path.length === 2 && path[1] === "export.csv") return ["GET"];
     if (path.length === 3 && path[1] === "imports" && ["preview", "commit"].includes(path[2])) return ["POST"];

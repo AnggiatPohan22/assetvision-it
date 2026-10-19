@@ -17,6 +17,7 @@ from app.catalog import (
 )
 from app.config import get_settings
 from app.dependencies import CurrentUser, Database, current_session, require_roles
+from app.locations import Location
 from app.models import AuditEvent, AuthSession, Role, User
 from app.security import (
     ACCESS_COOKIE,
@@ -59,7 +60,7 @@ def ready(db: Database) -> dict[str, str]:
         if db.bind is not None and db.bind.dialect.name == "postgresql":
             db.execute(text("SELECT PostGIS_Version()"))
         version = db.execute(text("SELECT version_num FROM alembic_version")).scalar_one()
-        if version != "0005_asset_imports":
+        if version != "0006_locations":
             raise ValueError("Schema not current")
         db.execute(select(User.id).limit(1))
         db.execute(select(AuthSession.id).limit(1))
@@ -74,6 +75,7 @@ def ready(db: Database) -> dict[str, str]:
             AssetIdentifier,
             AssetChangeEvent,
             AssetImportBatch,
+            Location,
         ):
             db.execute(select(model.id).limit(1))
     except (SQLAlchemyError, ValueError):

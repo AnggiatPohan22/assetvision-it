@@ -1,5 +1,11 @@
 # AssetVision IT
 
+Task 2-01 menyediakan API hierarki lokasi: `/api/v1/locations`, `/locations/tree`,
+dan `/locations/{id}`. ADMIN membuat/edit/arsip memakai version; semua role dapat membaca.
+Arsip melalui PATCH `is_active=false`, tanpa penghapusan fisik. Belum ada UI lokasi,
+penempatan aset, movement atau observasi. Migrasi 0006 hanya menambah lokasi kosong,
+tanpa menebak `location_hint` atau mengubah aset existing. Panduan ada di API_CONTRACT.
+
 Fondasi inventaris dan audit aset IT yang berjalan lokal di Ubuntu WSL2.
 Stack: Next.js App Router/TypeScript, FastAPI, SQLAlchemy 2, Alembic, PostgreSQL 16/PostGIS.
 Fondasi Sprint 0 mencakup akses pengguna, izin, health check, migrasi, dan audit autentikasi.
@@ -120,6 +126,8 @@ bash infra/smoke-asset-csv.sh
 bash infra/smoke-asset-ui.sh
 # Regresi HTTP Sprint 0/1A/1B + CLI seed pada db-test tmpfs yang dibuat ulang:
 bash infra/smoke-sprint1b.sh
+# Smoke hierarki lokasi melalui proxy/API/PostgreSQL terisolasi:
+bash infra/smoke-locations.sh
 ```
 
 Tanpa --postgres, script menjalankan backend SQLite, Ruff, ESLint, TypeScript, dan pengujian frontend.

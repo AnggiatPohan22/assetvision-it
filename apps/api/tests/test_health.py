@@ -38,6 +38,7 @@ def test_not_ready_on_db_failure(client: TestClient) -> None:
         "0002_device_catalog",
         "0003_image_cleanup",
         "0004_asset_registry",
+        "0005_asset_imports",
         "old_revision",
         None,
     ],
@@ -58,6 +59,12 @@ def test_not_ready_when_catalog_table_missing(client: TestClient, db: Session) -
 
 def test_not_ready_when_import_receipts_missing(client: TestClient, db: Session) -> None:
     db.execute(text("DROP TABLE asset_import_batches"))
+    db.commit()
+    assert client.get("/api/v1/ready").status_code == 503
+
+
+def test_not_ready_when_locations_missing(client: TestClient, db: Session) -> None:
+    db.execute(text("DROP TABLE locations"))
     db.commit()
     assert client.get("/api/v1/ready").status_code == 503
 

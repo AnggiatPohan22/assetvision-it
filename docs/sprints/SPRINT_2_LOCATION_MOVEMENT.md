@@ -1,6 +1,11 @@
 # AssetVision IT — Sprint 2: Location, Movement & Audit Trail
 
-**Status:** Planned · **Prasyarat:** Sprint 1B selesai · **Estimasi:** 8–12 hari kerja · **Prioritas:** P0
+**Status:** In progress — Task 2-01 diimplementasikan; 2-02–2-05 belum dimulai · **Prasyarat:** Sprint 1B selesai · **Estimasi:** 8–12 hari kerja · **Prioritas:** P0
+
+Task 2-01 menambah hierarki, tree API adjacency, API ADMIN create/PATCH/archive,
+cycle guards aplikasi/database, version, audit dan migration 0006. Tidak menambah
+FK lokasi aset, placement, movement, timeline/observasi atau UI lokasi. Floorplan/pin
+opsional ditunda. Hasil eksekusi dan preservasi: `SPRINT_2_01_REPORT.md`.
 
 ## Tujuan
 
@@ -89,14 +94,14 @@ ADMIN tidak boleh mengubah lokasi lewat PATCH asset umum; semua perubahan resmi 
 
 ## Acceptance criteria
 
-- [ ] Lokasi Lounge, Lobby, Villa 1, Villa 10 dapat dibuat dalam hierarki.
+- [x] Lokasi Lounge, Lobby, Villa 1, Villa 10 dapat dibuat dalam hierarki (fixture sintetis API/smoke, bukan seed development).
 - [ ] AP-003 ditempatkan di Villa 1 melalui event yang tercatat.
 - [ ] OFFICER mengajukan mutasi Villa 1 → Villa 10; sebelum approval lokasi resmi tetap Villa 1.
 - [ ] ADMIN approve → lokasi resmi Villa 10 dan event histori mencatat asal/tujuan/aktor/waktu.
 - [ ] Reject → tidak ada perubahan lokasi.
 - [ ] Approval ganda/stale menghasilkan konflik, tidak ada lost update.
 - [ ] Observasi AP-003 di Villa 1 setelah pindah ke Villa 10 menimbulkan conflict, bukan auto-revert.
-- [ ] Cycle lokasi (parent menjadi descendant) ditolak.
+- [x] Cycle lokasi (parent menjadi descendant) ditolak (API/SQL langsung dan race PostgreSQL).
 - [ ] Non-ADMIN tidak bisa approve/reject.
 - [ ] Event historis tetap ada setelah lokasi diarsipkan.
 - [ ] Migration, RBAC, concurrency, dan UI tests lulus.

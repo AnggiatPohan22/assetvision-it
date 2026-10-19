@@ -1,5 +1,38 @@
 # API Contract
 
+## Task 2-01 — Location hierarchy
+
+Semua path di bawah `/api/v1`, memakai cookie/session dan CSRF existing.
+
+| Method | Path | Hak akses / hasil |
+|---|---|---|
+| GET | `/locations` | authenticated, page berisi items/total/page/page_size/total_pages |
+| GET | `/locations/tree` | authenticated, adjacency `{items: Location[], total}` termasuk arsip |
+| GET | `/locations/{uuid}` | authenticated, detail atau 404 |
+| POST | `/locations` | ADMIN, 201 |
+| PATCH | `/locations/{uuid}` | ADMIN, 200 dengan version baru |
+
+List: `parent_id` untuk direct children; tanpa parent_id membaca semua lokasi, `roots_only=true`
+untuk root (tidak boleh bersama parent_id). Filter `kind`, `is_active`, `search` name/code
+case-insensitive dan literal wildcard; page default 1, maksimum 1 juta; page_size default 20,
+1–100. Urutan code lalu UUID. Tree urutan sama, flat adjacency lengkap maksimal 5000 node;
+lebih dari batas menghasilkan 409, tidak mengembalikan tree terpotong. Archive tetap terbaca.
+Pagination offset bukan snapshot lintas request. Unknown query fields ditolak 422.
+
+Create wajib code/name/kind. Opsional parent_id null (root), is_active default true,
+latitude/longitude, gps_accuracy_m, gps_recorded_at ISO8601 berzona. Kind uppercase
+SITE/BUILDING/FLOOR/ROOM/AREA/SPOT. PATCH wajib `version` dan minimal satu perubahan;
+hasil gabungan koordinat diperiksa. Null hanya untuk parent/koordinat/akurasi/waktu.
+Server owns UUID/actor/timestamp/version awal; extra fields termasuk floorplan/pin ditolak.
+Arsip/restore via PATCH is_active; tidak ada hard DELETE/endpoint archive terpisah.
+
+409: stale version, cycle, kode sibling/root duplikat (termasuk archived), parent archived.
+422: validasi/parent tak dikenal; 401 anonim/inactive/revoked; 403 role/Origin/CSRF.
+Mutasi JSON maksimal 16 KiB streaming di API dan proxy (413); non-JSON 415.
+Semua response private/no-store/nosniff. Audit location_create/update/archive menyimpan
+actor, timestamp, UUID serta snapshot before/after JSON string dalam details existing.
+Tidak ada placement, asset location lookup, movement, timeline atau observation API pada 2-01.
+
 ## Hardening 1B-05
 
 Kontrak endpoint, cookie/CSRF/RBAC dan version tetap sama; tidak menambah API seed/reset.

@@ -1,5 +1,23 @@
 # Testing and development dependencies
 
+## Task 2-01 — lokasi
+
+Suite `tests/test_locations.py` memeriksa keenam kind, normalisasi, unique sibling/root,
+tree adjacency termasuk archived ancestors, filtering/pagination/read-only, RBAC/CSRF,
+input spoofing dan koordinat PATCH gabungan, rollback audit, SQL cycle/identity/delete guards,
+preservasi seluruh tabel predecessor dan downgrade populated-table refusal.
+Tiga race PostgreSQL: dua PATCH version sama, opposite reparent service, opposite reparent
+SQL langsung; masing-masing satu sukses/satu konflik dan tidak membentuk cycle.
+
+Jalankan `bash infra/check.sh --postgres` untuk backend SQLite + PostgreSQL/PostGIS,
+migration check/roundtrip dan frontend lint/type/tests. `bash infra/smoke-locations.sh`
+membangun runtime dan memeriksa API melalui Next.js proxy/PostgreSQL nyata dengan data
+sintetis: Lounge/Lobby/Villa 1/Villa 10, tree/archive, conflict dan role/logout guards.
+Runner merekreasi hanya `db-test` tmpfs, tidak menyentuh DB development; menghentikan
+smoke/test services saat selesai. Jalankan serial setelah suite integrasi.
+`bash infra/smoke-sprint1b.sh` tetap menyediakan regresi HTTP predecessor.
+Tidak ada location UI/E2E visual pada task ini. Angka hasil aktual ada di laporan 2-01.
+
 ## Penutupan Sprint 1B — Task 1B-05
 
 `bash infra/check.sh --postgres` menambahkan test_seed_assets.py dan test_asset_hardening.py:

@@ -1,5 +1,29 @@
 # Business Rules
 
+## Hierarki lokasi — Task 2-01
+
+Location berbeda dari penempatan aset. SITE/BUILDING/FLOOR/ROOM/AREA/SPOT dapat menjadi
+root/child; tidak memaksakan urutan kind universal karena struktur outdoor/indoor bervariasi.
+Parent wajib existing, tidak boleh self/descendant. Kode lowercase ASCII dengan separator
+hyphen, 1–50 karakter, unik per parent dan unik antar root. Kode arsip tetap direservasi.
+Nama dinormalisasi whitespace, maksimum 200 karakter. UUID tetap; rename/reparent melalui
+PATCH version dengan audit actor/waktu/before/after dalam transaksi yang sama.
+
+ADMIN saja dapat mutasi; OFFICER/VIEWER read-only. PATCH wajib version integer positif;
+stale 409 tanpa overwrite. Setiap PATCH valid menaikkan version, termasuk nilai sama.
+Arsip `is_active=false` tidak cascade, tidak memutus parent/child atau menyembunyikan sejarah.
+Parent archived tidak menerima child baru, pemindahan masuk, atau restore child; edit metadata
+child historis dengan relasi tetap diperbolehkan. Status active bersifat lokal, bukan agregat
+seluruh ancestor. Memindah/restore ke parent aktif atau root diperbolehkan.
+
+Koordinat berpasangan dalam rentang latitude ±90/longitude ±180, akurasi nonnegatif maksimal
+10 juta meter, waktu GPS berzona jika tersedia. Akurasi/waktu memerlukan koordinat.
+PATCH memvalidasi hasil gabungan; menghapus koordinat memerlukan pengosongan akurasi/waktu
+juga bila ada. Tidak ada geocoding/inference lokasi, floorplan, placement atau movement.
+Audit memakai AuditEvent existing dengan details before/after berisi JSON string; tidak ada
+API edit/delete audit. Trigger lokasi tidak menjamin setiap writer SQL menulis audit dan
+bukan proteksi terhadap database owner/superuser. Downgrade menolak tabel lokasi berisi data.
+
 ## UI registry — Task 1B-04
 
 Daftar/detail dan riwayat metadata dapat dibaca ADMIN/OFFICER/VIEWER. Halaman tambah/impor

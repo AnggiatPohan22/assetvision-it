@@ -5,6 +5,39 @@ import { proxyRequest } from "../lib/proxy";
 const originalFetch = globalThis.fetch;
 afterEach(() => { globalThis.fetch = originalFetch; });
 
+test("location proxy forwards hierarchy filters and versioned writes; rejects other routes", async () => {
+  const id = "00000000-0000-0000-0000-000000000001";
+  let calls = 0;
+  globalThis.fetch = async (url, init) => {
+    calls++;
+    assert.equal(new URL(String(url)).search, "?roots_only=true");
+    assert.equal(new Headers(init?.headers).get("cookie"), "av_access=opaque");
+    if (init?.method === "PATCH" || init?.method === "POST") {
+      assert.equal(new Headers(init.headers).get("x-csrf-token"), "csrf");
+      assert.equal(new TextDecoder().decode(init.body as ArrayBuffer), '{"version":1}');
+    }
+    return Response.json({ detail: "Location conflict" }, { status: 409 });
+  };
+  for (const [path, methods] of [
+    [["locations"], ["GET", "POST"]], [["locations", "tree"], ["GET"]],
+    [["locations", id], ["GET", "PATCH"]],
+  ] as [string[], string[]][]) for (const method of methods) {
+    const response = await proxyRequest(new Request("http://local?roots_only=true", {
+      method, headers: { cookie: "av_access=opaque", "x-csrf-token": "csrf" },
+      ...(["PATCH", "POST"].includes(method) ? { body: '{"version":1}' } : {}),
+    }), path);
+    assert.equal(response.status, 409);
+    assert.equal(response.headers.get("cache-control"), "no-store");
+  }
+  const before = calls;
+  assert.equal((await proxyRequest(new Request("http://local", { method: "DELETE" }), ["locations", id])).status, 405);
+  assert.equal((await proxyRequest(new Request("http://local", { method: "POST" }), ["locations", "tree"])).status, 405);
+  for (const path of [["locations", "bad"], ["locations", id, "archive"], ["locations", id, "movements"]])
+    assert.equal((await proxyRequest(new Request("http://local"), path)).status, 404);
+  assert.equal((await proxyRequest(new Request("http://local", { method: "PATCH", body: "x".repeat(17000) }), ["locations", id])).status, 413);
+  assert.equal(calls, before);
+});
+
 test("CSV proxy limits import bodies and preserves export bytes and headers", async () => {
   let calls = 0;
   globalThis.fetch = async (url, init) => {
