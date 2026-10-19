@@ -240,3 +240,17 @@ ACK/DISMISS/stale evidence dan backend authorization 2-04 dipertahankan.
 Tidak mengubah business service, migration, dependencies, environment atau infrastruktur.
 Floorplan/pin opsional tetap ditunda. Unknown/unlinked observations tetap tersedia lewat API;
 form detail aset 2-05 hanya mencatat linked evidence, tanpa auto-link atau create unit baru.
+
+
+## Offline evaluation — Task 3-01
+
+`tools/recognition_eval` adalah CLI terpisah, tidak diimpor API. Validator memeriksa provenance,
+split/group/hash, decoded/perceptual leakage dan gambar berbatas. Metrics menggunakan ranking
+model cosine dan threshold calibration-only; torch_cpu.py hanya runner eksperimen, bukan
+adapter/index runtime Task 3-02. Tidak ada DB, upload storage, auth atau proxy baru.
+
+Image evaluasi mengisolasi PyTorch CPU/torchvision/NumPy dari requirements API. Download
+publik library/weights eksplisit saat build. Benchmark network none, dataset/filesystem
+read-only; hanya direktori laporan baru writable, proses terpisah CPU2/memory2GiB. Tidak
+mount .env/volume development atau menjalankan Compose. Schema tetap0009 tanpa seed/backfill.
+Protokol dan batas data sintetis/profil satu model ada di RECOGNITION_EVALUATION.md.

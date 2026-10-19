@@ -1,0 +1,566 @@
+{
+  "scope": "Task 3-01 only; no encoder selected",
+  "runs": {
+    "synthetic": {
+      "mobilenet_v3_small": {
+        "dataset_id": "synthetic-patterns-v1",
+        "synthetic": true,
+        "manifest_sha256": "0f852e94876803fed3341d182fe7a9d96e9a3c5e0c47538cabbf7c78f750b18d",
+        "counts": {
+          "calibration": 8,
+          "reference": 20,
+          "test": 12,
+          "unknown_calibration": 6,
+          "unknown_test": 6
+        },
+        "per_model_counts": {
+          "synthetic-model-0": {
+            "reference": 5,
+            "calibration": 2,
+            "test": 3
+          },
+          "synthetic-model-1": {
+            "reference": 5,
+            "calibration": 2,
+            "test": 3
+          },
+          "synthetic-model-2": {
+            "reference": 5,
+            "calibration": 2,
+            "test": 3
+          },
+          "synthetic-model-3": {
+            "reference": 5,
+            "calibration": 2,
+            "test": 3
+          }
+        },
+        "threshold": 0.8932188045564678,
+        "threshold_policy": "calibration-only balanced acceptance/rejection; tie=higher threshold",
+        "score_label": "cosine similarity, not probability or calibrated confidence",
+        "metrics": {
+          "known_count": 12,
+          "unknown_count": 6,
+          "top1_accuracy": 1.0,
+          "top3_accuracy": 1.0,
+          "accepted_correct_known_rate": 1.0,
+          "unknown_precision": 1.0,
+          "unknown_recall": 0.6666666666666666,
+          "unknown_f1": 0.8,
+          "unknown_false_accept_rate": 0.3333333333333333,
+          "known_false_reject_rate": 0.0,
+          "known_wrong_accept_rate": 0.0,
+          "unknown_confusion": {
+            "tp_rejected_unknown": 4,
+            "fp_rejected_known": 0,
+            "fn_accepted_unknown": 2,
+            "tn_accepted_known": 12
+          },
+          "known_confusion": {
+            "synthetic-model-0->synthetic-model-0": 3,
+            "synthetic-model-1->synthetic-model-1": 3,
+            "synthetic-model-2->synthetic-model-2": 3,
+            "synthetic-model-3->synthetic-model-3": 3
+          }
+        },
+        "per_model_metrics": {
+          "synthetic-model-0": {
+            "known_count": 3,
+            "unknown_count": 6,
+            "top1_accuracy": 1.0,
+            "top3_accuracy": 1.0,
+            "accepted_correct_known_rate": 1.0,
+            "unknown_precision": 1.0,
+            "unknown_recall": 0.6666666666666666,
+            "unknown_f1": 0.8,
+            "unknown_false_accept_rate": 0.3333333333333333,
+            "known_false_reject_rate": 0.0,
+            "known_wrong_accept_rate": 0.0,
+            "unknown_confusion": {
+              "tp_rejected_unknown": 4,
+              "fp_rejected_known": 0,
+              "fn_accepted_unknown": 2,
+              "tn_accepted_known": 3
+            },
+            "known_confusion": {
+              "synthetic-model-0->synthetic-model-0": 3
+            }
+          },
+          "synthetic-model-1": {
+            "known_count": 3,
+            "unknown_count": 6,
+            "top1_accuracy": 1.0,
+            "top3_accuracy": 1.0,
+            "accepted_correct_known_rate": 1.0,
+            "unknown_precision": 1.0,
+            "unknown_recall": 0.6666666666666666,
+            "unknown_f1": 0.8,
+            "unknown_false_accept_rate": 0.3333333333333333,
+            "known_false_reject_rate": 0.0,
+            "known_wrong_accept_rate": 0.0,
+            "unknown_confusion": {
+              "tp_rejected_unknown": 4,
+              "fp_rejected_known": 0,
+              "fn_accepted_unknown": 2,
+              "tn_accepted_known": 3
+            },
+            "known_confusion": {
+              "synthetic-model-1->synthetic-model-1": 3
+            }
+          },
+          "synthetic-model-2": {
+            "known_count": 3,
+            "unknown_count": 6,
+            "top1_accuracy": 1.0,
+            "top3_accuracy": 1.0,
+            "accepted_correct_known_rate": 1.0,
+            "unknown_precision": 1.0,
+            "unknown_recall": 0.6666666666666666,
+            "unknown_f1": 0.8,
+            "unknown_false_accept_rate": 0.3333333333333333,
+            "known_false_reject_rate": 0.0,
+            "known_wrong_accept_rate": 0.0,
+            "unknown_confusion": {
+              "tp_rejected_unknown": 4,
+              "fp_rejected_known": 0,
+              "fn_accepted_unknown": 2,
+              "tn_accepted_known": 3
+            },
+            "known_confusion": {
+              "synthetic-model-2->synthetic-model-2": 3
+            }
+          },
+          "synthetic-model-3": {
+            "known_count": 3,
+            "unknown_count": 6,
+            "top1_accuracy": 1.0,
+            "top3_accuracy": 1.0,
+            "accepted_correct_known_rate": 1.0,
+            "unknown_precision": 1.0,
+            "unknown_recall": 0.6666666666666666,
+            "unknown_f1": 0.8,
+            "unknown_false_accept_rate": 0.3333333333333333,
+            "known_false_reject_rate": 0.0,
+            "known_wrong_accept_rate": 0.0,
+            "unknown_confusion": {
+              "tp_rejected_unknown": 4,
+              "fp_rejected_known": 0,
+              "fn_accepted_unknown": 2,
+              "tn_accepted_known": 3
+            },
+            "known_confusion": {
+              "synthetic-model-3->synthetic-model-3": 3
+            }
+          }
+        },
+        "dataset_selection_eligible": false,
+        "top3_go_no_go": "NO_GO",
+        "encoder_selection": "DEFERRED_REQUIRES_REAL_VALIDATION_AND_COMPARATIVE_REVIEW",
+        "encoder": "mobilenet_v3_small",
+        "encoder_version": "torchvision-0.25.0+cpu:IMAGENET1K_V1",
+        "weights_sha256": "047dcff4addef86ea5bc2eff13c9614dc11f47ab1160d0a71a25e7db994f4e1f",
+        "weights_bytes": 10306551,
+        "preprocess_version": "fb3c39345e781c64a0f391dd2412de13232f6f373947464b0f5765e85038ceef",
+        "preprocess_spec": "exif-transpose-rgb-v1;ImageClassification(\n    crop_size=[224]\n    resize_size=[256]\n    mean=[0.485, 0.456, 0.406]\n    std=[0.229, 0.224, 0.225]\n    interpolation=InterpolationMode.BILINEAR\n)",
+        "embedding_dimensions": 576,
+        "environment": {
+          "python": "3.12.15",
+          "platform": "Linux-6.18.54.1-microsoft-standard-WSL2-x86_64-with-glibc2.41",
+          "cpu": "AMD Ryzen 5 5600H with Radeon Graphics",
+          "torch": "2.10.0+cpu",
+          "torchvision": "0.25.0+cpu",
+          "numpy": "2.2.4",
+          "device": "cpu",
+          "threads": 2,
+          "cuda_used": false,
+          "cgroup_cpu_max": "200000 100000",
+          "cgroup_memory_max": "2147483648",
+          "pid_peak_rss_mib": 329.7109375
+        },
+        "benchmark": {
+          "cold_model_load_ms": 530.5359280027915,
+          "warmup": 5,
+          "repeats": 3,
+          "batch_size": 1,
+          "timed_samples": 156,
+          "latency": {
+            "decode_preprocess_ms": {
+              "p50": 1.477471501857508,
+              "p95": 2.4137162472470663
+            },
+            "encoder_ms": {
+              "p50": 6.939185001101578,
+              "p95": 12.039949499012437
+            },
+            "search_ms": {
+              "p50": 0.22410150268115103,
+              "p95": 0.3884184989146888
+            },
+            "end_to_end_ms": {
+              "p50": 8.62995200077421,
+              "p95": 14.188918246873072
+            }
+          },
+          "search_reference_count": 20,
+          "excludes": [
+            "manifest validation",
+            "weight download",
+            "API/network/upload",
+            "database"
+          ]
+        },
+        "raw_report_sha256": "e50a6d47b686b06a2e81cbc73e84eb7d4cf2b74fe4106a75eb1c80cec18dcd67"
+      },
+      "shufflenet_v2_x0_5": {
+        "dataset_id": "synthetic-patterns-v1",
+        "synthetic": true,
+        "manifest_sha256": "0f852e94876803fed3341d182fe7a9d96e9a3c5e0c47538cabbf7c78f750b18d",
+        "counts": {
+          "calibration": 8,
+          "reference": 20,
+          "test": 12,
+          "unknown_calibration": 6,
+          "unknown_test": 6
+        },
+        "per_model_counts": {
+          "synthetic-model-0": {
+            "reference": 5,
+            "calibration": 2,
+            "test": 3
+          },
+          "synthetic-model-1": {
+            "reference": 5,
+            "calibration": 2,
+            "test": 3
+          },
+          "synthetic-model-2": {
+            "reference": 5,
+            "calibration": 2,
+            "test": 3
+          },
+          "synthetic-model-3": {
+            "reference": 5,
+            "calibration": 2,
+            "test": 3
+          }
+        },
+        "threshold": 0.918335245159129,
+        "threshold_policy": "calibration-only balanced acceptance/rejection; tie=higher threshold",
+        "score_label": "cosine similarity, not probability or calibrated confidence",
+        "metrics": {
+          "known_count": 12,
+          "unknown_count": 6,
+          "top1_accuracy": 1.0,
+          "top3_accuracy": 1.0,
+          "accepted_correct_known_rate": 1.0,
+          "unknown_precision": 1.0,
+          "unknown_recall": 0.8333333333333334,
+          "unknown_f1": 0.9090909090909091,
+          "unknown_false_accept_rate": 0.16666666666666666,
+          "known_false_reject_rate": 0.0,
+          "known_wrong_accept_rate": 0.0,
+          "unknown_confusion": {
+            "tp_rejected_unknown": 5,
+            "fp_rejected_known": 0,
+            "fn_accepted_unknown": 1,
+            "tn_accepted_known": 12
+          },
+          "known_confusion": {
+            "synthetic-model-0->synthetic-model-0": 3,
+            "synthetic-model-1->synthetic-model-1": 3,
+            "synthetic-model-2->synthetic-model-2": 3,
+            "synthetic-model-3->synthetic-model-3": 3
+          }
+        },
+        "per_model_metrics": {
+          "synthetic-model-0": {
+            "known_count": 3,
+            "unknown_count": 6,
+            "top1_accuracy": 1.0,
+            "top3_accuracy": 1.0,
+            "accepted_correct_known_rate": 1.0,
+            "unknown_precision": 1.0,
+            "unknown_recall": 0.8333333333333334,
+            "unknown_f1": 0.9090909090909091,
+            "unknown_false_accept_rate": 0.16666666666666666,
+            "known_false_reject_rate": 0.0,
+            "known_wrong_accept_rate": 0.0,
+            "unknown_confusion": {
+              "tp_rejected_unknown": 5,
+              "fp_rejected_known": 0,
+              "fn_accepted_unknown": 1,
+              "tn_accepted_known": 3
+            },
+            "known_confusion": {
+              "synthetic-model-0->synthetic-model-0": 3
+            }
+          },
+          "synthetic-model-1": {
+            "known_count": 3,
+            "unknown_count": 6,
+            "top1_accuracy": 1.0,
+            "top3_accuracy": 1.0,
+            "accepted_correct_known_rate": 1.0,
+            "unknown_precision": 1.0,
+            "unknown_recall": 0.8333333333333334,
+            "unknown_f1": 0.9090909090909091,
+            "unknown_false_accept_rate": 0.16666666666666666,
+            "known_false_reject_rate": 0.0,
+            "known_wrong_accept_rate": 0.0,
+            "unknown_confusion": {
+              "tp_rejected_unknown": 5,
+              "fp_rejected_known": 0,
+              "fn_accepted_unknown": 1,
+              "tn_accepted_known": 3
+            },
+            "known_confusion": {
+              "synthetic-model-1->synthetic-model-1": 3
+            }
+          },
+          "synthetic-model-2": {
+            "known_count": 3,
+            "unknown_count": 6,
+            "top1_accuracy": 1.0,
+            "top3_accuracy": 1.0,
+            "accepted_correct_known_rate": 1.0,
+            "unknown_precision": 1.0,
+            "unknown_recall": 0.8333333333333334,
+            "unknown_f1": 0.9090909090909091,
+            "unknown_false_accept_rate": 0.16666666666666666,
+            "known_false_reject_rate": 0.0,
+            "known_wrong_accept_rate": 0.0,
+            "unknown_confusion": {
+              "tp_rejected_unknown": 5,
+              "fp_rejected_known": 0,
+              "fn_accepted_unknown": 1,
+              "tn_accepted_known": 3
+            },
+            "known_confusion": {
+              "synthetic-model-2->synthetic-model-2": 3
+            }
+          },
+          "synthetic-model-3": {
+            "known_count": 3,
+            "unknown_count": 6,
+            "top1_accuracy": 1.0,
+            "top3_accuracy": 1.0,
+            "accepted_correct_known_rate": 1.0,
+            "unknown_precision": 1.0,
+            "unknown_recall": 0.8333333333333334,
+            "unknown_f1": 0.9090909090909091,
+            "unknown_false_accept_rate": 0.16666666666666666,
+            "known_false_reject_rate": 0.0,
+            "known_wrong_accept_rate": 0.0,
+            "unknown_confusion": {
+              "tp_rejected_unknown": 5,
+              "fp_rejected_known": 0,
+              "fn_accepted_unknown": 1,
+              "tn_accepted_known": 3
+            },
+            "known_confusion": {
+              "synthetic-model-3->synthetic-model-3": 3
+            }
+          }
+        },
+        "dataset_selection_eligible": false,
+        "top3_go_no_go": "NO_GO",
+        "encoder_selection": "DEFERRED_REQUIRES_REAL_VALIDATION_AND_COMPARATIVE_REVIEW",
+        "encoder": "shufflenet_v2_x0_5",
+        "encoder_version": "torchvision-0.25.0+cpu:IMAGENET1K_V1",
+        "weights_sha256": "f707e7126e8601ea5fa0e272e0f35c52807773d603bcb11e611fa04a0b0880fd",
+        "weights_bytes": 5538128,
+        "preprocess_version": "fb3c39345e781c64a0f391dd2412de13232f6f373947464b0f5765e85038ceef",
+        "preprocess_spec": "exif-transpose-rgb-v1;ImageClassification(\n    crop_size=[224]\n    resize_size=[256]\n    mean=[0.485, 0.456, 0.406]\n    std=[0.229, 0.224, 0.225]\n    interpolation=InterpolationMode.BILINEAR\n)",
+        "embedding_dimensions": 1024,
+        "environment": {
+          "python": "3.12.15",
+          "platform": "Linux-6.18.54.1-microsoft-standard-WSL2-x86_64-with-glibc2.41",
+          "cpu": "AMD Ryzen 5 5600H with Radeon Graphics",
+          "torch": "2.10.0+cpu",
+          "torchvision": "0.25.0+cpu",
+          "numpy": "2.2.4",
+          "device": "cpu",
+          "threads": 2,
+          "cuda_used": false,
+          "cgroup_cpu_max": "200000 100000",
+          "cgroup_memory_max": "2147483648",
+          "pid_peak_rss_mib": 321.046875
+        },
+        "benchmark": {
+          "cold_model_load_ms": 57.9290929963463,
+          "warmup": 5,
+          "repeats": 3,
+          "batch_size": 1,
+          "timed_samples": 156,
+          "latency": {
+            "decode_preprocess_ms": {
+              "p50": 1.3377909999690019,
+              "p95": 1.7559015013830503
+            },
+            "encoder_ms": {
+              "p50": 7.102711002517026,
+              "p95": 9.58089149571606
+            },
+            "search_ms": {
+              "p50": 0.2163419994758442,
+              "p95": 0.382222495318274
+            },
+            "end_to_end_ms": {
+              "p50": 8.66799949653796,
+              "p95": 11.731188498742995
+            }
+          },
+          "search_reference_count": 20,
+          "excludes": [
+            "manifest validation",
+            "weight download",
+            "API/network/upload",
+            "database"
+          ]
+        },
+        "raw_report_sha256": "d7554000572eb17d53a81f66d3ba0f347b470ffeaec543c65e2275e595c2ff36"
+      }
+    },
+    "wp810-profile": {
+      "mobilenet_v3_small": {
+        "dataset_id": "wp810-real-cpu-profile-v1",
+        "synthetic": false,
+        "manifest_sha256": "691b9efcce4255c4848b536647f028766eb6726ac04702bbdfbcb2c00b6b184f",
+        "counts": {
+          "profile": 6
+        },
+        "metrics": null,
+        "threshold": null,
+        "dataset_selection_eligible": false,
+        "top3_go_no_go": "NO_GO",
+        "encoder_selection": "DEFERRED_INCOMPLETE_REAL_DATASET",
+        "scope": "CPU latency only; no independent reference/calibration/test/unknown sets",
+        "encoder": "mobilenet_v3_small",
+        "encoder_version": "torchvision-0.25.0+cpu:IMAGENET1K_V1",
+        "weights_sha256": "047dcff4addef86ea5bc2eff13c9614dc11f47ab1160d0a71a25e7db994f4e1f",
+        "weights_bytes": 10306551,
+        "preprocess_version": "fb3c39345e781c64a0f391dd2412de13232f6f373947464b0f5765e85038ceef",
+        "preprocess_spec": "exif-transpose-rgb-v1;ImageClassification(\n    crop_size=[224]\n    resize_size=[256]\n    mean=[0.485, 0.456, 0.406]\n    std=[0.229, 0.224, 0.225]\n    interpolation=InterpolationMode.BILINEAR\n)",
+        "embedding_dimensions": 576,
+        "environment": {
+          "python": "3.12.15",
+          "platform": "Linux-6.18.54.1-microsoft-standard-WSL2-x86_64-with-glibc2.41",
+          "cpu": "AMD Ryzen 5 5600H with Radeon Graphics",
+          "torch": "2.10.0+cpu",
+          "torchvision": "0.25.0+cpu",
+          "numpy": "2.2.4",
+          "device": "cpu",
+          "threads": 2,
+          "cuda_used": false,
+          "cgroup_cpu_max": "200000 100000",
+          "cgroup_memory_max": "2147483648",
+          "pid_peak_rss_mib": 342.08984375
+        },
+        "benchmark": {
+          "cold_model_load_ms": 85.93919799750438,
+          "warmup": 5,
+          "repeats": 3,
+          "batch_size": 1,
+          "timed_samples": 18,
+          "latency": {
+            "decode_preprocess_ms": {
+              "p50": 17.344465501082595,
+              "p95": 17.93604335070995
+            },
+            "encoder_ms": {
+              "p50": 6.643913500738563,
+              "p95": 7.198275149130495
+            },
+            "end_to_end_ms": {
+              "p50": 23.929331000545062,
+              "p95": 24.882893253743532
+            }
+          },
+          "search_reference_count": 0,
+          "excludes": [
+            "manifest validation",
+            "weight download",
+            "API/network/upload",
+            "database"
+          ]
+        },
+        "raw_report_sha256": "c5c2c30708d201028b0b44d3932f2355aeba9bcff708d3e86180f69b70ec9a66"
+      },
+      "shufflenet_v2_x0_5": {
+        "dataset_id": "wp810-real-cpu-profile-v1",
+        "synthetic": false,
+        "manifest_sha256": "691b9efcce4255c4848b536647f028766eb6726ac04702bbdfbcb2c00b6b184f",
+        "counts": {
+          "profile": 6
+        },
+        "metrics": null,
+        "threshold": null,
+        "dataset_selection_eligible": false,
+        "top3_go_no_go": "NO_GO",
+        "encoder_selection": "DEFERRED_INCOMPLETE_REAL_DATASET",
+        "scope": "CPU latency only; no independent reference/calibration/test/unknown sets",
+        "encoder": "shufflenet_v2_x0_5",
+        "encoder_version": "torchvision-0.25.0+cpu:IMAGENET1K_V1",
+        "weights_sha256": "f707e7126e8601ea5fa0e272e0f35c52807773d603bcb11e611fa04a0b0880fd",
+        "weights_bytes": 5538128,
+        "preprocess_version": "fb3c39345e781c64a0f391dd2412de13232f6f373947464b0f5765e85038ceef",
+        "preprocess_spec": "exif-transpose-rgb-v1;ImageClassification(\n    crop_size=[224]\n    resize_size=[256]\n    mean=[0.485, 0.456, 0.406]\n    std=[0.229, 0.224, 0.225]\n    interpolation=InterpolationMode.BILINEAR\n)",
+        "embedding_dimensions": 1024,
+        "environment": {
+          "python": "3.12.15",
+          "platform": "Linux-6.18.54.1-microsoft-standard-WSL2-x86_64-with-glibc2.41",
+          "cpu": "AMD Ryzen 5 5600H with Radeon Graphics",
+          "torch": "2.10.0+cpu",
+          "torchvision": "0.25.0+cpu",
+          "numpy": "2.2.4",
+          "device": "cpu",
+          "threads": 2,
+          "cuda_used": false,
+          "cgroup_cpu_max": "200000 100000",
+          "cgroup_memory_max": "2147483648",
+          "pid_peak_rss_mib": 333.88671875
+        },
+        "benchmark": {
+          "cold_model_load_ms": 58.7350179994246,
+          "warmup": 5,
+          "repeats": 3,
+          "batch_size": 1,
+          "timed_samples": 18,
+          "latency": {
+            "decode_preprocess_ms": {
+              "p50": 25.393110499862814,
+              "p95": 34.0503989496937
+            },
+            "encoder_ms": {
+              "p50": 8.75884549896,
+              "p95": 9.44569150051393
+            },
+            "end_to_end_ms": {
+              "p50": 34.06763649763889,
+              "p95": 43.33522904998965
+            }
+          },
+          "search_reference_count": 0,
+          "excludes": [
+            "manifest validation",
+            "weight download",
+            "API/network/upload",
+            "database"
+          ]
+        },
+        "raw_report_sha256": "0fae969c28952cd84b31c9f90aef088bf783d571e7654e792aacfa41c306e46c"
+      }
+    }
+  },
+  "verified_source_sha256": {
+    "tools/recognition_eval/__init__.py": "513b023f5ae8e1ec6ed3c3353c6e15f7834ccb6619587402a9763c1e24c00b8a",
+    "tools/recognition_eval/__main__.py": "7166093039b898ba571d798c37e00ad6fbf0d8857371c98187f0e995c49b0539",
+    "tools/recognition_eval/manifest.py": "b300965a5a9599351c217d029a96894cbf38f21b1cd28a6e44f26ece4682c85f",
+    "tools/recognition_eval/metrics.py": "4b174e73dde573c14c62ad30363c460347c4e63fa8a56b354eefdeeccd48a334",
+    "tools/recognition_eval/synthetic.py": "07aaa439a3ceac4eff2ecd0f25bb3b6a961848d97630542ba6de9c310022dd10",
+    "tools/recognition_eval/tests/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tools/recognition_eval/tests/test_evaluation.py": "d5410687f11c04785711b5fcaf206c789d95db490d51cd93d46d9bf27d652e41",
+    "tools/recognition_eval/tests/test_offline.py": "f322b2c7c3520c5bab5fe33bdeec31bd3b0c60590656f8bd3ac9e1a345392607",
+    "tools/recognition_eval/torch_cpu.py": "0ff43434fed5c6ebde6627f60e7d64b7d48cab425b5aa98007c7d395d5f04358"
+  }
+}

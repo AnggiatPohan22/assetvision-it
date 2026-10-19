@@ -23,3 +23,9 @@ data/private/
 .DS_Store
 
 *.tsbuildinfo
+
+# Recognition datasets, weights and per-image predictions stay private.
+data/recognition-eval/
+
+# User-provided real photos remain private.
+data/samples/

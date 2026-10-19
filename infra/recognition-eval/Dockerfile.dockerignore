@@ -1,0 +1,11 @@
+# Only tool sources and evaluation dependency files enter this build context.
+**
+!tools/
+!tools/recognition_eval/
+!tools/recognition_eval/**
+!infra/
+!infra/recognition-eval/
+!infra/recognition-eval/Dockerfile
+!infra/recognition-eval/requirements.txt
+!infra/recognition-eval/requirements.lock
+**/__pycache__/

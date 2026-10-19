@@ -1,6 +1,12 @@
 # AssetVision IT — Sprint 3: Lightweight Recognition, OCR & Evidence Matching
 
-**Status:** Planned · **Prasyarat:** Sprint 1A, 1B, dan 2 selesai · **Estimasi:** 10–15 hari kerja + waktu evaluasi dataset · **Prioritas:** P0
+**Status:** In progress — Task 3-01 harness dan benchmark CPU selesai; pemilihan encoder menunggu dataset evaluasi nyata yang lengkap · **Prasyarat:** Sprint 1A, 1B, dan 2 selesai · **Estimasi:** 10–15 hari kerja + waktu evaluasi dataset · **Prioritas:** P0
+
+Task 3-01 menyediakan CLI offline, manifest/split/leakage guards, metrics dan benchmark dua
+encoder CPU terpisah dari aplikasi. Enam foto Grandstream WP810 dari pengguna dipakai untuk
+profil latency saja; fixture52 gambar sintetis memeriksa alur metrik, bukan accuracy perangkat.
+Belum memilih encoder/threshold produksi. Hasil dan batas: `SPRINT_3_01_REPORT.md`, agregat
+`SPRINT_3_01_BASELINE.json`, protokol `../RECOGNITION_EVALUATION.md`. Task 3-02 belum dimulai.
 
 ## Tujuan
 
@@ -126,7 +132,7 @@ Simpan original image dengan storage provider Sprint 1A; hindari penyimpanan bas
 - [ ] SN cocok tetapi lokasi bertentangan menghasilkan CONFLICT dan **tidak otomatis mutasi**.
 - [ ] Hasil review punya actor/time/evidence dan tidak menghapus prediksi awal.
 - [ ] Tidak ada dependensi Ollama atau API cloud wajib.
-- [ ] Profil CPU/RAM/latency tercatat pada laptop target atau lingkungan yang jelas spesifikasinya.
+- [x] Profil CPU/RAM/latency tercatat: WSL2 Ryzen5600H, container CPU2/mem2GiB; dua encoder pada enam foto WP810 dan fixture sintetis (Task 3-01).
 - [ ] Evaluation report memuat top-1/top-3, unknown precision/recall, false positive, latency p50/p95, ukuran dataset dan batasan.
 - [ ] Target awal **top-3 ≥90%** pada foto uji terpisah dijadikan *go/no-go metric*, bukan klaim sebelum benchmark. Threshold unknown dipilih berdasarkan hasil nyata.
 - [ ] RBAC, upload security, migration, API/UI tests lulus.

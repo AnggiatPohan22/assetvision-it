@@ -366,3 +366,17 @@ bukan data development, tidak dicetak oleh runner atau dimasukkan Git. Setelah s
 Jangan menjalankan suite PG/smoke lain sampai UAT selesai. Daftar UAT dan hasil aktual ada di
 sprints/SPRINT_2_UAT.md dan laporan 2-05. Pemeriksaan browser memakai viewport desktop dan
 390×844, bukan klaim lintas browser/perangkat fisik atau audit aksesibilitas penuh.
+
+
+## Task 3-01 — Evaluation harness offline
+
+`bash infra/check-recognition-eval.sh` membangun image CPU terpisah dan menjalankan unittest
+manifest/metrics tanpa jaringan, DB, credential atau volume aplikasi. Test mencakup split,
+capture/hash/visual leakage, path escape/symlink, batas gambar, provenance, L2/ranking/tie,
+calibration/denominator unknown, test-set independence, synthetic NO_GO dan real profile gate.
+Ruff memakai konfigurasi API existing terhadap tools; tidak menambah dependency runtime API.
+
+`bash infra/benchmark-recognition.sh DATASET_ROOT NEW_REPORT_DIR` menjalankan dua encoder
+serial dengan threshold calibration-only. Dataset/prediksi privat disimpan di path ignored;
+profil satu model tanpa unknown tidak menghasilkan accuracy/threshold. Prosedur dan batas
+interpretasi ada di RECOGNITION_EVALUATION.md, hasil aktual di sprints/SPRINT_3_01_REPORT.md.

@@ -262,3 +262,14 @@ periksa riwayat, lalu buka formulir baru; tidak ada retry otomatis saat hasil be
 
 UAT menggunakan database sintetis terisolasi, dijelaskan di docs/sprints/SPRINT_2_UAT.md.
 Tidak ada migration baru, backfill hint atau perubahan data existing pada Task 2-05.
+
+
+## Evaluation harness — Task 3-01
+
+`tools/recognition_eval` menyediakan manifest dataset privat, pemeriksaan split/leakage,
+metrik retrieval/unknown dan benchmark dua encoder di CPU. Image evaluasi terpisah;
+tidak menambah endpoint, schema, index aplikasi atau UI recognition. Requirements API tetap.
+`bash infra/check-recognition-eval.sh` menjalankan pengujian harness. Format dataset dan
+perintah benchmark: docs/RECOGNITION_EVALUATION.md. Foto nyata/weights/prediksi privat tidak
+masuk Git. Laporan: docs/sprints/SPRINT_3_01_REPORT.md. Fixture sintetis dan profil enam foto
+satu model tidak membuktikan accuracy SKU atau memilih encoder produksi.
