@@ -408,3 +408,10 @@ opsional dan menjalankan `test_ocr_cpu.py` dengan weights nyata, network none, r
 CPU2/mem2GiB dan label generated. Empat tes CPU di-skip pada image API default.
 Regresi penuh: `bash infra/check.sh --postgres`; semua DB test tetap terisolasi.
 Angka aktual, iterasi dan preservasi ada di sprints/SPRINT_3_03_REPORT.md; detail di OCR.md.
+
+
+## Task 3-04
+
+`tests/test_evidence_fusion.py` menguji aturan dengan snapshot sintetis, tanpa DB/inference.
+Jalankan melalui api-test atau full `bash infra/check.sh --postgres`. Regresi tetap mencakup
+migrasi/auth/RBAC/API dan lint/TypeScript/frontend. Tidak ada klaim accuracy perangkat nyata.

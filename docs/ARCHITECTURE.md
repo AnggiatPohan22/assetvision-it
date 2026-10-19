@@ -284,3 +284,12 @@ Paddle CPU opsional dijalankan child process dengan hard deadline dan local pinn
 dalam container tanpa jaringan. API default tidak memuat dependensi OCR. Parser memakai
 normalizer master tanpa mengubah aturan case/type; manual correction mempertahankan raw
 evidence. Belum ada schema/HTTP/UI/fusion/persistence OCR; lihat OCR.md.
+
+
+## Evidence fusion — Task 3-04
+
+fusion_schemas.py mendefinisikan snapshot immutable berbatas; evidence_fusion.py mengolahnya
+sebagai fungsi murni tanpa ORM/DB/settings/inference. SearchResult dan IdentifierCandidate
+existing dipakai langsung, hasil memisahkan model dan unit serta memuat snapshot/version/reasons.
+Tidak ada schema, dependency, environment, route atau UI baru. Integrasi caller harus memakai
+snapshot lengkap tepercaya dan review server-side; EVIDENCE_FUSION.md menjelaskan kontraknya.

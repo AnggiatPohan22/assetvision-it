@@ -9,7 +9,8 @@ Belum memilih encoder/threshold produksi. Hasil dan batas: `SPRINT_3_01_REPORT.m
 `SPRINT_3_01_BASELINE.json`, protokol `../RECOGNITION_EVALUATION.md`. Task 3-02 menambah generation/index/rebuild/search model dengan adapter eksplisit dan gate kalibrasi.
 Hasil: `SPRINT_3_02_REPORT.md`; panduan: `../RECOGNITION_INDEX.md`. Task 3-03 menyediakan adapter PaddleOCR CPU opsional, parser SN/MAC dan fallback manual
 transient dengan raw evidence terpisah; hasil/pengujian: `SPRINT_3_03_REPORT.md`, panduan
-`../OCR.md`. Belum ada benchmark OCR label perangkat nyata. Task 3-04 belum dimulai.
+`../OCR.md`. Belum ada benchmark OCR label perangkat nyata. Task 3-04 menyediakan fungsi fusion deterministik internal tanpa mutasi; kontrak di
+`../EVIDENCE_FUSION.md`, hasil di `SPRINT_3_04_REPORT.md`. Task 3-05 belum dimulai.
 
 ## Tujuan
 

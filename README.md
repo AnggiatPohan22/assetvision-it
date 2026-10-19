@@ -290,3 +290,11 @@ Laporan: docs/sprints/SPRINT_3_02_REPORT.md. OCR/fusion/observation API/UI belum
 Adapter PaddleOCR CPU opsional, parsing SN/MAC konservatif dan koreksi manual transient
 tersedia melalui CLI lokal. Raw evidence tetap terpisah dari koreksi; semua hasil memerlukan
 review. Tidak ada migrasi/mutasi master/API/UI baru. Panduan: [OCR](docs/OCR.md).
+
+
+## Evidence fusion — Task 3-04
+
+Fungsi internal murni menggabungkan kandidat model, identifier, lokasi dan histori menjadi
+PROBABLE_ASSET/AMBIGUOUS/CONFLICT/UNKNOWN dengan alasan deterministik. Semua hasil perlu review;
+tidak ada auto-verification atau mutasi master. API/UI/review persisten tetap Task3-05.
+Kontrak dan batas: [docs/EVIDENCE_FUSION.md](docs/EVIDENCE_FUSION.md).
