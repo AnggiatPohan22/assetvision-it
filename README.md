@@ -306,3 +306,8 @@ Buka `/recognition` untuk foto perangkat/label, koreksi manual, lokasi master, h
 review ADMIN. Foto/evidence privat, prediksi awal immutable, review diaudit terpisah dan tidak
 mengubah master/lokasi. Default menjaga NO_GO visual dan manual fallback; CPU opsional.
 Migration0011 additive. Kontrak/panduan: [RECOGNITION_OBSERVATIONS](docs/RECOGNITION_OBSERVATIONS.md).
+
+
+Evaluasi Task3-06: [alur end-to-end dan profil sumber daya](docs/RECOGNITION_END_TO_END.md).
+Fixture delapan AP sintetis dan HTTP test terisolasi tidak menjadi klaim accuracy foto nyata;
+pemilihan encoder/threshold produksi tetap menunggu dataset referensi/uji/unknown independen.

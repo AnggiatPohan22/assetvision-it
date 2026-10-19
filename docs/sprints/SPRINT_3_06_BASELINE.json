@@ -1,0 +1,335 @@
+{
+  "date": "2026-10-20",
+  "http_synthetic_evaluation": {
+    "accuracy": null,
+    "latency": {
+      "observation": {
+        "count": 4,
+        "max_ms": 109.69394800486043,
+        "p50_ms": 53.311219497118145,
+        "p95_ms": 102.06879355391717
+      },
+      "read": {
+        "count": 3,
+        "max_ms": 35.683813999639824,
+        "p50_ms": 12.251402993570082,
+        "p95_ms": 33.34057289903285
+      },
+      "review": {
+        "count": 6,
+        "max_ms": 26.070680003613234,
+        "p50_ms": 23.015030499664135,
+        "p95_ms": 25.926490754500264
+      },
+      "upload": {
+        "count": 2,
+        "max_ms": 36.226836004061624,
+        "p50_ms": 28.41159149829764,
+        "p95_ms": 35.445311553485226
+      }
+    },
+    "latency_scope": "single serial cold session; generated 32x24 PNG; no warmup; proxy+API+DB; per-operation small sample; excludes CSRF/session fetch and setup; no real inference or SLA claim",
+    "physical_assets": 8,
+    "production_go_no_go": "NO_GO_REAL_DATASET_REQUIRED",
+    "resource_scope": "cgroup-v2 lifetime peak including startup/cache; CPU delta includes synthetic setup, login and HTTP scenarios; excludes test runner and host",
+    "resources": {
+      "api-smoke": {
+        "cpu_throttled_usec": 69585,
+        "cpu_usage_usec": 7066595,
+        "memory_limit_bytes": 805306368,
+        "peak_memory_bytes": 151519232,
+        "workload_cpu_usec": 3158131,
+        "workload_throttled_usec": 0
+      },
+      "db-test": {
+        "cpu_throttled_usec": 0,
+        "cpu_usage_usec": 6406498,
+        "memory_limit_bytes": 805306368,
+        "peak_memory_bytes": 256065536,
+        "workload_cpu_usec": 622353,
+        "workload_throttled_usec": 0
+      },
+      "web-smoke": {
+        "cpu_throttled_usec": 393162,
+        "cpu_usage_usec": 3770603,
+        "memory_limit_bytes": 536870912,
+        "peak_memory_bytes": 69484544,
+        "workload_cpu_usec": 1939967,
+        "workload_throttled_usec": 259489
+      }
+    },
+    "scenarios_passed": [
+      "unknown",
+      "location_conflict",
+      "false_positive",
+      "checked_match"
+    ],
+    "schema_version": 1,
+    "synthetic": true,
+    "transport": "real HTTP Next proxy/FastAPI/PostGIS",
+    "visual": "default empty index"
+  },
+  "local_samples_readiness": {
+    "accuracy_selection_eligible": false,
+    "capture_groups_confirmed": false,
+    "dimensions_max_side": 1600,
+    "dimensions_min_side": 285,
+    "exact_duplicate_bytes": 0,
+    "folder_counts": {
+      "ap680-L": 3,
+      "grandstream-wp810": 6,
+      "lenovo-ideapad-slim-3": 5,
+      "unknown": 1
+    },
+    "independent_splits_provided": false,
+    "perceptual_near_duplicate_pairs_within_unsplit_collection": 0,
+    "production_go_no_go": "NO_GO_INSUFFICIENT_INDEPENDENT_DATASET",
+    "total_images": 15,
+    "valid_bounded_images": 15
+  },
+  "predecessor_commit": "24df242f41c7a3477cc2018a784c09a7650f1a8d",
+  "production_go_no_go": "NO_GO_REAL_DATASET_REQUIRED",
+  "real_device_accuracy": null,
+  "real_local_samples_cpu_profile": [
+    {
+      "benchmark": {
+        "batch_size": 1,
+        "cold_model_load_ms": 101.94088899879716,
+        "excludes": [
+          "manifest validation",
+          "weight download",
+          "API/network/upload",
+          "database"
+        ],
+        "latency": {
+          "decode_preprocess_ms": {
+            "p50": 17.55955499538686,
+            "p95": 23.288762601441704
+          },
+          "encoder_ms": {
+            "p50": 6.774139998015016,
+            "p95": 7.59760920482222
+          },
+          "end_to_end_ms": {
+            "p50": 24.98638599354308,
+            "p95": 29.999284193036146
+          }
+        },
+        "repeats": 3,
+        "search_reference_count": 0,
+        "timed_samples": 45,
+        "warmup": 5
+      },
+      "counts": {
+        "profile": 15
+      },
+      "dataset_selection_eligible": false,
+      "embedding_dimensions": 576,
+      "encoder": "mobilenet_v3_small",
+      "encoder_selection": "DEFERRED_INCOMPLETE_REAL_DATASET",
+      "encoder_version": "torchvision-0.25.0+cpu:IMAGENET1K_V1",
+      "environment": {
+        "cgroup_cpu_max": "200000 100000",
+        "cgroup_memory_max": "2147483648",
+        "cpu": "AMD Ryzen 5 5600H with Radeon Graphics",
+        "cuda_used": false,
+        "device": "cpu",
+        "numpy": "2.2.4",
+        "pid_peak_rss_mib": 346.40234375,
+        "platform": "Linux-6.18.54.1-microsoft-standard-WSL2-x86_64-with-glibc2.41",
+        "python": "3.12.15",
+        "threads": 2,
+        "torch": "2.10.0+cpu",
+        "torchvision": "0.25.0+cpu"
+      },
+      "metrics": null,
+      "preprocess_version": "fb3c39345e781c64a0f391dd2412de13232f6f373947464b0f5765e85038ceef",
+      "scope": "CPU latency only; no independent reference/calibration/test/unknown sets",
+      "threshold": null,
+      "top3_go_no_go": "NO_GO",
+      "weights_bytes": 10306551,
+      "weights_sha256": "047dcff4addef86ea5bc2eff13c9614dc11f47ab1160d0a71a25e7db994f4e1f"
+    },
+    {
+      "benchmark": {
+        "batch_size": 1,
+        "cold_model_load_ms": 53.92653599847108,
+        "excludes": [
+          "manifest validation",
+          "weight download",
+          "API/network/upload",
+          "database"
+        ],
+        "latency": {
+          "decode_preprocess_ms": {
+            "p50": 24.560575999203138,
+            "p95": 32.944078007130884
+          },
+          "encoder_ms": {
+            "p50": 8.336402999702841,
+            "p95": 9.427072998369113
+          },
+          "end_to_end_ms": {
+            "p50": 33.1694670021534,
+            "p95": 41.11890339991078
+          }
+        },
+        "repeats": 3,
+        "search_reference_count": 0,
+        "timed_samples": 45,
+        "warmup": 5
+      },
+      "counts": {
+        "profile": 15
+      },
+      "dataset_selection_eligible": false,
+      "embedding_dimensions": 1024,
+      "encoder": "shufflenet_v2_x0_5",
+      "encoder_selection": "DEFERRED_INCOMPLETE_REAL_DATASET",
+      "encoder_version": "torchvision-0.25.0+cpu:IMAGENET1K_V1",
+      "environment": {
+        "cgroup_cpu_max": "200000 100000",
+        "cgroup_memory_max": "2147483648",
+        "cpu": "AMD Ryzen 5 5600H with Radeon Graphics",
+        "cuda_used": false,
+        "device": "cpu",
+        "numpy": "2.2.4",
+        "pid_peak_rss_mib": 339.6953125,
+        "platform": "Linux-6.18.54.1-microsoft-standard-WSL2-x86_64-with-glibc2.41",
+        "python": "3.12.15",
+        "threads": 2,
+        "torch": "2.10.0+cpu",
+        "torchvision": "0.25.0+cpu"
+      },
+      "metrics": null,
+      "preprocess_version": "fb3c39345e781c64a0f391dd2412de13232f6f373947464b0f5765e85038ceef",
+      "scope": "CPU latency only; no independent reference/calibration/test/unknown sets",
+      "threshold": null,
+      "top3_go_no_go": "NO_GO",
+      "weights_bytes": 5538128,
+      "weights_sha256": "f707e7126e8601ea5fa0e272e0f35c52807773d603bcb11e611fa04a0b0880fd"
+    }
+  ],
+  "real_wp810_cpu_profile": [
+    {
+      "benchmark": {
+        "batch_size": 1,
+        "cold_model_load_ms": 101.73580500122625,
+        "excludes": [
+          "manifest validation",
+          "weight download",
+          "API/network/upload",
+          "database"
+        ],
+        "latency": {
+          "decode_preprocess_ms": {
+            "p50": 17.670425004325807,
+            "p95": 19.305810804507928
+          },
+          "encoder_ms": {
+            "p50": 6.911502001457848,
+            "p95": 8.686223992845042
+          },
+          "end_to_end_ms": {
+            "p50": 24.603975500212982,
+            "p95": 27.7708391964552
+          }
+        },
+        "repeats": 3,
+        "search_reference_count": 0,
+        "timed_samples": 18,
+        "warmup": 5
+      },
+      "counts": {
+        "profile": 6
+      },
+      "dataset_selection_eligible": false,
+      "embedding_dimensions": 576,
+      "encoder": "mobilenet_v3_small",
+      "encoder_selection": "DEFERRED_INCOMPLETE_REAL_DATASET",
+      "encoder_version": "torchvision-0.25.0+cpu:IMAGENET1K_V1",
+      "environment": {
+        "cgroup_cpu_max": "200000 100000",
+        "cgroup_memory_max": "2147483648",
+        "cpu": "AMD Ryzen 5 5600H with Radeon Graphics",
+        "cuda_used": false,
+        "device": "cpu",
+        "numpy": "2.2.4",
+        "pid_peak_rss_mib": 341.53515625,
+        "platform": "Linux-6.18.54.1-microsoft-standard-WSL2-x86_64-with-glibc2.41",
+        "python": "3.12.15",
+        "threads": 2,
+        "torch": "2.10.0+cpu",
+        "torchvision": "0.25.0+cpu"
+      },
+      "metrics": null,
+      "preprocess_version": "fb3c39345e781c64a0f391dd2412de13232f6f373947464b0f5765e85038ceef",
+      "scope": "CPU latency only; no independent reference/calibration/test/unknown sets",
+      "threshold": null,
+      "top3_go_no_go": "NO_GO",
+      "weights_bytes": 10306551,
+      "weights_sha256": "047dcff4addef86ea5bc2eff13c9614dc11f47ab1160d0a71a25e7db994f4e1f"
+    },
+    {
+      "benchmark": {
+        "batch_size": 1,
+        "cold_model_load_ms": 68.57415099511854,
+        "excludes": [
+          "manifest validation",
+          "weight download",
+          "API/network/upload",
+          "database"
+        ],
+        "latency": {
+          "decode_preprocess_ms": {
+            "p50": 26.994218002073467,
+            "p95": 34.57094119730755
+          },
+          "encoder_ms": {
+            "p50": 9.930266001902055,
+            "p95": 15.128480802377435
+          },
+          "end_to_end_ms": {
+            "p50": 36.88700899510877,
+            "p95": 50.40454704649163
+          }
+        },
+        "repeats": 3,
+        "search_reference_count": 0,
+        "timed_samples": 18,
+        "warmup": 5
+      },
+      "counts": {
+        "profile": 6
+      },
+      "dataset_selection_eligible": false,
+      "embedding_dimensions": 1024,
+      "encoder": "shufflenet_v2_x0_5",
+      "encoder_selection": "DEFERRED_INCOMPLETE_REAL_DATASET",
+      "encoder_version": "torchvision-0.25.0+cpu:IMAGENET1K_V1",
+      "environment": {
+        "cgroup_cpu_max": "200000 100000",
+        "cgroup_memory_max": "2147483648",
+        "cpu": "AMD Ryzen 5 5600H with Radeon Graphics",
+        "cuda_used": false,
+        "device": "cpu",
+        "numpy": "2.2.4",
+        "pid_peak_rss_mib": 337.3046875,
+        "platform": "Linux-6.18.54.1-microsoft-standard-WSL2-x86_64-with-glibc2.41",
+        "python": "3.12.15",
+        "threads": 2,
+        "torch": "2.10.0+cpu",
+        "torchvision": "0.25.0+cpu"
+      },
+      "metrics": null,
+      "preprocess_version": "fb3c39345e781c64a0f391dd2412de13232f6f373947464b0f5765e85038ceef",
+      "scope": "CPU latency only; no independent reference/calibration/test/unknown sets",
+      "threshold": null,
+      "top3_go_no_go": "NO_GO",
+      "weights_bytes": 5538128,
+      "weights_sha256": "f707e7126e8601ea5fa0e272e0f35c52807773d603bcb11e611fa04a0b0880fd"
+    }
+  ],
+  "schema_version": 1,
+  "task": "3-06"
+}

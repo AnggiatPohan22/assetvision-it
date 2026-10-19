@@ -1,6 +1,6 @@
 # AssetVision IT — Sprint 3: Lightweight Recognition, OCR & Evidence Matching
 
-**Status:** In progress — Task 3-01–3-05 diimplementasikan dan diuji; Task 3-06 belum dimulai; pemilihan encoder menunggu dataset evaluasi nyata yang lengkap · **Prasyarat:** Sprint 1A, 1B, dan 2 selesai · **Estimasi:** 10–15 hari kerja + waktu evaluasi dataset · **Prioritas:** P0
+**Status:** In progress — Task 3-01–3-05 diimplementasikan dan diuji; Task 3-06 evaluasi skenario/profil diimplementasikan; evaluasi accuracy nyata masih NO_GO; pemilihan encoder menunggu dataset evaluasi nyata yang lengkap · **Prasyarat:** Sprint 1A, 1B, dan 2 selesai · **Estimasi:** 10–15 hari kerja + waktu evaluasi dataset · **Prioritas:** P0
 
 Task 3-01 menyediakan CLI offline, manifest/split/leakage guards, metrics dan benchmark dua
 encoder CPU terpisah dari aplikasi. Enam foto Grandstream WP810 dari pengguna dipakai untuk
@@ -11,7 +11,12 @@ Hasil: `SPRINT_3_02_REPORT.md`; panduan: `../RECOGNITION_INDEX.md`. Task 3-03 me
 transient dengan raw evidence terpisah; hasil/pengujian: `SPRINT_3_03_REPORT.md`, panduan
 `../OCR.md`. Belum ada benchmark OCR label perangkat nyata. Task 3-04 menyediakan fungsi fusion deterministik internal tanpa mutasi; kontrak di
 `../EVIDENCE_FUSION.md`, hasil di `SPRINT_3_04_REPORT.md`. Task 3-05 menghubungkan upload privat, observasi dan review ADMIN/API/UI;
-kontrak `../RECOGNITION_OBSERVATIONS.md`, laporan `SPRINT_3_05_REPORT.md`. Task 3-06 belum dimulai.
+kontrak `../RECOGNITION_OBSERVATIONS.md`, laporan `SPRINT_3_05_REPORT.md`. Task 3-06 evaluasi skenario/profil diimplementasikan; evaluasi accuracy nyata masih NO_GO.
+
+Task 3-06: protokol `../RECOGNITION_END_TO_END.md`, hasil `SPRINT_3_06_REPORT.md`,
+agregat `SPRINT_3_06_BASELINE.json`. Fixture delapan AP sintetis serta profil enam foto WP810
+dan seluruh 15 foto lokal tidak memenuhi dataset accuracy independen; tidak memilih
+encoder/threshold produksi.
 
 ## Tujuan
 

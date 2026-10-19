@@ -1,0 +1,10 @@
+# Task3-06 isolated HTTP evaluation only. Never target api/web/db development services.
+services:
+  api-smoke:
+    mem_limit: 768m
+    cpus: 2.0
+    pids_limit: 256
+  web-smoke:
+    mem_limit: 512m
+    cpus: 1.0
+    pids_limit: 256

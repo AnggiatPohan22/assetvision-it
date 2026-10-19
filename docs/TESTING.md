@@ -425,3 +425,9 @@ recognition/proxy tests memeriksa role, upload/unknown, koreksi, explicit checke
 preservasi draft. `bash infra/smoke-recognition.sh` memeriksa proxy/API/SSR/DB sintetis nyata;
 jangan bersamaan writer PostgreSQL test lain. CPU6encoder/5OCR di image opsional networknone.
 Laporan aktual di sprints/SPRINT_3_05_REPORT.md; tidak memulai evaluasi Task3-06.
+
+
+Task3-06 menambahkan sembilan skenario API delapan AP identik pada test_recognition_e2e.py
+dan runner `bash infra/evaluate-recognition.sh NEW_REPORT_FILE` untuk HTTP/proxy/PostGIS serta
+profil cgroup terisolasi. Lihat [protokol](RECOGNITION_END_TO_END.md) untuk injection boundary
+sintetis, batas latency/RSS dan gate dataset nyata. Jalankan serial dengan writer db-test lain.
