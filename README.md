@@ -273,3 +273,14 @@ tidak menambah endpoint, schema, index aplikasi atau UI recognition. Requirement
 perintah benchmark: docs/RECOGNITION_EVALUATION.md. Foto nyata/weights/prediksi privat tidak
 masuk Git. Laporan: docs/sprints/SPRINT_3_01_REPORT.md. Fixture sintetis dan profil enam foto
 satu model tidak membuktikan accuracy SKU atau memilih encoder produksi.
+
+
+## Embedding index — Task 3-02
+
+Service internal dan CLI opsional menyediakan rebuild referensi atomik, generation/version,
+search top-k model unik dan unknown threshold dengan provenance. Tidak ada encoder/threshold
+default; tanpa kalibrasi nyata hasil UNCERTAIN. Foto dan master aset existing tidak diubah.
+Migration0010 menambah index/embedding kosong dan head awal1, tanpa backfill/automatic rebuild.
+CPU dependencies hanya di image opt-in, bukan API default. Panduan: docs/RECOGNITION_INDEX.md;
+verifikasi: `bash infra/check.sh --postgres` dan `bash infra/check-recognition-index.sh`.
+Laporan: docs/sprints/SPRINT_3_02_REPORT.md. OCR/fusion/observation API/UI belum dimulai.

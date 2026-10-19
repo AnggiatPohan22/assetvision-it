@@ -311,3 +311,18 @@ frontend ini. Head tetap 0009_observations. UAT/smoke memakai db-test/assetvisio
 terpisah dari DB/storage development. Fixture browser dibuat eksplisit lewat runner test,
 dengan akun acak test saja; tidak membuat role/akun development. Fingerprint seluruh data
 existing dan storage dibandingkan sebelum/sesudah pembaruan web. Bukti final di laporan 2-05.
+
+
+## Task 3-02 — Versioned embedding index
+
+Head0010_embedding_index menambah embedding_indexes, image_embeddings dan embedding_index_state.
+Encoder name/version/full weight SHA/preprocess/dimensions berada di encoder_spec JSONB parent;
+setiap vector menunjuk generation FK. Reference SHA, snapshot UUID dan model UUID dipertahankan.
+FK current reference ON DELETE SET NULL kompatibel dengan delete foto existing; history tidak
+cascade. Unique(index_id,reference_snapshot_id), source/capacity insert guards, immutable history
+UPDATE/DELETE dan head CAS version guards diuji SQLite/PostgreSQL. Vector shape/L2/finiteness
+juga divalidasi service/reader. Tidak mengubah kolom existing atau menambah pgvector.
+
+Migration hanya membuat tabel baru dan head(id1,current_index_id=null,version1), tanpa encoder,
+vector, audit, seed atau hint mapping. Populated downgrade ditolak. Data existing selain revisi
+Alembic harus identik sebelum/sesudah. Rebuild adalah operasi ADMIN terpisah, bukan migration.

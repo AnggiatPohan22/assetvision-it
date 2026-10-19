@@ -246,3 +246,21 @@ pilot diperlihatkan. Menutup request atau mereview evidence tidak mengubah maste
 Jika data berubah saat form terbuka, pengguna perlu membatalkan/reload dan meninjau ulang;
 tidak ada penyesuaian version atau pengiriman ulang otomatis. Draft dipertahankan pada error.
 UI role gates membantu navigasi; backend tetap pemilik seluruh keputusan otorisasi.
+
+
+## Embedding index — Task 3-02
+
+- Device model candidates tidak pernah menjadi identitas unit; hasil tidak memuat asset ID,
+  tidak membaca lokasi sebagai penentu identitas dan tidak mengubah master/observasi/movement.
+- ADMIN aktif rebuild eksplisit dengan reason dan expected head version; seluruh vector,
+  generation, head/version dan audit tersimpan atomik. Gagal/stale tidak menimpa index lama.
+- Referensi model is_active lokal saja di-encode. Perubahan metadata/photo/membership membuat
+  index stale sampai rebuild; archived historical evidence tetap disimpan. Hapus foto existing
+  tidak menghapus vector/index history. Tidak ada auto rebuild dari upload atau folder samples.
+- Query semua user aktif, similarity bukan probability/confidence; top-k model unik/tie stabil.
+  Kosong/threshold reject menjadi UNKNOWN_MODEL; stale/mismatch/uncalibrated menjadi UNCERTAIN.
+- Threshold hanya dipasang lewat report evaluasi real yang direview ADMIN, spec/fingerprint
+  cocok dan audit. Report declaration bukan bukti otomatis truth label; operator harus meninjau
+  provenance/ref split/unknown. Synthetic/profile/NO_GO ditolak. Policy immutable per generation.
+- Tidak memilih encoder/threshold produksi berdasarkan profil WP810/sintetis3-01. CLI lokal
+  bukan API publik dan UUID actor bukan autentikasi browser. OCR/fusion/review UI belum dibuat.

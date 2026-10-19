@@ -42,6 +42,7 @@ def test_not_ready_on_db_failure(client: TestClient) -> None:
         "0006_locations",
         "0007_asset_location",
         "0008_asset_movements",
+        "0009_observations",
         "old_revision",
         None,
     ],
@@ -55,6 +56,7 @@ def test_not_ready_on_schema_mismatch(client: TestClient, db: Session, version: 
 
 
 def test_not_ready_when_catalog_table_missing(client: TestClient, db: Session) -> None:
+    db.execute(text("DROP TABLE image_embeddings"))
     db.execute(text("DROP TABLE device_reference_images"))
     db.commit()
     assert client.get("/api/v1/ready").status_code == 503
@@ -108,5 +110,17 @@ def test_not_ready_when_movements_missing(client, db):
 
 def test_not_ready_when_observations_missing(client, db):
     db.execute(text("DROP TABLE location_observations"))
+    db.commit()
+    assert client.get("/api/v1/ready").status_code == 503
+
+
+@pytest.mark.parametrize(
+    "table", ["embedding_indexes", "image_embeddings", "embedding_index_state"]
+)
+def test_not_ready_when_embedding_tables_missing(client, db, table):
+    if table == "embedding_indexes":
+        db.execute(text("DROP TABLE embedding_index_state"))
+        db.execute(text("DROP TABLE image_embeddings"))
+    db.execute(text(f"DROP TABLE {table}"))
     db.commit()
     assert client.get("/api/v1/ready").status_code == 503

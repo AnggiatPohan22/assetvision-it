@@ -1,0 +1,13 @@
+**
+!apps/
+!apps/api/
+!apps/api/**
+!infra/
+!infra/recognition-index/
+!infra/recognition-index/Dockerfile
+**/__pycache__/
+**/.pytest_cache/
+**/.ruff_cache/
+**/.venv/
+**/*.db
+**/.env*

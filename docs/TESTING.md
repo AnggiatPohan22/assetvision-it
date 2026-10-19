@@ -380,3 +380,22 @@ Ruff memakai konfigurasi API existing terhadap tools; tidak menambah dependency 
 serial dengan threshold calibration-only. Dataset/prediksi privat disimpan di path ignored;
 profil satu model tanpa unknown tidak menghasilkan accuracy/threshold. Prosedur dan batas
 interpretasi ada di RECOGNITION_EVALUATION.md, hasil aktual di sprints/SPRINT_3_01_REPORT.md.
+
+
+## Task 3-02 — Embedding generations
+
+Tes test_recognition_index.py mencakup generation/CAS/audit atomik, fail-closed stale source/
+head/spec/vector, model-level max cosine/tie/top-k, calibration provenance/unknown gate,
+role/revocation, rollback storage/encoder/audit, SQL immutability/FK photo delete compatibility,
+migration preservation/guard/roundtrip serta concurrent PostgreSQL rebuilds. Tes API existing
+juga memverifikasi readiness head0010/tabel baru serta login/role regression. Tidak ada route
+recognition baru untuk diklaim API/UI acceptance.
+
+`bash infra/check.sh --postgres` menjalankan unit/API/lint/type/frontend dan PostgreSQL/PostGIS.
+Tes CPU default di-skip bila torch tidak diinstal. `bash infra/check-recognition-index.sh`
+memakai image opsional dengan weights pinned, generated images, SQLite terisolasi, network
+none dan filesystem read-only; menguji dua adapter nyata, checksum/no download dan CLI nyata
+status/rebuild/query/stale409. Tidak mount database/storage development. Jalankan smoke
+existing secara serial setelah suite PG selesai karena memakai db-test tmpfs yang sama.
+Hasil aktual dan preservasi: sprints/SPRINT_3_02_REPORT.md. Tidak menyatakan accuracy perangkat
+atau kalibrasi produksi dari fixture integration/self-match.

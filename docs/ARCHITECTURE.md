@@ -25,7 +25,8 @@ Frontend hanya menambah allowlist proxy API; location tree UI berada pada Task 2
 
 AssetVision IT adalah modular monolith lokal. Satu API FastAPI memiliki logika bisnis dan otorisasi,
 satu Next.js menyajikan UI, dan PostgreSQL/PostGIS menjadi sumber kebenaran.
-Tidak ada Redis, worker queue, AI, OCR, kamera, atau dependensi cloud.
+Tidak ada Redis, worker queue, OCR, kamera, atau dependensi cloud wajib. API default tidak
+memuat dependensi inference; encoder CPU opsional Task3-02 berjalan pada image terpisah.
 
 ```mermaid
 flowchart LR
@@ -254,3 +255,24 @@ publik library/weights eksplisit saat build. Benchmark network none, dataset/fil
 read-only; hanya direktori laporan baru writable, proses terpisah CPU2/memory2GiB. Tidak
 mount .env/volume development atau menjalankan Compose. Schema tetap0009 tanpa seed/backfill.
 Protokol dan batas data sintetis/profil satu model ada di RECOGNITION_EVALUATION.md.
+
+
+## Embedding generations — Task 3-02
+
+recognition_schemas.py mendefinisikan kontrak frozen Pydantic/spec/policy/input/result.
+recognition_encoder.py memisahkan Protocol, bounded decoder dan adapter PyTorch CPU lazy;
+API startup tidak import torch. recognition_models.py mendaftarkan generation/index head/
+image_embeddings pada Base existing. recognition_index.py mengambil catalog snapshot,
+mengerjakan CPU tanpa transaksi, lalu publish lewat head lock/CAS + audit atomik. Query
+read-only memverifikasi head/source/spec sebelum/sesudah CPU dan tidak mengidentifikasi aset.
+
+Migration0010 additive: dua tabel history immutable dan singleton head. FK foto SET NULL
+mempertahankan evidence saat foto dihapus; snapshot UUID/hash tetap immutable. Full rebuild
+maksimum2000 eligible references; cosine stdlib fsum cukup untuk core awal tanpa menambah
+NumPy runtime API. Index version menyimpan spec/preprocess/hash/policy, tidak memakai pgvector.
+
+recognition_cli dan compose.recognition.yaml adalah opt-in lokal; actor UUID untuk audit
+operator DB, bukan session browser. Image CPU terpisah, storage referensi read-only dan DB
+internal. Tidak ada endpoint/proxy/UI recognition sampai task terkait. NO_GO3-01 tetap berlaku:
+encoder dipilih eksplisit, calibration gate menolak synthetic/profile, default UNCERTAIN.
+Rincian workflow/konkurensi/provenance/batas ada di RECOGNITION_INDEX.md.

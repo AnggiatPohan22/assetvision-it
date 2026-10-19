@@ -22,6 +22,7 @@ from app.locations import Location
 from app.models import AuditEvent, AuthSession, Role, User
 from app.movements import AssetMovement
 from app.observations import LocationObservation
+from app.recognition_models import EmbeddingIndex, EmbeddingIndexState, ImageEmbedding
 from app.security import (
     ACCESS_COOKIE,
     CSRF_COOKIE,
@@ -63,7 +64,7 @@ def ready(db: Database) -> dict[str, str]:
         if db.bind is not None and db.bind.dialect.name == "postgresql":
             db.execute(text("SELECT PostGIS_Version()"))
         version = db.execute(text("SELECT version_num FROM alembic_version")).scalar_one()
-        if version != "0009_observations":
+        if version != "0010_embedding_index":
             raise ValueError("Schema not current")
         db.execute(select(User.id).limit(1))
         db.execute(select(AuthSession.id).limit(1))
@@ -82,6 +83,9 @@ def ready(db: Database) -> dict[str, str]:
             AssetLocationEvent,
             AssetMovement,
             LocationObservation,
+            EmbeddingIndex,
+            ImageEmbedding,
+            EmbeddingIndexState,
         ):
             db.execute(select(model).limit(1))
     except (SQLAlchemyError, ValueError):

@@ -636,3 +636,20 @@ API memvalidasi ulang pada transaksi. Riwayat preview menampilkan lima event ter
 link ke detail aset untuk seluruh timeline. Inbox berfilter status/page_size10; history aset
 movements/observations page_size5, timeline page_size10 dengan filter source. Semua dapat
 membaca timeline; detail snapshot tetap read-only. Error sesi menyediakan tautan login.
+
+
+## Internal embedding service — Task 3-02
+
+Belum menambah HTTP recognition/proxy route atau permission browser. recognition_cli adalah
+operator lokal dengan akses DB; actor UUID hanya attribution, bukan credential login. Service
+memeriksa user aktif dari DB; rebuild ADMIN, query seluruh role aktif. Caller HTTP masa depan
+wajib memakai CurrentUser/CSRF/Origin/backend RBAC existing, bukan menerima actor bebas.
+
+RebuildRequest memakai expected_version1..2147483646, reason wajib dan fingerprint kalibrasi
+opsional (report wajib bila diberikan). Head stale/source berubah menghasilkan409; invalid
+image/vector/calibration422 (MIME415/size413), storage/encoder unavailable503, forbidden403.
+Tidak ada partial publish/retry otomatis. SearchRequest top_k integer1..10, default3. Hasil
+memuat status/reason,index UUID/generation,encoder spec,calibrated/threshold dan candidates
+model UUID/rank/similarity/reference snapshot UUID. Tidak ada Asset ID atau confidence.
+Uncalibrated mengembalikan UNCERTAIN dengan ranking informasional; stale/mismatch tanpa
+kandidat; threshold reject UNKNOWN_MODEL tanpa kandidat. Rincian dan CLI: RECOGNITION_INDEX.md.

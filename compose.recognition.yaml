@@ -1,0 +1,24 @@
+# Opt-in local CLI only. No server/ports, automatic rebuild, encoder default or GPU.
+services:
+  recognition-index:
+    extends:
+      file: compose.yaml
+      service: api-test
+    profiles: [recognition]
+    image: assetvision-recognition-index:3-02
+    build:
+      context: .
+      dockerfile: infra/recognition-index/Dockerfile
+      target: runtime
+    environment:
+      APP_ENV: ${APP_ENV:-development}
+    command: ["--help"]
+    volumes:
+      - reference_images:/var/lib/assetvision/uploads:ro
+    mem_limit: 2g
+    cpus: 2.0
+    read_only: true
+    tmpfs: [/tmp:size=256m]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    pids_limit: 256
