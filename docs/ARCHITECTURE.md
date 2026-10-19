@@ -5,7 +5,7 @@
 `locations.py` mendaftarkan model pada metadata existing; `location_schemas.py`,
 `location_service.py` dan `location_routes.py` menambahkan API tanpa sistem auth/audit baru.
 Migration 0006 hanya membuat tabel/index/trigger lokasi; tidak mengubah tabel aset atau
-memetakan hint CSV. Pada 2-01 readiness mensyaratkan revisi 0006 dan tabel locations; head kini 0007 (2-02).
+memetakan hint CSV. Pada 2-01 readiness mensyaratkan revisi 0006 dan tabel locations; head kini 0008 (2-03).
 Tree memakai adjacency list (`id`, `parent_id`) agar tidak bergantung kedalaman JSON.
 Maksimum 5000 node; kelebihan ditolak eksplisit, gunakan daftar paginated.
 
@@ -170,3 +170,27 @@ alasan, expected/new asset version, effective_at dan keputusan ADMIN. Aktor, occ
 recorded_at dan correlation_id tersimpan sebagai kolom. Trigger history existing melarang
 UPDATE/DELETE event juga pada SQL langsung, bukan perlindungan terhadap database owner.
 Tidak ada service baru, UI atau movement state machine pada task ini.
+
+## Movement transactions — Task 2-03
+
+movements.py mendaftarkan AssetMovement pada metadata existing. movement_schemas/routes/
+service memakai auth/CSRF, Page helper dan transaksi asset_service existing. Request mengunci
+hierarchy lalu asset; keputusan mengunci hierarchy → movement → asset, semuanya sampai
+commit. Lock hierarchy existing menserialisasi eligibility tujuan dengan archive/reparent;
+row lock/populate_existing dan version ORM melindungi metadata/identifier/approval concurrent.
+Tidak ada writer aplikasi yang mengunci aset lalu mengambil hierarchy lock.
+
+Request tidak menaikkan asset version. Decision approve membandingkan origin dan versi
+snapshot request; metadata/identifier edit juga membuat approval stale. Reject/cancel hanya
+menutup request dengan event atomik; stale asset tidak menghalangi closure tanpa mutasi aset.
+Semua transisi menulis AssetLocationEvent existing, dengan movement_id, request/decision,
+aktor, waktu, correlation UUID baru, asset version serta policy/flag self-approval. Snapshot
+lokasi saat request dan saat approval menjaga konteks historis. DB trigger mempertahankan
+request immutable, terminal final, start PENDING/version1 dan melarang DELETE. FK/check
+constraints menolak orphan dan kombinasi status/timestamp tidak konsisten. SQL owner tetap
+harus memenuhi RBAC/atomic audit melalui aplikasi; guards bukan proteksi terhadap superuser.
+
+Pilot mengizinkan ADMIN approve request sendiri dengan pencatatan eksplisit, sehingga satu
+ADMIN lokal dapat bekerja. Tidak menambah akun, config, dependency atau service infrastruktur.
+Migration 0008 hanya membuat tabel/index/check/trigger baru kosong; readiness head 0008.
+Timeline/observasi API dan UI tetap pada Task 2-04/2-05, tidak diterapkan di sini.

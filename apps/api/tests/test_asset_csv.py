@@ -509,5 +509,5 @@ def test_import_migration_preserves_all_existing_tables(client, headers, model, 
     assert db.scalar(select(func.count()).select_from(AssetImportBatch)) == 0
     assert (
         db.execute(text("SELECT version_num FROM alembic_version")).scalar_one()
-        == "0007_asset_location"
+        == "0008_asset_movements"
     )

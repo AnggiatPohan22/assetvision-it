@@ -503,3 +503,53 @@ location_verified_at berarti waktu keputusan verifikasi awal ADMIN, bukan sensor
 jaminan posisi fisik terus-menerus. installed_at, lifecycle_status dan identifier tidak berubah.
 PATCH/create aset umum, CSV dan seed tidak menerima/memetakan lokasi. Event tersimpan dalam
 asset_events; endpoint timeline/movement/observasi dan UI baru belum disediakan pada 2-02.
+
+## Movement state machine — Task 2-03
+
+| Method | Route | Role |
+|---|---|---|
+| GET | /api/v1/assets/{id}/movements | Semua role authenticated, history aset |
+| POST | /api/v1/assets/{id}/movements | OFFICER/ADMIN, 201 |
+| GET | /api/v1/movements | ADMIN, inbox/list |
+| GET | /api/v1/movements/{id} | Semua role authenticated, detail |
+| POST | /api/v1/movements/{id}/approve | ADMIN |
+| POST | /api/v1/movements/{id}/reject | ADMIN |
+| POST | /api/v1/movements/{id}/cancel | ADMIN atau OFFICER pembuat request |
+
+Request JSON: `{"asset_version":2,"to_location_id":"UUID","reason":"Pindah ke Villa 10"}`.
+Origin dan expected_asset_version disalin server dari aset terkunci. asset_version adalah
+versi aset yang ditinjau client; stale 409. Reason wajib canonical nonblank, maksimal 2000
+karakter; unknown field termasuk from/status/requester/timestamp ditolak. Aset harus sudah
+memiliki initial placement eksplisit 2-02; unplaced/archived, tujuan sama atau archived
+menghasilkan 409; unknown tujuan 422. Tujuan active bersifat lokal, mengikuti 2-01.
+Lokasi asal archived boleh ditinggalkan. Request menyimpan snapshot lokasi saat dibuat,
+bukan mutasi lokasi/version aset. Lebih dari satu PENDING per aset diperbolehkan.
+
+Decision JSON approve/reject/cancel: `{"version":1,"reason":"Keputusan setelah review"}`.
+Version adalah movement version; seluruh keputusan memerlukan reason. Hanya PENDING dapat
+menjadi APPROVED/REJECTED/CANCELLED. Terminal final; replay/versi stale 409, tanpa event kedua.
+Approve memeriksa ulang asset version, from_location_id, status aset dan tujuan aktif dalam
+transaksi yang sama. Sukses 200 MovementOutput, movement version +1, asset version +1,
+FK lokasi/verified_at berpindah dan MOVEMENT_APPROVED tercatat. reviewed_at = approved_at =
+effective_at adalah waktu UTC server saat keputusan; tidak menerima backdate atau jadwal.
+Request lain menjadi stale dan tetap PENDING sampai ditolak/dibatalkan serta dibuat ulang.
+
+Reject/cancel 200 hanya mengubah status/version/reviewer/review_reason/time movement dan
+mencatat event, tanpa mengubah aset, timestamp verifikasi atau asset version. Dapat menutup
+request stale/tujuan archived. Cancel OFFICER hanya request sendiri; ADMIN boleh cancel
+siapa pun. Approve/reject/inbox selalu ADMIN. Self-approval ADMIN **diizinkan untuk pilot**,
+dengan requester/reviewer tetap, self_approval boolean serta policy ALLOWED_PILOT pada event.
+
+Response MovementOutput berisi id, asset_id, from/to_location_id, status, reason,
+requested_by/at, expected_asset_version, request_snapshot_json (from/to LocationOutput),
+reviewed_by/at, review_reason, approved_at, effective_at, version. Snapshot request immutable;
+arsip/rename tidak menulis ulang history. Bukti keputusan juga menyimpan snapshot tujuan
+saat approval. Event tersimpan di asset_events; timeline API baru pada Task 2-04.
+
+List/history menerima status opsional, page 1–1 juta dan page_size 1–100 (default 20).
+Tanpa status membaca semua; inbox juga menerima asset_id opsional. Order requested_at DESC
+lalu UUID DESC; offset bukan snapshot lintas request. Field/query ekstra ditolak. Unknown
+asset/detail movement 404; inbox filter asset unknown menghasilkan daftar kosong. Semua
+mutasi memakai sesi/Origin/CSRF existing, JSON stream maksimal 16 KiB di API/proxy;
+non-JSON 415, oversized 413. Tidak ada PATCH/delete movement. Frontend hanya proxy allowlist,
+belum ada UI. Tidak ada initial placement massal, auto-approval atau perubahan CSV.

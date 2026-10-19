@@ -263,3 +263,23 @@ History guard menolak rewrite/delete. Initial placement saja yang menulis pada t
 Downgrade ke 0006 menolak bila ada event atau lokasi/timestamp resmi non-null. Roundtrip
 hanya diuji pada database test. Tidak mengubah migration 0001–0006. Readiness mensyaratkan
 head 0007 dan dapat membaca seluruh kolom aset serta asset_events.
+
+## Migration 0008_asset_movements — Task 2-03
+
+Tabel asset_movements baru: UUID PK, asset_id FK RESTRICT, from_location_id FK nullable,
+to_location_id FK wajib, status PENDING/APPROVED/REJECTED/CANCELLED, reason,
+requested_by/at, expected_asset_version, request_snapshot_json JSON/JSONB, reviewed_by/at,
+review_reason, approved_at, effective_at dan optimistic version. Index asset_id/status/
+requested_at. Semua actor/location FKs tanpa cascade. Expected asset version positif dan
+lebih kecil dari batas int32; movement version mulai 1 dan menjadi 2 pada satu keputusan.
+
+Check constraints mengikat null/non-null review/approval dengan status, alasan canonical
+nonblank 1–2000 karakter dan tujuan berbeda dari asal. Trigger di PostgreSQL/SQLite menolak
+insert terminal, perubahan field request, transisi di luar PENDING → terminal, increment
+version tidak sesuai, rewrite terminal, dan DELETE. Event memakai tabel asset_events dan
+history guard 0007 existing; tidak mengubah snapshot/event lama. Tidak ada trigger yang
+menggantikan autentikasi atau mencatat audit untuk penulis SQL eksternal.
+
+Upgrade 0008 tidak UPDATE tabel existing/backfill/seed, hanya menambah tabel kosong. Migration
+0001–0007 tidak diubah. Downgrade ke 0007 hanya jika asset_movements kosong; bila berisi
+request historis ditolak sebelum DROP, apa pun statusnya. Roundtrip hanya pada database test.

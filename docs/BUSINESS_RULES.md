@@ -200,3 +200,21 @@ sanitasi formula. Tidak ada penghapusan data/audit atau location workflow melalu
   Snapshot event mempertahankan konteks saat penempatan walau lokasi diubah/diarsipkan.
 - PATCH umum dan impor tidak boleh mengubah lokasi. Replay penempatan menolak 409; event
   koreksi/movement belum diimplementasikan. Existing aset tetap unplaced setelah migrasi.
+
+## Movement workflow — Task 2-03
+
+- OFFICER/ADMIN dapat mengajukan request untuk aset placed dan tidak archived. Origin dan
+  expected version diambil server, destination wajib berbeda/aktif lokal, reason wajib.
+  Aset unplaced memakai initial placement 2-02 terlebih dahulu. Tidak menafsirkan hint CSV.
+- Request hanya PENDING dan tidak mengganti lokasi/version. Beberapa PENDING boleh ada;
+  approve pertama yang valid membuat snapshot request lain stale, bukan auto-reject.
+- ADMIN approve membandingkan version/origin dan eligibility ulang. Satu transaksi mengubah
+  lokasi resmi, waktu verifikasi, asset/movement version, reviewer dan event approval.
+  Metadata atau identifier edit setelah request juga membuatnya stale 409.
+- PENDING hanya bisa APPROVED/REJECTED/CANCELLED sekali; terminal tidak dapat diedit/dihapus.
+  Reject/cancel tidak mengubah aset. Request stale harus ditutup dan dibuat ulang setelah review.
+- ADMIN approve/reject; ADMIN atau OFFICER pembuat dapat cancel. VIEWER baca saja, bukan inbox.
+  Self-approval ADMIN diizinkan untuk pilot, dicatat flag dan policy ALLOWED_PILOT pada event.
+- Reason keputusan wajib; requested/reviewed/approved/effective time dari server. Tidak ada
+  backdating/scheduling. Lokasi asal boleh archived; tujuan harus aktif saat request/approval.
+  Arsip setelah keputusan mempertahankan referensi, snapshot dan seluruh event.

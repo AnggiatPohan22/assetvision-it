@@ -1,6 +1,6 @@
 # AssetVision IT — Sprint 2: Location, Movement & Audit Trail
 
-**Status:** In progress — Task 2-01 dan 2-02 diimplementasikan; 2-03–2-05 belum dimulai · **Prasyarat:** Sprint 1B selesai · **Estimasi:** 8–12 hari kerja · **Prioritas:** P0
+**Status:** In progress — Task 2-01–2-03 diimplementasikan; 2-04–2-05 belum dimulai · **Prasyarat:** Sprint 1B selesai · **Estimasi:** 8–12 hari kerja · **Prioritas:** P0
 
 Task 2-01 menambah hierarki, tree API adjacency, API ADMIN create/PATCH/archive,
 cycle guards aplikasi/database, version, audit dan migration 0006. Tidak menambah
@@ -8,6 +8,9 @@ FK lokasi aset, placement, movement, timeline/observasi atau UI lokasi. Floorpla
 opsional ditunda. Hasil eksekusi dan preservasi: `SPRINT_2_01_REPORT.md`.
 Task 2-02 menambah FK nullable, penempatan awal ADMIN/event atomik dan lookup lokasi;
 tanpa pemetaan hint atau penempatan development. Hasil: `SPRINT_2_02_REPORT.md`.
+Task 2-03 menambah movement request/approve/reject/cancel, RBAC, version/atomic event,
+API history/inbox dan tests. Self-approval ADMIN diizinkan untuk pilot dan dicatat eksplisit.
+Hasil: `SPRINT_2_03_REPORT.md`. Belum ada timeline/observasi atau UI movement.
 
 ## Tujuan
 
@@ -98,14 +101,14 @@ ADMIN tidak boleh mengubah lokasi lewat PATCH asset umum; semua perubahan resmi 
 
 - [x] Lokasi Lounge, Lobby, Villa 1, Villa 10 dapat dibuat dalam hierarki (fixture sintetis API/smoke, bukan seed development).
 - [x] AP-003 ditempatkan di Villa 1 melalui event yang tercatat (fixture/smoke sintetis, bukan development).
-- [ ] OFFICER mengajukan mutasi Villa 1 → Villa 10; sebelum approval lokasi resmi tetap Villa 1.
-- [ ] ADMIN approve → lokasi resmi Villa 10 dan event histori mencatat asal/tujuan/aktor/waktu.
-- [ ] Reject → tidak ada perubahan lokasi.
-- [ ] Approval ganda/stale menghasilkan konflik, tidak ada lost update.
+- [x] OFFICER mengajukan mutasi Villa 1 → Villa 10; sebelum approval lokasi resmi tetap Villa 1.
+- [x] ADMIN approve → lokasi resmi Villa 10 dan event histori mencatat asal/tujuan/aktor/waktu.
+- [x] Reject → tidak ada perubahan lokasi.
+- [x] Approval ganda/stale menghasilkan konflik, tidak ada lost update.
 - [ ] Observasi AP-003 di Villa 1 setelah pindah ke Villa 10 menimbulkan conflict, bukan auto-revert.
 - [x] Cycle lokasi (parent menjadi descendant) ditolak (API/SQL langsung dan race PostgreSQL).
-- [ ] Non-ADMIN tidak bisa approve/reject.
-- [ ] Event historis tetap ada setelah lokasi diarsipkan.
+- [x] Non-ADMIN tidak bisa approve/reject.
+- [x] Event historis tetap ada setelah lokasi diarsipkan.
 - [ ] Migration, RBAC, concurrency, dan UI tests lulus.
 
 ## Handoff ke Sprint 3

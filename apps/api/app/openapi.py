@@ -1,4 +1,4 @@
-"""Describe the existing cookie/CSRF contract without changing runtime authorization."""
+"""Describe cookie, CSRF and role contracts."""
 
 from typing import Any
 
@@ -13,16 +13,18 @@ def catalog_openapi(app: FastAPI) -> dict[str, Any]:
         title=app.title,
         version=app.version,
         description=(
-            "Local device model catalog and separate physical asset registry. "
-            "Login issues HttpOnly cookies; obtain CSRF from /auth/csrf before login, "
-            "then /auth/session for authenticated writes. Catalog and asset writes require ADMIN; "
-            "OFFICER and VIEWER are read-only. PATCH/archive/upload/delete require the "
-            "current record/model version; stale versions return 409 without overwriting. "
-            "List order has UUID tie-breakers. Offset pagination is not a snapshot across "
-            "requests; concurrent inserts/renames/archives may shift pages. "
-            "Empty results have total_pages=0; an out-of-range page returns items=[]. "
-            "Reference images are private, JPEG/PNG/WebP, at most 8 MiB per file "
-            "(workspace limits may be lower). No host storage paths are exposed."
+            "Local device model catalog and separate physical asset registry. Login "
+            "issues HttpOnly cookies; obtain CSRF from /auth/csrf before login, then "
+            "/auth/session for authenticated writes. Catalog and metadata writes require"
+            " ADMIN; OFFICER may request/cancel own movements; ADMIN reviews "
+            "(self-approval allowed for pilot). VIEWER is read-only. "
+            "PATCH/archive/upload/delete require the current record/model version; stale"
+            " versions return 409 without overwriting. List order has UUID tie-breakers."
+            " Offset pagination is not a snapshot across requests; concurrent "
+            "inserts/renames/archives may shift pages. Empty results have total_pages=0;"
+            " an out-of-range page returns items=[]. Reference images are private, "
+            "JPEG/PNG/WebP, at most 8 MiB per file (workspace limits may be lower). No "
+            "host storage paths are exposed."
         ),
         routes=app.routes,
     )
@@ -77,7 +79,21 @@ def catalog_openapi(app: FastAPI) -> dict[str, Any]:
                         "verification time, version and INITIAL_PLACEMENT event atomically. "
                         "Repeated/stale placement returns 409; general PATCH cannot set location."
                     )
+                if path.endswith("/movements"):
+                    policy = (
+                        " OFFICER or ADMIN. Requires asset_version, active to_location_id and "
+                        "reason. Server captures origin/version; request does not change location."
+                    )
                 operation["description"] = (operation.get("description", "") + policy).strip()
+            if path.startswith("/api/v1/movements/"):
+                operation["description"] = (
+                    operation.get("description", "")
+                    + " Requires movement version and reason. ADMIN approves/rejects; requester "
+                    "OFFICER or ADMIN cancels. Self-approval is allowed and recorded for pilot. "
+                    "Only PENDING can transition. Approve compares captured asset version/origin"
+                    " and updates location + version + event atomically; stale/repeat returns "
+                    "409."
+                ).strip()
             if path.startswith("/api/v1/locations"):
                 operation["description"] = (
                     operation.get("description", "")

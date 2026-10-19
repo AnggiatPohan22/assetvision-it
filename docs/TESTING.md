@@ -309,3 +309,20 @@ Tes test_asset_locations.py mencakup FK, null existing, initial event, lookup se
 CSRF/transport, archived/stale/replay/version-limit, PATCH bypass, rollback event failure,
 retensi sejarah, migration preserve/downgrade guards serta race placement/metadata/arsip
 PostgreSQL. Timeline, movement dan frontend lokasi menunggu Task 2-03–2-05.
+
+## Task 2-03
+
+Jalankan `bash infra/check.sh --postgres`, lalu smoke serial:
+`bash infra/smoke-sprint1b.sh`, `bash infra/smoke-locations.sh`,
+`bash infra/smoke-asset-locations.sh`, `bash infra/smoke-movements.sh`.
+Runner terakhir memakai db-test tmpfs dengan guard nama/host test, membuat AP-003 dan
+Villa 1/Villa 10 sintetis, menguji request OFFICER → approve ADMIN, reject/cancel,
+stale/repeat conflicts, policy self-approval dan retensi event setelah archive. Tidak
+menempatkan atau memindahkan aset development. Jangan menjalankan smoke dan suite PG bersamaan.
+
+Test movements mencakup auth/role/CSRF/transport, validation, transisi terminal lengkap,
+version/origin/eligibility stale, multiple PENDING, rollback keempat event, read-only GET,
+constraints/FK/retensi dan migration pada seed/initial event predecessor. Race PostgreSQL
+memakai dua session independen: double approve, dua request, approve vs reject/cancel,
+metadata serta archive tujuan. SQLite hanya melewatkan tes PostgreSQL-only. Tidak ada
+klaim pengujian UI movement, timeline atau observasi yang belum diimplementasikan.
