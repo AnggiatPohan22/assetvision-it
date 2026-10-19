@@ -284,3 +284,9 @@ Migration0010 menambah index/embedding kosong dan head awal1, tanpa backfill/aut
 CPU dependencies hanya di image opt-in, bukan API default. Panduan: docs/RECOGNITION_INDEX.md;
 verifikasi: `bash infra/check.sh --postgres` dan `bash infra/check-recognition-index.sh`.
 Laporan: docs/sprints/SPRINT_3_02_REPORT.md. OCR/fusion/observation API/UI belum dimulai.
+
+## Task 3-03 — OCR label
+
+Adapter PaddleOCR CPU opsional, parsing SN/MAC konservatif dan koreksi manual transient
+tersedia melalui CLI lokal. Raw evidence tetap terpisah dari koreksi; semua hasil memerlukan
+review. Tidak ada migrasi/mutasi master/API/UI baru. Panduan: [OCR](docs/OCR.md).

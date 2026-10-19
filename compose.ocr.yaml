@@ -1,0 +1,18 @@
+# Opt-in transient local OCR. No DB, credentials, ports or source photos mounted by default.
+services:
+  ocr:
+    profiles: [ocr]
+    image: assetvision-ocr:3-03
+    build:
+      context: .
+      dockerfile: infra/ocr/Dockerfile
+      target: runtime
+    network_mode: none
+    command: ["--help"]
+    mem_limit: 2g
+    cpus: 2.0
+    read_only: true
+    tmpfs: [/tmp:size=256m]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    pids_limit: 128

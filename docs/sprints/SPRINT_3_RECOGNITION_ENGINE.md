@@ -1,13 +1,15 @@
 # AssetVision IT — Sprint 3: Lightweight Recognition, OCR & Evidence Matching
 
-**Status:** In progress — Task 3-01 harness dan benchmark CPU selesai; Task 3-02 diimplementasikan dengan gate uncalibrated; pemilihan encoder menunggu dataset evaluasi nyata yang lengkap · **Prasyarat:** Sprint 1A, 1B, dan 2 selesai · **Estimasi:** 10–15 hari kerja + waktu evaluasi dataset · **Prioritas:** P0
+**Status:** In progress — Task 3-01 harness dan benchmark CPU selesai; Task 3-02 diimplementasikan dengan gate uncalibrated; Task 3-03 OCR CPU/manual diimplementasikan; pemilihan encoder menunggu dataset evaluasi nyata yang lengkap · **Prasyarat:** Sprint 1A, 1B, dan 2 selesai · **Estimasi:** 10–15 hari kerja + waktu evaluasi dataset · **Prioritas:** P0
 
 Task 3-01 menyediakan CLI offline, manifest/split/leakage guards, metrics dan benchmark dua
 encoder CPU terpisah dari aplikasi. Enam foto Grandstream WP810 dari pengguna dipakai untuk
 profil latency saja; fixture52 gambar sintetis memeriksa alur metrik, bukan accuracy perangkat.
 Belum memilih encoder/threshold produksi. Hasil dan batas: `SPRINT_3_01_REPORT.md`, agregat
 `SPRINT_3_01_BASELINE.json`, protokol `../RECOGNITION_EVALUATION.md`. Task 3-02 menambah generation/index/rebuild/search model dengan adapter eksplisit dan gate kalibrasi.
-Hasil: `SPRINT_3_02_REPORT.md`; panduan: `../RECOGNITION_INDEX.md`. Task 3-03 belum dimulai.
+Hasil: `SPRINT_3_02_REPORT.md`; panduan: `../RECOGNITION_INDEX.md`. Task 3-03 menyediakan adapter PaddleOCR CPU opsional, parser SN/MAC dan fallback manual
+transient dengan raw evidence terpisah; hasil/pengujian: `SPRINT_3_03_REPORT.md`, panduan
+`../OCR.md`. Belum ada benchmark OCR label perangkat nyata. Task 3-04 belum dimulai.
 
 ## Tujuan
 

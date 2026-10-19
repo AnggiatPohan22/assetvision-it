@@ -264,3 +264,11 @@ UI role gates membantu navigasi; backend tetap pemilik seluruh keputusan otorisa
   provenance/ref split/unknown. Synthetic/profile/NO_GO ditolak. Policy immutable per generation.
 - Tidak memilih encoder/threshold produksi berdasarkan profil WP810/sintetis3-01. CLI lokal
   bukan API publik dan UUID actor bukan autentikasi browser. OCR/fusion/review UI belum dibuat.
+
+## Task 3-03 — bukti label
+
+OCR/manual adalah kandidat evidence, bukan identitas/approval. Jangan mengubah O/0 atau I/1
+otomatis, mengisi SN rusak, mengasumsikan generic MAC sebagai LAN/WLAN, atau menyamakan BSSID
+dengan MAC perangkat. Serial case tetap sesuai sumber. Raw OCR tidak diganti oleh koreksi
+manual. Label lemah/rusak/tanpa engine mendukung input manual tanpa membuat identifier palsu.
+Semua hasil memerlukan review dan tidak menyentuh master/lokasi/index.

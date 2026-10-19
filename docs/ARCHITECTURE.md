@@ -276,3 +276,11 @@ operator DB, bukan session browser. Image CPU terpisah, storage referensi read-o
 internal. Tidak ada endpoint/proxy/UI recognition sampai task terkait. NO_GO3-01 tetap berlaku:
 encoder dipilih eksplisit, calibration gate menolak synthetic/profile, default UNCERTAIN.
 Rincian workflow/konkurensi/provenance/batas ada di RECOGNITION_INDEX.md.
+
+## Task 3-03 — OCR CPU
+
+OCR transient berada di balik Protocol OCREngine, terpisah dari encoder visual dan master.
+Paddle CPU opsional dijalankan child process dengan hard deadline dan local pinned weights
+dalam container tanpa jaringan. API default tidak memuat dependensi OCR. Parser memakai
+normalizer master tanpa mengubah aturan case/type; manual correction mempertahankan raw
+evidence. Belum ada schema/HTTP/UI/fusion/persistence OCR; lihat OCR.md.

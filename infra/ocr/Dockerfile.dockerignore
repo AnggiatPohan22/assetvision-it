@@ -1,0 +1,13 @@
+**
+!apps/
+!apps/api/
+!apps/api/**
+!infra/
+!infra/ocr/
+!infra/ocr/**
+**/__pycache__/
+**/.pytest_cache/
+**/.ruff_cache/
+**/.venv/
+**/*.db
+**/.env*

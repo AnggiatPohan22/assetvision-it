@@ -653,3 +653,9 @@ memuat status/reason,index UUID/generation,encoder spec,calibrated/threshold dan
 model UUID/rank/similarity/reference snapshot UUID. Tidak ada Asset ID atau confidence.
 Uncalibrated mengembalikan UNCERTAIN dengan ranking informasional; stale/mismatch tanpa
 kandidat; threshold reject UNKNOWN_MODEL tanpa kandidat. Rincian dan CLI: RECOGNITION_INDEX.md.
+
+## Task 3-03 — batas OCR
+
+Service/CLI OCR lokal belum membuka route `/recognition/ocr`; endpoint survey/review dan
+UI menunggu Task3-05. Semua hasil adalah evidence memerlukan review, tanpa asset identity
+atau perubahan master. Raw text terpisah dari manual correction; detail kontrak: OCR.md.

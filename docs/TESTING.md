@@ -399,3 +399,12 @@ status/rebuild/query/stale409. Tidak mount database/storage development. Jalanka
 existing secara serial setelah suite PG selesai karena memakai db-test tmpfs yang sama.
 Hasil aktual dan preservasi: sprints/SPRINT_3_02_REPORT.md. Tidak menyatakan accuracy perangkat
 atau kalibrasi produksi dari fixture integration/self-match.
+
+## Task 3-03 — OCR
+
+`tests/test_ocr.py` menguji parsing/normalisasi, raw versus correction, fallback, validasi
+image/text/output dan hard timeout child. `bash infra/check-ocr.sh` membangun image CPU
+opsional dan menjalankan `test_ocr_cpu.py` dengan weights nyata, network none, read-only,
+CPU2/mem2GiB dan label generated. Empat tes CPU di-skip pada image API default.
+Regresi penuh: `bash infra/check.sh --postgres`; semua DB test tetap terisolasi.
+Angka aktual, iterasi dan preservasi ada di sprints/SPRINT_3_03_REPORT.md; detail di OCR.md.

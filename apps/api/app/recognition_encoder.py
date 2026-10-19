@@ -40,12 +40,15 @@ def normalized(vector: Sequence[float], dimensions: int) -> list[float]:
     return [float(x) / norm for x in vector]
 
 
-def decode_image(data: bytes, mime_type: str) -> Image.Image:
+def decode_image(data: bytes, mime_type: str, *, max_bytes: int | None = None) -> Image.Image:
     """Decode bounded original pixels, preserving the evaluation preprocessing semantics.
 
     No file writes, re-encoding, EXIF output or metadata logging. EXIF is consumed for orientation.
     """
-    if not data or len(data) > get_settings().image_max_bytes:
+    byte_limit = get_settings().image_max_bytes if max_bytes is None else max_bytes
+    if type(byte_limit) is not int or not 1024 <= byte_limit <= 8 * 1024 * 1024:
+        raise ValueError("Image byte limit must be 1KiB-8MiB")
+    if not data or len(data) > byte_limit:
         raise HTTPException(413, "Recognition image exceeds byte limit")
     expected = (
         "JPEG"
