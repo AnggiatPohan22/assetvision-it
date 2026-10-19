@@ -301,8 +301,12 @@ def test_postgres_asset_jsonb_and_indexes(factory):
     assert {"ix_asset_identifiers_lookup", "uq_asset_identifiers_active"} <= {
         row["name"] for row in inspector.get_indexes("asset_identifiers")
     }
-    assert not {"current_location", "current_location_id"} & {
-        row["name"] for row in inspector.get_columns("assets")
+    columns = {row["name"]: row for row in inspector.get_columns("assets")}
+    assert "current_location" not in columns
+    assert columns["current_location_id"]["nullable"]
+    assert columns["location_verified_at"]["nullable"]
+    assert "ix_assets_current_location_id" in {
+        row["name"] for row in inspector.get_indexes("assets")
     }
     if engine.dialect.name == "postgresql":
         columns = {row["name"]: row for row in inspector.get_columns("asset_change_events")}

@@ -5,7 +5,7 @@
 `locations.py` mendaftarkan model pada metadata existing; `location_schemas.py`,
 `location_service.py` dan `location_routes.py` menambahkan API tanpa sistem auth/audit baru.
 Migration 0006 hanya membuat tabel/index/trigger lokasi; tidak mengubah tabel aset atau
-memetakan hint CSV. Readiness kini mensyaratkan revisi 0006 dan tabel locations.
+memetakan hint CSV. Pada 2-01 readiness mensyaratkan revisi 0006 dan tabel locations; head kini 0007 (2-02).
 Tree memakai adjacency list (`id`, `parent_id`) agar tidak bergantung kedalaman JSON.
 Maksimum 5000 node; kelebihan ditolak eksplisit, gunakan daftar paginated.
 
@@ -156,3 +156,17 @@ Mutasi katalog mewajibkan version dari client dan pemeriksaan SQLAlchemy version
 dengan audit dalam transaksi yang sama. Modul domain berikutnya harus mempertahankan pola ini.
 Interface AI/OCR/storage diperkenalkan
 saat fiturnya dibutuhkan, tanpa dependensi inference pada fondasi ini.
+
+## Initial asset location — Task 2-02
+
+asset_location_routes/service memakai auth/CSRF, session, row lock aset, version dan
+transaction helper existing. Urutan lock: hierarchy advisory lock → row lock aset → baca
+tujuan; mutasi hierarchy dan penempatan tidak berlomba terhadap is_active tujuan. ORM
+version membatasi lost update bersama perubahan metadata/identifier. Satu transaksi menulis
+current_location_id, location_verified_at, version dan AssetLocationEvent di asset_events.
+Event domain lokasi terpisah dari asset_change_events snapshot metadata existing; tidak
+mengubah payload historis lama. Payload menyimpan asal null, tujuan UUID/snapshot lokasi,
+alasan, expected/new asset version, effective_at dan keputusan ADMIN. Aktor, occurred_at,
+recorded_at dan correlation_id tersimpan sebagai kolom. Trigger history existing melarang
+UPDATE/DELETE event juga pada SQL langsung, bukan perlindungan terhadap database owner.
+Tidak ada service baru, UI atau movement state machine pada task ini.

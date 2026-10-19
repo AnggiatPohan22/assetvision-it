@@ -39,6 +39,7 @@ def test_not_ready_on_db_failure(client: TestClient) -> None:
         "0003_image_cleanup",
         "0004_asset_registry",
         "0005_asset_imports",
+        "0006_locations",
         "old_revision",
         None,
     ],
@@ -64,6 +65,8 @@ def test_not_ready_when_import_receipts_missing(client: TestClient, db: Session)
 
 
 def test_not_ready_when_locations_missing(client: TestClient, db: Session) -> None:
+    if db.bind.dialect.name == "postgresql":
+        db.execute(text("ALTER TABLE assets DROP CONSTRAINT fk_assets_current_location"))
     db.execute(text("DROP TABLE locations"))
     db.commit()
     assert client.get("/api/v1/ready").status_code == 503
@@ -72,9 +75,15 @@ def test_not_ready_when_locations_missing(client: TestClient, db: Session) -> No
 @pytest.mark.parametrize("table", ["asset_change_events", "asset_identifiers", "assets"])
 def test_not_ready_when_asset_table_missing(client: TestClient, db: Session, table: str) -> None:
     # Drop dependents first on PostgreSQL; schema corruption is confined to the fixture DB.
-    for dependent in ("asset_change_events", "asset_identifiers", "assets"):
+    for dependent in ("asset_events", "asset_change_events", "asset_identifiers", "assets"):
         db.execute(text(f"DROP TABLE {dependent}"))
         if dependent == table:
             break
+    db.commit()
+    assert client.get("/api/v1/ready").status_code == 503
+
+
+def test_not_ready_when_location_events_missing(client, db):
+    db.execute(text("DROP TABLE asset_events"))
     db.commit()
     assert client.get("/api/v1/ready").status_code == 503

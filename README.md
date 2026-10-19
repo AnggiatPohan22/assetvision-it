@@ -2,9 +2,13 @@
 
 Task 2-01 menyediakan API hierarki lokasi: `/api/v1/locations`, `/locations/tree`,
 dan `/locations/{id}`. ADMIN membuat/edit/arsip memakai version; semua role dapat membaca.
-Arsip melalui PATCH `is_active=false`, tanpa penghapusan fisik. Belum ada UI lokasi,
-penempatan aset, movement atau observasi. Migrasi 0006 hanya menambah lokasi kosong,
-tanpa menebak `location_hint` atau mengubah aset existing. Panduan ada di API_CONTRACT.
+Arsip melalui PATCH `is_active=false`, tanpa penghapusan fisik. Task 2-02 menambah lokasi
+resmi nullable dan penempatan awal ADMIN melalui `/assets/{id}/initial-placement` dengan
+version, location_id dan reason. Lookup `/assets/{id}/location` tersedia bagi semua role.
+Penempatan mencatat event atomik; PATCH aset umum tidak menerima perubahan lokasi.
+Migration 0007 menambah FK/kolom nullable dan tabel event kosong, tanpa memetakan
+`location_hint` atau menempatkan aset existing. Belum ada movement, timeline/observasi
+atau UI lokasi. Panduan ada di API_CONTRACT.
 
 Fondasi inventaris dan audit aset IT yang berjalan lokal di Ubuntu WSL2.
 Stack: Next.js App Router/TypeScript, FastAPI, SQLAlchemy 2, Alembic, PostgreSQL 16/PostGIS.
@@ -128,6 +132,8 @@ bash infra/smoke-asset-ui.sh
 bash infra/smoke-sprint1b.sh
 # Smoke hierarki lokasi melalui proxy/API/PostgreSQL terisolasi:
 bash infra/smoke-locations.sh
+# Smoke penempatan awal AP-003 dan lookup lokasi pada database uji:
+bash infra/smoke-asset-locations.sh
 ```
 
 Tanpa --postgres, script menjalankan backend SQLite, Ruff, ESLint, TypeScript, dan pengujian frontend.

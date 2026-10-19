@@ -478,3 +478,28 @@ berawalan tab/CR/LF diberi apostrof, termasuk notes/nama/SN. Tidak mengubah nila
 Export adalah laporan, bukan roundtrip import/backup: ada kolom tambahan dan sanitasi nilai.
 Seluruh response private/no-store/nosniff, attachment tanpa path/credential/storage key.
 UI upload/preview/confirm baru menjadi Task 1B-04 dan belum tersedia.
+
+## Asset location — Task 2-02
+
+GET `/api/v1/assets/{id}/location` tersedia bagi semua role authenticated: asset_id,
+version, current_location_id, location_verified_at dan location (LocationOutput, termasuk
+lokasi yang diarsipkan). Aset belum ditempatkan menghasilkan 200 dengan tiga nilai lokasi
+null; UUID aset unknown 404. GET list/detail aset juga menyertakan dua kolom nullable baru.
+Pencarian tujuan memakai GET /locations dengan search/is_active/parent_id existing.
+
+POST `/api/v1/assets/{id}/initial-placement` khusus ADMIN, JSON maksimal 16 KiB:
+`{"version":1,"location_id":"UUID","reason":"Verifikasi penempatan awal"}`.
+Origin/CSRF sesi wajib. Sukses 201 AssetOutput, version +1, timestamp UTC server dan
+event INITIAL_PLACEMENT dicatat dalam transaksi yang sama. Ini keputusan awal langsung
+oleh ADMIN; tidak membuat request movement atau self-approval policy untuk Task 2-03.
+Reason wajib nonblank, canonical whitespace, maksimal 2000 karakter; timestamp/aktor,
+current_location_id dan field ekstra dari client ditolak. Unknown location 422, lokasi/
+aset archived atau stale/already placed/version limit 409. Retry setelah respons terputus
+menghasilkan 409 jika sudah berhasil; baca ulang lookup, tidak membuat event kedua.
+
+Hanya is_active tujuan lokal diperiksa, sesuai semantik Task 2-01; ancestor archived tidak
+mengarsipkan descendants. Arsip lokasi setelah penempatan mempertahankan FK dan bukti.
+location_verified_at berarti waktu keputusan verifikasi awal ADMIN, bukan sensor GPS atau
+jaminan posisi fisik terus-menerus. installed_at, lifecycle_status dan identifier tidak berubah.
+PATCH/create aset umum, CSV dan seed tidak menerima/memetakan lokasi. Event tersimpan dalam
+asset_events; endpoint timeline/movement/observasi dan UI baru belum disediakan pada 2-02.

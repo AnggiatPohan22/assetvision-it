@@ -296,3 +296,16 @@ Jalankan berurutan karena berbagi db-test sementara. Smoke CSV melalui Next.js/A
 memverifikasi preview tanpa write, commit tanpa SN, retry/key conflict, formula-safe export,
 ADMIN-only/CSRF dan receipt/audit persisten. Guard helper mensyaratkan db-test/assetvision_test
 sebagai test_runner. Semua domain sintetis, tidak membuat seed development atau UI task berikutnya.
+
+## Task 2-02
+
+`bash infra/check.sh --postgres` menjalankan SQLite, Ruff, frontend lint/typecheck/tests,
+lalu PostgreSQL/PostGIS tmpfs. `bash infra/smoke-asset-locations.sh` membangun image dan
+menjalankan AP-003 → Villa 1 hanya pada db-test sementara melalui Next.js/API nyata.
+Runner mereset db-test saja dan berhenti setelah selesai. Jalankan serial terhadap suite
+PostgreSQL/smoke lain. Tidak login/seed/place ke development untuk acceptance sintetis.
+
+Tes test_asset_locations.py mencakup FK, null existing, initial event, lookup semua role,
+CSRF/transport, archived/stale/replay/version-limit, PATCH bypass, rollback event failure,
+retensi sejarah, migration preserve/downgrade guards serta race placement/metadata/arsip
+PostgreSQL. Timeline, movement dan frontend lokasi menunggu Task 2-03–2-05.

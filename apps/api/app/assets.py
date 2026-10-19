@@ -110,6 +110,11 @@ class AssetUnit(VersionedRecord, Base):
         default=AssetCondition.UNKNOWN,
         server_default="UNKNOWN",
     )
+    current_location_id: Mapped[uuid.UUID | None] = mapped_column(
+        ForeignKey("locations.id", name="fk_assets_current_location"),
+        index=True,
+    )
+    location_verified_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     notes: Mapped[str | None] = mapped_column(Text)
     purchase_date: Mapped[date | None] = mapped_column(Date)
     installed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))

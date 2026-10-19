@@ -77,6 +77,8 @@ class AssetOutput(BaseModel):
     notes: str | None
     purchase_date: date | None
     installed_at: datetime | None
+    current_location_id: uuid.UUID | None
+    location_verified_at: datetime | None
     created_at: datetime
     updated_at: datetime
     version: int

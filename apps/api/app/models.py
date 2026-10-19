@@ -6,6 +6,7 @@ from sqlalchemy import JSON, Boolean, DateTime, Enum, ForeignKey, String, Uuid, 
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.asset_imports import AssetImportBatch  # noqa: F401
+from app.asset_locations import AssetLocationEvent as AssetLocationEvent
 from app.assets import AssetChangeEvent, AssetIdentifier, AssetUnit  # noqa: F401
 from app.catalog import (  # noqa: F401
     DeviceCategory,

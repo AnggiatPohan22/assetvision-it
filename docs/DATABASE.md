@@ -248,3 +248,18 @@ docker compose exec -T db sh -c 'pg_dump -U "$POSTGRES_USER" -d "$POSTGRES_DB" -
 
 Simpan backup dengan akses terbatas; berisi email dan hash password. Pemulihan membutuhkan
 prosedur eksplisit sesuai target database, tidak dilakukan otomatis oleh aplikasi.
+
+## Migration 0007_asset_location — Task 2-02
+
+assets mendapat current_location_id UUID nullable dengan FK locations.id (NO ACTION,
+tanpa cascade, index) dan location_verified_at timestamptz nullable. Existing version tidak
+diubah saat upgrade; tidak ada backfill, seed atau penafsiran location_hint. SQLite memakai
+nullable ADD COLUMN REFERENCES tanpa rebuild tabel aset yang sudah direferensikan; FK default
+NO ACTION juga dipakai PostgreSQL agar reflection Alembic konsisten. DELETE lokasi sudah
+dilarang guard 0006. Event asset_events: UUID PK, asset_id/actor_id FK RESTRICT, event_type,
+occurred_at, recorded_at, payload_json JSON/JSONB, correlation_id UUID unique; index asset/waktu.
+History guard menolak rewrite/delete. Initial placement saja yang menulis pada task ini.
+
+Downgrade ke 0006 menolak bila ada event atau lokasi/timestamp resmi non-null. Roundtrip
+hanya diuji pada database test. Tidak mengubah migration 0001–0006. Readiness mensyaratkan
+head 0007 dan dapat membaca seluruh kolom aset serta asset_events.

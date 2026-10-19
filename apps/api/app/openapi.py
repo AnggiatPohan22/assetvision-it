@@ -70,6 +70,13 @@ def catalog_openapi(app: FastAPI) -> dict[str, Any]:
                     "require asset_version and PATCH/DELETE also require identifier version. "
                     "Successful identifier writes return the new asset_version."
                 )
+                if path.endswith("/initial-placement"):
+                    policy = (
+                        " ADMIN only. Explicit initial placement for an unplaced, non-archived "
+                        "asset. Requires version, active location_id and reason. Commits location, "
+                        "verification time, version and INITIAL_PLACEMENT event atomically. "
+                        "Repeated/stale placement returns 409; general PATCH cannot set location."
+                    )
                 operation["description"] = (operation.get("description", "") + policy).strip()
             if path.startswith("/api/v1/locations"):
                 operation["description"] = (

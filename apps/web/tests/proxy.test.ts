@@ -284,3 +284,25 @@ test("all locally generated proxy errors are private and nosniff", async () => {
     assert.equal(typeof (await response.json()).detail, "string");
   }
 });
+
+
+test("asset initial placement and current location have explicit methods", async () => {
+  const id = "00000000-0000-0000-0000-000000000001";
+  let calls = 0;
+  globalThis.fetch = async (url, init) => {
+    calls++;
+    assert.ok(String(url).includes(`/assets/${id}/`));
+    assert.equal(new Headers(init?.headers).get("x-csrf-token"), "opaque");
+    if (init?.method === "POST") assert.equal(new TextDecoder().decode(init.body as ArrayBuffer), '{"version":1}');
+    return Response.json({ version: 2 });
+  };
+  const headers = { "x-csrf-token": "opaque", cookie: "session=opaque", origin: "http://local" };
+  assert.equal((await proxyRequest(new Request("http://local", { headers }), ["assets", id, "location"])).status, 200);
+  assert.equal((await proxyRequest(new Request("http://local", { headers, method: "POST", body: '{"version":1}' }), ["assets", id, "initial-placement"])).status, 200);
+  assert.equal(calls, 2);
+  for (const [suffix, method] of [["location", "POST"], ["initial-placement", "GET"], ["initial-placement", "PATCH"]]) {
+    assert.equal((await proxyRequest(new Request("http://local", { method }), ["assets", id, suffix])).status, 405);
+  }
+  assert.equal((await proxyRequest(new Request("http://local", { method:"POST", body:"x".repeat(17000) }), ["assets", id, "initial-placement"])).status, 413);
+  assert.equal(calls, 2);
+});

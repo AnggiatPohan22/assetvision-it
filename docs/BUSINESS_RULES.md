@@ -187,3 +187,16 @@ MAC/tipe lain tidak hilang; kolom scalar memuat nilai kanonis dipisahkan newline
 Nilai berawalan formula (=,+,-,@ setelah whitespace) atau tab/CR/LF diberi apostrof.
 Export bukan backup/format roundtrip import; mengandung kolom pelaporan tambahan dan
 sanitasi formula. Tidak ada penghapusan data/audit atau location workflow melalui CSV.
+
+## Initial placement — Task 2-02
+
+- Lokasi resmi awal dipilih eksplisit oleh ADMIN untuk aset unplaced dan tidak archived;
+  hanya boleh sekali. Penempatan selanjutnya memerlukan movement workflow Task 2-03.
+- current_location_id nullable adalah lokasi resmi terakhir, bukan bukti tunggal identitas
+  atau posisi fisik saat ini. location_hint tidak pernah dipetakan otomatis.
+- Keputusan ADMIN mencatat waktu verifikasi server, reason dan event INITIAL_PLACEMENT
+  atomik dengan increment version. Tidak mengubah lifecycle, tanggal instalasi atau klaim.
+- Lokasi tujuan harus aktif lokal; lokasi/ancestor mengikuti semantik arsip Task 2-01.
+  Snapshot event mempertahankan konteks saat penempatan walau lokasi diubah/diarsipkan.
+- PATCH umum dan impor tidak boleh mengubah lokasi. Replay penempatan menolak 409; event
+  koreksi/movement belum diimplementasikan. Existing aset tetap unplaced setelah migrasi.

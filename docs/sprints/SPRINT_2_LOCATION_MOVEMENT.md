@@ -1,11 +1,13 @@
 # AssetVision IT — Sprint 2: Location, Movement & Audit Trail
 
-**Status:** In progress — Task 2-01 diimplementasikan; 2-02–2-05 belum dimulai · **Prasyarat:** Sprint 1B selesai · **Estimasi:** 8–12 hari kerja · **Prioritas:** P0
+**Status:** In progress — Task 2-01 dan 2-02 diimplementasikan; 2-03–2-05 belum dimulai · **Prasyarat:** Sprint 1B selesai · **Estimasi:** 8–12 hari kerja · **Prioritas:** P0
 
 Task 2-01 menambah hierarki, tree API adjacency, API ADMIN create/PATCH/archive,
 cycle guards aplikasi/database, version, audit dan migration 0006. Tidak menambah
 FK lokasi aset, placement, movement, timeline/observasi atau UI lokasi. Floorplan/pin
 opsional ditunda. Hasil eksekusi dan preservasi: `SPRINT_2_01_REPORT.md`.
+Task 2-02 menambah FK nullable, penempatan awal ADMIN/event atomik dan lookup lokasi;
+tanpa pemetaan hint atau penempatan development. Hasil: `SPRINT_2_02_REPORT.md`.
 
 ## Tujuan
 
@@ -95,7 +97,7 @@ ADMIN tidak boleh mengubah lokasi lewat PATCH asset umum; semua perubahan resmi 
 ## Acceptance criteria
 
 - [x] Lokasi Lounge, Lobby, Villa 1, Villa 10 dapat dibuat dalam hierarki (fixture sintetis API/smoke, bukan seed development).
-- [ ] AP-003 ditempatkan di Villa 1 melalui event yang tercatat.
+- [x] AP-003 ditempatkan di Villa 1 melalui event yang tercatat (fixture/smoke sintetis, bukan development).
 - [ ] OFFICER mengajukan mutasi Villa 1 → Villa 10; sebelum approval lokasi resmi tetap Villa 1.
 - [ ] ADMIN approve → lokasi resmi Villa 10 dan event histori mencatat asal/tujuan/aktor/waktu.
 - [ ] Reject → tidak ada perubahan lokasi.

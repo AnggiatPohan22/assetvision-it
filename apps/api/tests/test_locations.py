@@ -409,6 +409,7 @@ def test_location_migration_preserves_entire_predecessor(factory, db, user):
 
 def test_populated_downgrade_refused(factory, db, user):
     loc = save_location(db, user, LocationCreate(code="preserve", name="Preserve", kind="SITE"))
+    db.rollback()  # Release read locks before the successor migration changes the asset FK.
     with factory.kw["bind"].connect() as c:
         config = Config("alembic.ini")
         config.attributes["connection"] = c
