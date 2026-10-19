@@ -1,6 +1,6 @@
 # AssetVision IT — Sprint 2: Location, Movement & Audit Trail
 
-**Status:** In progress — Task 2-01–2-04 diimplementasikan; 2-05 belum dimulai · **Prasyarat:** Sprint 1B selesai · **Estimasi:** 8–12 hari kerja · **Prioritas:** P0
+**Status:** In progress — Task 2-01–2-05 dan verifikasi teknis selesai; menunggu review owner · **Prasyarat:** Sprint 1B selesai · **Estimasi:** 8–12 hari kerja · **Prioritas:** P0
 
 Task 2-01 menambah hierarki, tree API adjacency, API ADMIN create/PATCH/archive,
 cycle guards aplikasi/database, version, audit dan migration 0006. Tidak menambah
@@ -12,7 +12,10 @@ Task 2-03 menambah movement request/approve/reject/cancel, RBAC, version/atomic 
 API history/inbox dan tests. Self-approval ADMIN diizinkan untuk pilot dan dicatat eksplisit.
 Hasil: `SPRINT_2_03_REPORT.md`.
 Task 2-04 menambah timeline gabungan read-only, observasi/review dan proyeksi location conflict
-tanpa mengubah master aset. Hasil: `SPRINT_2_04_REPORT.md`. UI/UAT Task 2-05 belum dimulai.
+tanpa mengubah master aset. Hasil: `SPRINT_2_04_REPORT.md`.
+Task 2-05 menambah tree/edit/arsip lokasi, initial placement/request/observasi di detail aset,
+inbox ADMIN, timeline/conflict dan UAT browser terisolasi. Hasil: `SPRINT_2_05_REPORT.md`;
+prosedur UAT: `SPRINT_2_UAT.md`. Floorplan/pin opsional tetap ditunda.
 
 ## Tujuan
 
@@ -111,7 +114,7 @@ ADMIN tidak boleh mengubah lokasi lewat PATCH asset umum; semua perubahan resmi 
 - [x] Cycle lokasi (parent menjadi descendant) ditolak (API/SQL langsung dan race PostgreSQL).
 - [x] Non-ADMIN tidak bisa approve/reject.
 - [x] Event historis tetap ada setelah lokasi diarsipkan.
-- [ ] Migration, RBAC, concurrency, dan UI tests lulus.
+- [x] Migration, RBAC, concurrency, dan UI tests lulus (suite penuh, SSR smoke dan UAT browser sintetis; bukan sign-off bisnis operator).
 
 ## Handoff ke Sprint 3
 

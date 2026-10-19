@@ -3,8 +3,10 @@ import { createContext, useContext, useId, useRef, type ReactNode } from "react"
 import { CatalogError, type Role } from "../../lib/catalog";
 
 export const CatalogRole = createContext<Role>("VIEWER");
-export function CatalogProvider({ role, children }: { role: Role; children: ReactNode }) {
-  return <CatalogRole value={role}>{children}</CatalogRole>;
+export const CatalogUserId = createContext<string | null>(null);
+export const useCatalogUserId = () => useContext(CatalogUserId);
+export function CatalogProvider({ role, userId = null, children }: { role: Role; userId?: string | null; children: ReactNode }) {
+  return <CatalogRole value={role}><CatalogUserId value={userId}>{children}</CatalogUserId></CatalogRole>;
 }
 export const useCatalogRole = () => useContext(CatalogRole);
 export function Status({ active }: { active: boolean }) {

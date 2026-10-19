@@ -303,3 +303,11 @@ Upgrade tidak backfill/seed/UPDATE data lama. Migration 0001–0008 tidak diubah
 ke 0008 menolak sebelum DROP bila ada observasi, termasuk dismissed. Roundtrip kosong,
 upgrade populated predecessor dan penolakan populated downgrade diuji hanya di database test.
 Readiness memeriksa head 0009 dan tabel baru. Timeline membaca sumber lama tanpa duplikasi.
+
+## Frontend Task 2-05
+
+Tidak ada migration, perubahan tabel/trigger, pemetaan hint atau seed development pada task
+frontend ini. Head tetap 0009_observations. UAT/smoke memakai db-test/assetvision_test tmpfs,
+terpisah dari DB/storage development. Fixture browser dibuat eksplisit lewat runner test,
+dengan akun acak test saja; tidak membuat role/akun development. Fingerprint seluruh data
+existing dan storage dibandingkan sebelum/sesudah pembaruan web. Bukti final di laporan 2-05.

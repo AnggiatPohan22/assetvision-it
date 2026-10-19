@@ -22,6 +22,7 @@ export default async function Dashboard() {
         <article><span className="card-number">03</span><h2>Fondasi audit</h2>
           <p>Aktivitas autentikasi memiliki jejak audit.</p></article>
       </div>
+      <aside className="notice"><span className="role">LOKASI</span><div><h2>Lokasi dan perpindahan</h2><p><Link href="/locations" className="catalog-link">Buka hierarki lokasi →</Link>{user.role === "ADMIN" && <> · <Link href="/movements">Review perpindahan →</Link></>}</p></div></aside>
       <aside className="notice"><span className="role">ASET</span><div><h2>Registry unit fisik</h2><p>Cari Asset ID, serial atau MAC dan tinjau metadata unit. <Link href="/assets" style={{ textDecoration: "underline" }}>Buka aset fisik →</Link></p></div></aside>
       <aside className="notice"><span className="role">KATALOG</span>
         <div><h2>Kenali model perangkat Anda</h2>

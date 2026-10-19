@@ -613,3 +613,26 @@ Backdated observation ditempatkan menurut waktu observasi, review menurut waktu 
 Offset pagination/count bukan snapshot lintas request saat event baru masuk. Semua GET
 read-only/no-store; unknown aset/detail observation 404. Tidak ada endpoint append/edit/delete
 timeline bebas. Frontend hanya proxy allowlist, tanpa UI Task 2-05.
+
+## Konsumen frontend — Task 2-05
+
+Halaman `/locations` memakai GET /locations/tree dan mutasi ADMIN POST/PATCH locations.
+Tree adjacency dirender sebagai daftar hierarkis berindentasi dengan path/tingkat; pencarian
+mempertahankan konteks ancestor. Node archived tetap ditampilkan, parent dirinya/descendant
+keluar dari pilihan edit. Backend tetap menguji cycle/version dan status lokasi lokal.
+UI tidak mengirim atau menghapus kolom GPS existing saat edit nama/parent/status.
+
+Detail aset memakai location-status, tree, movements, location-observations dan timeline.
+Initial placement, request movement, cancel/review dan observasi/review memakai payload domain
+2-02–2-04 existing. Tidak menambah endpoint, field master, schema atau izin backend. Version
+dibekukan saat formulir dibuka; body JSON maksimal 16 KiB, sesi/CSRF dari auth/session, no-store.
+Setiap hasil simpan yang tidak pasti/error menghentikan submit ulang, mempertahankan draft
+sampai pembatalan/reload eksplisit. UI tidak memakai optimistic relocation.
+
+`/movements` diperiksa server untuk ADMIN dan mengulang otorisasi pada API. OFFICER hanya
+mendapat cancel request sendiri berdasarkan user UUID sesi; backend tetap memeriksa ownership.
+Approval UI dinonaktifkan bila asset version/origin stale, aset archived atau tujuan inactive;
+API memvalidasi ulang pada transaksi. Riwayat preview menampilkan lima event terbaru, dengan
+link ke detail aset untuk seluruh timeline. Inbox berfilter status/page_size10; history aset
+movements/observations page_size5, timeline page_size10 dengan filter source. Semua dapat
+membaca timeline; detail snapshot tetap read-only. Error sesi menyediakan tautan login.

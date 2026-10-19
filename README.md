@@ -12,7 +12,7 @@ OFFICER/ADMIN dan approve/reject ADMIN; hanya approve mengubah lokasi resmi dan 
 event atomik. Pembatalan oleh ADMIN/pembuat request. Self-approval ADMIN diizinkan untuk
 pilot dan dicatat eksplisit. Migration 0008 hanya menambah tabel movement kosong.
 Task 2-04 menambah timeline/observasi/review dan location conflict tanpa mutasi master.
-Migration 0009 additive; UI lokasi/movement/timeline Task 2-05 belum dimulai.
+Migration 0009 additive; Task 2-05 menyediakan UI lokasi, movement dan timeline.
 Panduan ada di API_CONTRACT.
 
 Fondasi inventaris dan audit aset IT yang berjalan lokal di Ubuntu WSL2.
@@ -235,8 +235,30 @@ penulisan ulang sejarah. OFFICER/ADMIN dapat mencatat bukti lokasi dengan asset/
 opsional; ADMIN meninjau ACKNOWLEDGED/DISMISSED. Observasi dan review tidak mengubah lokasi
 resmi, waktu verifikasi atau version aset. Status LOCATION_CONFLICT dibandingkan dengan
 observasi terbaru yang tidak dismissed; bukti sebelum verifikasi resmi diberi STALE_OBSERVATION.
-Unknown device dapat dicatat unlinked tanpa menebak identitas. UI/UAT Task 2-05 belum dimulai.
+Unknown device dapat dicatat unlinked melalui API tanpa menebak identitas. Frontend 2-05 tersedia di bawah.
 
 Validasi: `bash infra/check.sh --postgres`, kemudian `bash infra/smoke-observations.sh`
 secara serial dengan smoke lain. Migration 0009 additive; jangan downgrade tabel observasi
 berisi data. Kontrak rinci ada di docs/API_CONTRACT.md dan laporan SPRINT_2_04_REPORT.md.
+
+## Frontend lokasi dan perpindahan — Task 2-05
+
+Buka `/locations` untuk membaca hierarki dan mencari lokasi. ADMIN dapat membuat, mengedit,
+mengubah induk, mengarsipkan atau memulihkan melalui checkbox Lokasi aktif dan Simpan lokasi.
+Arsip tidak menghapus riwayat atau otomatis mengarsipkan anak. Koordinat GPS existing dapat
+dibaca dan tetap dipertahankan; pengisian koordinat melalui API existing.
+
+Di `/assets/{id}`, ADMIN menetapkan lokasi awal untuk aset unplaced. OFFICER/ADMIN mengajukan
+perpindahan dengan tujuan aktif dan alasan; asal mengikuti lokasi resmi. ADMIN membuka
+`/movements` untuk membandingkan snapshot request, lokasi/version terkini dan histori sebelum
+approve/reject/cancel. OFFICER dapat membatalkan request sendiri dari detail aset. VIEWER baca
+saja. Policy pilot self-approval ADMIN tetap ditampilkan dan diaudit server.
+
+Detail aset juga menyediakan observasi lokasi OFFICER/ADMIN, review observasi ADMIN, badge
+LOCATION_CONFLICT, history/pagination dan timeline gabungan. ACKNOWLEDGED tidak menyelesaikan
+mismatch; DISMISSED tidak menghapus sejarah. Tidak ada auto-revert atau inferensi identitas.
+Setelah error simpan, isian dipertahankan dan submit diblokir. Batalkan dan muat ulang,
+periksa riwayat, lalu buka formulir baru; tidak ada retry otomatis saat hasil belum diketahui.
+
+UAT menggunakan database sintetis terisolasi, dijelaskan di docs/sprints/SPRINT_2_UAT.md.
+Tidak ada migration baru, backfill hint atau perubahan data existing pada Task 2-05.

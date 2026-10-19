@@ -236,3 +236,13 @@ sanitasi formula. Tidak ada penghapusan data/audit atau location workflow melalu
   selain itu mismatch adalah LOCATION_CONFLICT, tanpa memindahkan lokasi resmi.
 - Semua role dapat membaca history/timeline/status aset. Inbox/detail/review observasi hanya
   ADMIN. Linked event dan keputusan append-only; unlinked diaudit tanpa asset palsu.
+
+## Frontend Sprint 2 — Task 2-05
+
+UI menampilkan lokasi resmi dan observasi sebagai konteks terpisah, beserta waktu verifikasi,
+conflict dan timeline. Penempatan awal ADMIN adalah keputusan eksplisit. OFFICER mengajukan
+request tanpa memindahkan aset; ADMIN meninjau asal/tujuan/snapshot dan histori. Self-approval
+pilot diperlihatkan. Menutup request atau mereview evidence tidak mengubah master lokasi.
+Jika data berubah saat form terbuka, pengguna perlu membatalkan/reload dan meninjau ulang;
+tidak ada penyesuaian version atau pengiriman ulang otomatis. Draft dipertahankan pada error.
+UI role gates membantu navigasi; backend tetap pemilik seluruh keputusan otorisasi.

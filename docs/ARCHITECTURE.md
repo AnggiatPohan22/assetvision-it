@@ -215,3 +215,28 @@ sebelum bulk fetch payload terbatas per sumber. (source,id) membedakan UUID yang
 Tidak menyalin event lama, mengubah precision timestamp lama atau menambah service/event bus.
 Migration 0009 membuat tabel/index/check/guard kosong; readiness memerlukan head 0009 dan
 tabel observasi. Proxy hanya mengizinkan method/route domain tersebut. UI/UAT tetap 2-05.
+
+## Frontend Sprint 2 — Task 2-05
+
+`lib/locations.ts` berisi DTO, label, traversal adjacency iteratif dan writer domain berbatas.
+Komponen locations memakai CatalogProvider/useCatalogResource/auth/CSRF/proxy existing.
+Context user UUID ditambahkan opsional dari server untuk visibilitas cancel sendiri; bukan
+authority bisnis baru. Assets layout yang terautentikasi dipakai ulang oleh lokasi/inbox;
+server page inbox menolak non-ADMIN. Error/loading boundary dan CSS responsive mengikuti shell.
+
+Location manager menyediakan form create/edit/arsip dengan snapshot version. AssetLocation
+menghubungkan official status, penempatan/request/observasi, movement history, observation
+review dan timeline. Metadata/identifier editing serta formulir placement/request/observasi
+saling menonaktifkan kontrol tulis terkait agar draft tidak terganti karena refresh lokal.
+MovementList/Decision dipakai di detail aset dan inbox. Sebelum keputusan, current asset dan
+lima event terbaru wajib berhasil dimuat; snapshot request dan current origin/version terlihat.
+
+WriteForm memakai synchronous in-flight guard dan busy fieldset untuk double-submit. Error
+HTTP/network/malformed result membekukan submit dan menyimpan draft; pembatalan/reload eksplisit
+membuka data terbaru. Tidak melakukan retry otomatis atau mengganti expected version diam-diam.
+Mutasi sukses memicu pembacaan ulang, tanpa menebak lokasi/version hasil approval. Semantik
+ACK/DISMISS/stale evidence dan backend authorization 2-04 dipertahankan.
+
+Tidak mengubah business service, migration, dependencies, environment atau infrastruktur.
+Floorplan/pin opsional tetap ditunda. Unknown/unlinked observations tetap tersedia lewat API;
+form detail aset 2-05 hanya mencatat linked evidence, tanpa auto-link atau create unit baru.

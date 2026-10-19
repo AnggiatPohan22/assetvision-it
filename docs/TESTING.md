@@ -344,3 +344,25 @@ rollback audit create/review, direct SQL immutability/constraints, migration pre
 downgrade guard. Race PostgreSQL: observation vs approval, double review dan observation vs
 archive. SQLite melewatkan tes lock PostgreSQL-only. Proxy diuji method/size/forwarding.
 UI/UAT Task 2-05 belum diuji atau dimulai.
+
+## Task 2-05 — Frontend & UAT
+
+`tests/locations-ui.test.tsx` menjalankan React + jsdom: traversal/ancestor, role read-only,
+create/parent/arsip/version, draft tetap setelah 409, canonical CSRF payload, session expiry,
+placement ADMIN, request OFFICER tanpa optimistic move, observasi/timezone, unknown save
+blocking, inbox/current/history/stale approval, cancel ownership, ACK semantics, read filters,
+double-submit dan failure-closed preview. Tes existing katalog/registry tetap dijalankan.
+
+Jalankan `bash infra/check.sh --postgres`, kemudian serial seluruh runner smoke predecessor
+dan `bash infra/smoke-location-ui.sh`. Runner baru memeriksa redirect anonim, SSR role gates,
+navigasi lokasi/inbox, fixture sintetis unplaced dan logout lewat Next.js/API/PostgreSQL nyata.
+Tidak menjalankan dua suite/smoke bersamaan pada db-test yang sama.
+
+Untuk UAT browser, `bash infra/smoke-location-ui.sh --uat` menyiapkan ulang db-test saja dan
+meninggalkan stack test pada localhost:3002. Path direktori /tmp acak dicetak; session.json
+berisi akun test acak dan UUID fixture dengan permission 0600, direktorinya 0700. File ini
+bukan data development, tidak dicetak oleh runner atau dimasukkan Git. Setelah selesai:
+`docker compose -f compose.yaml -f compose.test.yaml -f compose.smoke.yaml --profile test stop web-smoke api-smoke db-test`.
+Jangan menjalankan suite PG/smoke lain sampai UAT selesai. Daftar UAT dan hasil aktual ada di
+sprints/SPRINT_2_UAT.md dan laporan 2-05. Pemeriksaan browser memakai viewport desktop dan
+390×844, bukan klaim lintas browser/perangkat fisik atau audit aksesibilitas penuh.
