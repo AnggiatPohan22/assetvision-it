@@ -207,3 +207,14 @@ def test_real_cli_status_rebuild_search_on_isolated_sqlite(tmp_path, user):
         2,
     )
     engine.dispose()
+
+
+@pytest.mark.parametrize("name", ["mobilenet_v3_small", "shufflenet_v2_x0_5"])
+def test_http_process_encoder_local_cpu(name):
+    from app.recognition_http_encoder import ProcessCPUEncoder
+
+    encoder = ProcessCPUEncoder(name, Path("/opt/weights/hub/checkpoints"))
+    with Image.new("RGB", (48, 32), "orange") as image:
+        values = encoder.encode(image)
+    assert len(values) == encoder.spec.dimensions
+    assert abs(math.fsum(v * v for v in values) - 1) < 1e-6

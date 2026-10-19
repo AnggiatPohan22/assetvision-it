@@ -18,6 +18,20 @@ function proxyError(detail: string, status: number): Response {
 function allowedMethods(path: string[]): readonly string[] | undefined {
   const existing = endpoints.get(path.join("/"));
   if (existing) return existing;
+  if (path[0] === "recognition") {
+    if (path.length === 2 && ["model-candidates", "ocr"].includes(path[1])) return ["POST"];
+    if (path.length === 2 && path[1] === "metrics") return ["GET"];
+    if (path[1] === "observations") {
+      if (path.length === 2) return ["GET", "POST"];
+      if (path.length === 3 && uuid.test(path[2])) return ["GET"];
+      if (path.length === 4 && uuid.test(path[2]) && path[3] === "review") return ["POST"];
+    }
+    if (path.length === 2 && path[1] === "jobs") return ["GET"];
+    if (path[1] === "jobs" && uuid.test(path[2]??"")) {
+      if (path.length === 3 || (path.length === 4 && path[3] === "content")) return ["GET"];
+    }
+    return undefined;
+  }
   if (path[0] === "location-observations") {
     if (path.length === 1) return ["GET", "POST"];
     if (path.length === 2 && uuid.test(path[1])) return ["GET"];
@@ -118,7 +132,8 @@ export async function proxyRequest(request: Request, path: string[]): Promise<Re
   if (request.method === "POST" || request.method === "PATCH") {
     const imageUpload = path.length === 3 && path[0] === "device-models" && path[2] === "reference-images";
     const csvImport = path.length === 3 && path[0] === "assets" && path[1] === "imports";
-    const limit = imageUpload ? MAX_UPLOAD_BYTES : csvImport ? MAX_CSV_REQUEST_BYTES : MAX_BODY_BYTES;
+    const recognitionUpload = path.length === 2 && path[0] === "recognition" && ["model-candidates","ocr"].includes(path[1]);
+    const limit = imageUpload || recognitionUpload ? MAX_UPLOAD_BYTES : path[0] === "recognition" ? 65536 : csvImport ? MAX_CSV_REQUEST_BYTES : MAX_BODY_BYTES;
     const result = await readBody(request, limit);
     if (result instanceof Response) return result;
     body = result;
@@ -130,7 +145,7 @@ export async function proxyRequest(request: Request, path: string[]): Promise<Re
         redirect: "manual", signal: AbortSignal.timeout(30000) },
     );
     const outgoing = new Headers({ "Cache-Control": "no-store" });
-    for (const name of ["content-type", "x-request-id", "content-disposition", "x-model-version", "x-content-type-options"]) {
+    for (const name of ["content-type", "x-request-id", "content-disposition", "x-model-version", "x-content-type-options", "retry-after"]) {
       const value = upstream.headers.get(name);
       if (value) outgoing.set(name, value);
     }

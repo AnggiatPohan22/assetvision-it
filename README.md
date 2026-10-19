@@ -298,3 +298,11 @@ Fungsi internal murni menggabungkan kandidat model, identifier, lokasi dan histo
 PROBABLE_ASSET/AMBIGUOUS/CONFLICT/UNKNOWN dengan alasan deterministik. Semua hasil perlu review;
 tidak ada auto-verification atau mutasi master. API/UI/review persisten tetap Task3-05.
 Kontrak dan batas: [docs/EVIDENCE_FUSION.md](docs/EVIDENCE_FUSION.md).
+
+
+## Observasi dan review perangkat — Task 3-05
+
+Buka `/recognition` untuk foto perangkat/label, koreksi manual, lokasi master, hasil awal dan
+review ADMIN. Foto/evidence privat, prediksi awal immutable, review diaudit terpisah dan tidak
+mengubah master/lokasi. Default menjaga NO_GO visual dan manual fallback; CPU opsional.
+Migration0011 additive. Kontrak/panduan: [RECOGNITION_OBSERVATIONS](docs/RECOGNITION_OBSERVATIONS.md).

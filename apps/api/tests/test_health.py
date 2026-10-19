@@ -43,6 +43,7 @@ def test_not_ready_on_db_failure(client: TestClient) -> None:
         "0007_asset_location",
         "0008_asset_movements",
         "0009_observations",
+        "0010_embedding_index",
         "old_revision",
         None,
     ],
@@ -69,6 +70,8 @@ def test_not_ready_when_import_receipts_missing(client: TestClient, db: Session)
 
 
 def test_not_ready_when_locations_missing(client: TestClient, db: Session) -> None:
+    db.execute(text("DROP TABLE recognition_reviews"))
+    db.execute(text("DROP TABLE survey_observations"))
     db.execute(text("DROP TABLE location_observations"))
     db.execute(text("DROP TABLE asset_movements"))
     if db.bind.dialect.name == "postgresql":
@@ -82,6 +85,8 @@ def test_not_ready_when_locations_missing(client: TestClient, db: Session) -> No
 def test_not_ready_when_asset_table_missing(client: TestClient, db: Session, table: str) -> None:
     # Drop dependents first on PostgreSQL; schema corruption is confined to the fixture DB.
     for dependent in (
+        "recognition_reviews",
+        "survey_observations",
         "location_observations",
         "asset_movements",
         "asset_events",
@@ -122,5 +127,17 @@ def test_not_ready_when_embedding_tables_missing(client, db, table):
         db.execute(text("DROP TABLE embedding_index_state"))
         db.execute(text("DROP TABLE image_embeddings"))
     db.execute(text(f"DROP TABLE {table}"))
+    db.commit()
+    assert client.get("/api/v1/ready").status_code == 503
+
+
+@pytest.mark.parametrize(
+    "table", ["recognition_jobs", "survey_observations", "recognition_reviews"]
+)
+def test_not_ready_when_recognition_evidence_missing(client, db, table):
+    for dependent in ("recognition_reviews", "survey_observations", "recognition_jobs"):
+        db.execute(text(f"DROP TABLE {dependent}"))
+        if dependent == table:
+            break
     db.commit()
     assert client.get("/api/v1/ready").status_code == 503

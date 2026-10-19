@@ -139,3 +139,28 @@ def test_cli_actual_cpu_and_manual_errors_are_private(tmp_path):
     )
     assert completed.returncode == 2
     assert "private-label-secret" not in completed.stderr and completed.stdout == ""
+
+
+def test_real_http_ocr_adapter_retains_evidence(client, user, password, tmp_path, monkeypatch):
+    from conftest import session_headers, sign_in
+
+    from app.config import get_settings
+    from app.main import app
+    from app.storage import LocalStorageProvider, get_storage
+
+    monkeypatch.setattr(get_settings(), "ocr_models_root", ROOT)
+    app.dependency_overrides[get_storage] = lambda: LocalStorageProvider(tmp_path / "private")
+    try:
+        assert sign_in(client, password).status_code == 200
+        response = client.post(
+            "/api/v1/recognition/ocr",
+            headers=session_headers(client),
+            files={"file": ("label.png", label(), "image/png")},
+        )
+        assert response.status_code == 201, response.text
+        result = response.json()["result"]
+        assert result["engine_version"].startswith("paddleocr-3.2.0")
+        assert "ABC789XYZ" in result["raw_text"]
+        assert result["requires_review"]
+    finally:
+        app.dependency_overrides.pop(get_storage, None)

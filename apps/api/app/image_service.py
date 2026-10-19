@@ -15,6 +15,7 @@ from app.catalog_service import check_version
 from app.config import get_settings
 from app.image_validation import ValidatedImage
 from app.models import AuditEvent, User
+from app.recognition_observations import RecognitionJob
 from app.storage import StorageCollisionError, StorageError, StorageProvider
 
 logger = logging.getLogger("assetvision.storage")
@@ -51,7 +52,9 @@ def cleanup_job(db: Session, storage: StorageProvider, job_id: uuid.UUID) -> boo
                 )
             )
             is None
-        ):
+        ) and db.scalar(
+            select(RecognitionJob.id).where(RecognitionJob.storage_key == job.storage_key)
+        ) is None:
             storage.delete(job.storage_key)
         db.delete(job)
         db.commit()

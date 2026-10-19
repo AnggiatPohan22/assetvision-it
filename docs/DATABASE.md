@@ -326,3 +326,13 @@ juga divalidasi service/reader. Tidak mengubah kolom existing atau menambah pgve
 Migration hanya membuat tabel baru dan head(id1,current_index_id=null,version1), tanpa encoder,
 vector, audit, seed atau hint mapping. Populated downgrade ditolak. Data existing selain revisi
 Alembic harus identik sebelum/sesudah. Rebuild adalah operasi ADMIN terpisah, bukan migration.
+
+
+## Migration0011_recognition_surveys — Task 3-05
+
+recognition_jobs, survey_observations, recognition_reviews additive, kosong saat upgrade.
+FK references users/model/assets/location/job/observation, review unik per observation,
+request UUID unik/digest untuk retry; seluruh evidence/review immutable via triggerUPDATE/DELETE.
+Review linkage pada selected_asset_id nullable, tidak overwrite prediction/master. JSONB diPG,
+JSON diSQLite. Downgrade menolak bila salah satu tabel berisi data. Head/readiness0011.
+Tidak UPDATE/backfill/seed tabel existing; storage cleanup melindungi reference dan job key.

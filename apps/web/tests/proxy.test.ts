@@ -366,3 +366,17 @@ test("timeline, observation and location status routes enforce explicit methods"
   assert.equal((await proxyRequest(new Request("http://local",{method:"POST",body:"x".repeat(17000)}),["location-observations"])).status,413);
   assert.equal(calls,7);
 });
+
+
+test("recognition proxy caps uploads and JSON, forwards review csrf and private headers",async()=>{
+ const id="00000000-0000-0000-0000-000000000001";let calls=0;
+ globalThis.fetch=async(url,init)=>{calls++;assert.equal(new Headers(init?.headers).get("cookie"),"private");return Response.json({id},{headers:{"Retry-After":"10","X-Content-Type-Options":"nosniff"}});};
+ for(const path of [["recognition","model-candidates"],["recognition","ocr"],["recognition","observations"],["recognition","observations",id,"review"]]){
+  const r=await proxyRequest(new Request("http://local",{method:"POST",headers:{cookie:"private","x-csrf-token":"token"},body:"synthetic"}),path);assert.equal(r.status,200);assert.equal(r.headers.get("retry-after"),"10");
+ }
+ const before=calls;
+ assert.equal((await proxyRequest(new Request("http://local",{method:"POST",body:"x".repeat(65537)}),["recognition","observations"])).status,413);
+ assert.equal((await proxyRequest(new Request("http://local",{method:"DELETE"}),["recognition","jobs",id])).status,405);
+ assert.equal((await proxyRequest(new Request("http://local"),["recognition","jobs","../../secret"])).status,404);
+ assert.equal(calls,before);
+});

@@ -1,6 +1,6 @@
 # AssetVision IT — Sprint 3: Lightweight Recognition, OCR & Evidence Matching
 
-**Status:** In progress — Task 3-01 harness dan benchmark CPU selesai; Task 3-02 diimplementasikan dengan gate uncalibrated; Task 3-03 OCR CPU/manual diimplementasikan; pemilihan encoder menunggu dataset evaluasi nyata yang lengkap · **Prasyarat:** Sprint 1A, 1B, dan 2 selesai · **Estimasi:** 10–15 hari kerja + waktu evaluasi dataset · **Prioritas:** P0
+**Status:** In progress — Task 3-01–3-05 diimplementasikan dan diuji; Task 3-06 belum dimulai; pemilihan encoder menunggu dataset evaluasi nyata yang lengkap · **Prasyarat:** Sprint 1A, 1B, dan 2 selesai · **Estimasi:** 10–15 hari kerja + waktu evaluasi dataset · **Prioritas:** P0
 
 Task 3-01 menyediakan CLI offline, manifest/split/leakage guards, metrics dan benchmark dua
 encoder CPU terpisah dari aplikasi. Enam foto Grandstream WP810 dari pengguna dipakai untuk
@@ -10,7 +10,8 @@ Belum memilih encoder/threshold produksi. Hasil dan batas: `SPRINT_3_01_REPORT.m
 Hasil: `SPRINT_3_02_REPORT.md`; panduan: `../RECOGNITION_INDEX.md`. Task 3-03 menyediakan adapter PaddleOCR CPU opsional, parser SN/MAC dan fallback manual
 transient dengan raw evidence terpisah; hasil/pengujian: `SPRINT_3_03_REPORT.md`, panduan
 `../OCR.md`. Belum ada benchmark OCR label perangkat nyata. Task 3-04 menyediakan fungsi fusion deterministik internal tanpa mutasi; kontrak di
-`../EVIDENCE_FUSION.md`, hasil di `SPRINT_3_04_REPORT.md`. Task 3-05 belum dimulai.
+`../EVIDENCE_FUSION.md`, hasil di `SPRINT_3_04_REPORT.md`. Task 3-05 menghubungkan upload privat, observasi dan review ADMIN/API/UI;
+kontrak `../RECOGNITION_OBSERVATIONS.md`, laporan `SPRINT_3_05_REPORT.md`. Task 3-06 belum dimulai.
 
 ## Tujuan
 
@@ -129,17 +130,17 @@ Simpan original image dengan storage provider Sprint 1A; hindari penyimpanan bas
 
 - [ ] Pengenalan foto baru mengembalikan top-3 model kandidat dan model/version/score.
 - [ ] Foto unknown tidak dipaksa menjadi model katalog.
-- [ ] Perangkat belum terdaftar bisa dibuat sebagai observation dengan `asset_id=null`.
-- [ ] OCR raw output, parsed identifiers, dan koreksi manusia disimpan terpisah.
+- [x] Perangkat belum terdaftar bisa dibuat sebagai observation dengan `asset_id=null`.
+- [x] OCR raw output, parsed identifiers, dan koreksi manusia disimpan terpisah.
 - [ ] AP680-L dengan SN rusak di Lounge menghasilkan kandidat AP-001 **PROBABLE**, bukan VERIFIED.
 - [ ] Dua AP identik tanpa identifier kuat menghasilkan AMBIGUOUS.
 - [ ] SN cocok tetapi lokasi bertentangan menghasilkan CONFLICT dan **tidak otomatis mutasi**.
-- [ ] Hasil review punya actor/time/evidence dan tidak menghapus prediksi awal.
-- [ ] Tidak ada dependensi Ollama atau API cloud wajib.
+- [x] Hasil review punya actor/time/evidence dan tidak menghapus prediksi awal.
+- [x] Tidak ada dependensi Ollama atau API cloud wajib.
 - [x] Profil CPU/RAM/latency tercatat: WSL2 Ryzen5600H, container CPU2/mem2GiB; dua encoder pada enam foto WP810 dan fixture sintetis (Task 3-01).
 - [ ] Evaluation report memuat top-1/top-3, unknown precision/recall, false positive, latency p50/p95, ukuran dataset dan batasan.
 - [ ] Target awal **top-3 ≥90%** pada foto uji terpisah dijadikan *go/no-go metric*, bukan klaim sebelum benchmark. Threshold unknown dipilih berdasarkan hasil nyata.
-- [ ] RBAC, upload security, migration, API/UI tests lulus.
+- [x] RBAC, upload security, migration, API/UI tests lulus.
 
 ## Fallback dan roadmap
 

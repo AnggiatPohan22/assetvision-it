@@ -1,0 +1,12 @@
+**
+!apps/
+!apps/api/
+!apps/api/**
+!infra/
+!infra/recognition-api/
+!infra/recognition-api/**
+**/__pycache__
+**/.pytest_cache
+**/.ruff_cache
+**/*.pyc
+**/.env*

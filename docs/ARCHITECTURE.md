@@ -293,3 +293,13 @@ sebagai fungsi murni tanpa ORM/DB/settings/inference. SearchResult dan Identifie
 existing dipakai langsung, hasil memisahkan model dan unit serta memuat snapshot/version/reasons.
 Tidak ada schema, dependency, environment, route atau UI baru. Integrasi caller harus memakai
 snapshot lengkap tepercaya dan review server-side; EVIDENCE_FUSION.md menjelaskan kontraknya.
+
+
+## Recognition observations — Task 3-05
+
+recognition_routes/uploads menghubungkan adapter3-02/3-03 dengan private StorageProvider dan
+cleanup intent existing. survey_snapshot/service/schemas menjalankan fusion3-04 pada snapshot
+master tepercaya dalam transaksi PostgreSQL SERIALIZABLE; survey/read+review tidak mengubah master.
+Tiga tabel0011 immutable memisahkan job, prediksi awal dan keputusan manusia. Tidak menambah
+queue/Redis/microservice atau mandatory inference dependency. UI/proxy memakai auth/context,
+CSRF, error/busy guards dan shell existing; kontrak RECOGNITION_OBSERVATIONS.md.

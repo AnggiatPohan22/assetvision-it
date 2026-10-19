@@ -18,6 +18,7 @@ from app.logging_config import configure_logging
 from app.movement_routes import router as movement_router
 from app.observation_routes import router as observation_router
 from app.openapi import catalog_openapi
+from app.recognition_routes import router as recognition_router
 from app.routes import router
 from app.security import validate_csrf
 
@@ -33,6 +34,7 @@ app.include_router(image_router)
 app.include_router(location_router)
 app.include_router(movement_router)
 app.include_router(observation_router)
+app.include_router(recognition_router)
 app.openapi = lambda: catalog_openapi(app)
 
 

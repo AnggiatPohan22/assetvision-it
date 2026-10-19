@@ -20,6 +20,11 @@ from app.locations import Location  # noqa: F401
 from app.movements import AssetMovement as AssetMovement
 from app.observations import LocationObservation as LocationObservation
 from app.recognition_models import EmbeddingIndex, EmbeddingIndexState, ImageEmbedding  # noqa: F401
+from app.recognition_observations import (  # noqa: F401
+    RecognitionJob,
+    RecognitionReview,
+    SurveyObservation,
+)
 
 
 class Role(enum.StrEnum):

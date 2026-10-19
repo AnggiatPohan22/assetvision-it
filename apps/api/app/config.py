@@ -9,7 +9,9 @@ from sqlalchemy.engine import make_url
 
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_file=".env", extra="ignore", hide_input_in_errors=True)
+    model_config = SettingsConfigDict(
+        env_file=".env", extra="ignore", hide_input_in_errors=True, env_ignore_empty=True
+    )
     app_env: Literal["development", "test", "production"] = "development"
     postgres_db: str = "assetvision"
     postgres_user: str = "assetvision"
@@ -26,13 +28,16 @@ class Settings(BaseSettings):
     image_max_bytes: int = Field(default=8 * 1024 * 1024, ge=1024, le=8 * 1024 * 1024)
     image_max_dimension: int = Field(default=8192, ge=64, le=16384)
     image_max_pixels: int = Field(default=16_000_000, ge=4096, le=24_000_000)
+    recognition_encoder_name: Literal["mobilenet_v3_small", "shufflenet_v2_x0_5"] | None = None
+    recognition_weights_root: Path = Path("/opt/weights/hub/checkpoints")
+    ocr_models_root: Path | None = None
     image_max_per_model: int = Field(default=20, ge=5, le=100)
 
-    @field_validator("image_storage_root")
+    @field_validator("image_storage_root", "recognition_weights_root", "ocr_models_root")
     @classmethod
-    def absolute_storage_root(cls, value: Path) -> Path:
-        if not value.is_absolute():
-            raise ValueError("IMAGE_STORAGE_ROOT must be absolute")
+    def absolute_storage_root(cls, value: Path | None) -> Path | None:
+        if value is not None and not value.is_absolute():
+            raise ValueError("Storage/model root must be absolute")
         return value
 
     @field_validator("jwt_secret")

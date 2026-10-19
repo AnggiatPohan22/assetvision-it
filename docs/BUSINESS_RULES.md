@@ -282,3 +282,14 @@ atau tipe MAC yang jelas dapat memicu CONFLICT terhadap identifier/model/lokasi/
 Raw OCR/manual entry tetap unchecked sampai diperiksa eksplisit. BSSID tidak menjadi MAC unit.
 Semua hasil memerlukan review; v1 tidak mengeluarkan VERIFIED_ASSET atau mengubah master.
 Kebijakan lengkap/staleness/snapshot trust boundary: EVIDENCE_FUSION.md.
+
+
+## Observation/review recognition — Task 3-05
+
+OFFICER/ADMIN mencatat foto/bukti; semua role membaca observasi tersimpan. Raw OCR/parsed/manual
+correction dan prediksi awal immutable. ADMIN hanya dapat MATCH melalui identifier manual yang
+benar-benar diperiksa, scope produsen/tipe tepat, klaim master VERIFIED unik, unit/version/
+snapshot sama dan tanpa konflik. Approval menghasilkan VERIFIED_ASSET pada review terpisah;
+master asset/identifier/lokasi tidak disentuh. UNKNOWN/CONFLICT/MORE_PHOTOS tetap unlinked.
+Satu review terminal, atomik dengan audit, stale/race409 tanpa retry otomatis. Rincian batas,
+policy dan data retention: RECOGNITION_OBSERVATIONS.md. NO_GO encoder produksi tetap berlaku.

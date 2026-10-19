@@ -35,7 +35,7 @@ def test_migration_roundtrip(factory) -> None:
         command.upgrade(config, "head")
         assert (
             connection.execute(text("SELECT version_num FROM alembic_version")).scalar_one()
-            == "0010_embedding_index"
+            == "0011_recognition_surveys"
         )
         command.check(config)
 

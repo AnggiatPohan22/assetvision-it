@@ -1,0 +1,20 @@
+# Optional local API CPU environment; never selected or started automatically.
+# Keep encoder/OCR unset while the production evaluation remains NO_GO.
+services:
+  api:
+    build:
+      context: .
+      dockerfile: infra/recognition-api/Dockerfile
+      args:
+        CPU_BASE: ${RECOGNITION_CPU_BASE:-assetvision-recognition-index:3-02}
+    environment:
+      RECOGNITION_ENCODER_NAME: ${RECOGNITION_ENCODER_NAME:-}
+      RECOGNITION_WEIGHTS_ROOT: ${RECOGNITION_WEIGHTS_ROOT:-/opt/weights/hub/checkpoints}
+      OCR_MODELS_ROOT: ${OCR_MODELS_ROOT:-}
+    mem_limit: 2g
+    cpus: 2.0
+    read_only: true
+    tmpfs: [/tmp:size=256m]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    pids_limit: 256

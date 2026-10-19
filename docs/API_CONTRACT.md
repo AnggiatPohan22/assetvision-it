@@ -659,3 +659,17 @@ kandidat; threshold reject UNKNOWN_MODEL tanpa kandidat. Rincian dan CLI: RECOGN
 Service/CLI OCR lokal belum membuka route `/recognition/ocr`; endpoint survey/review dan
 UI menunggu Task3-05. Semua hasil adalah evidence memerlukan review, tanpa asset identity
 atau perubahan master. Raw text terpisah dari manual correction; detail kontrak: OCR.md.
+
+
+## Recognition — Task 3-05
+
+Prefix `/api/v1/recognition`: POST model-candidates/ocr (multipartfile, OFFICER/ADMIN), GET jobs
+(pending milik sendiri), GET jobs/{id}[/content] (pemilik/ADMIN atau attached), POST observations
+(OFFICER/ADMIN), GET observations[/{id}] (semua role), POST observations/{id}/review (ADMIN),
+GET metrics (ADMIN, hitungan operasional saja). Auth/cookie/CSRF/Origin existing wajib.
+Job/observasi/review immutable; JSON64KiB, foto8MiB/4096side/16Mpixel, rate10writes/menit/akun.
+Input observasi tidak menerima model/score/snapshot/trusted flags dari browser. Review MATCH
+memerlukan checked manual identifier unik dan master VERIFIED, version/fingerprint sama,
+tanpa konflik; tidak mengubah master/lokasi. Original photo privat, content preview JPEG
+sanitized1600side; fingerprint metadata memakai original SHA, bukan hash preview.
+Panduan request/response/policy/limits lengkap: RECOGNITION_OBSERVATIONS.md; OpenAPI memuat schema.

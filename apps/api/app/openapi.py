@@ -5,6 +5,8 @@ from typing import Any
 from fastapi import FastAPI
 from fastapi.openapi.utils import get_openapi
 
+from app.survey_schemas import SurveyCreate, SurveyReview
+
 
 def catalog_openapi(app: FastAPI) -> dict[str, Any]:
     if app.openapi_schema is not None:
@@ -29,8 +31,31 @@ def catalog_openapi(app: FastAPI) -> dict[str, Any]:
         ),
         routes=app.routes,
     )
+    components = schema.setdefault("components", {}).setdefault("schemas", {})
+    for contract in (SurveyCreate, SurveyReview):
+        definition = contract.model_json_schema(ref_template="#/components/schemas/{model}")
+        components.update(definition.pop("$defs", {}))
+        components[contract.__name__] = definition
     for path, operations in schema["paths"].items():
         for method, operation in operations.items():
+            if method == "post" and path.startswith("/api/v1/recognition/"):
+                upload = path.endswith(("/model-candidates", "/ocr"))
+                contract = "SurveyReview" if path.endswith("/review") else "SurveyCreate"
+                operation["requestBody"] = {
+                    "required": True,
+                    "content": {
+                        "multipart/form-data" if upload else "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": ["file"],
+                                "additionalProperties": False,
+                                "properties": {"file": {"type": "string", "format": "binary"}},
+                            }
+                            if upload
+                            else {"$ref": "#/components/schemas/" + contract}
+                        }
+                    },
+                }
             if method not in {"post", "patch", "delete"}:
                 continue
             operation.setdefault("parameters", []).extend(

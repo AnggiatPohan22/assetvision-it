@@ -415,3 +415,13 @@ Angka aktual, iterasi dan preservasi ada di sprints/SPRINT_3_03_REPORT.md; detai
 `tests/test_evidence_fusion.py` menguji aturan dengan snapshot sintetis, tanpa DB/inference.
 Jalankan melalui api-test atau full `bash infra/check.sh --postgres`. Regresi tetap mencakup
 migrasi/auth/RBAC/API dan lint/TypeScript/frontend. Tidak ada klaim accuracy perangkat nyata.
+
+
+## Task 3-05
+
+`tests/test_surveys.py` menguji upload/RBAC/CSRF/ownership, raw/manual, idempotency, review
+policy/stale/conflict/immutability/audit rollback dan satu pemenang race PG. Frontend jsdom
+recognition/proxy tests memeriksa role, upload/unknown, koreksi, explicit checked review dan
+preservasi draft. `bash infra/smoke-recognition.sh` memeriksa proxy/API/SSR/DB sintetis nyata;
+jangan bersamaan writer PostgreSQL test lain. CPU6encoder/5OCR di image opsional networknone.
+Laporan aktual di sprints/SPRINT_3_05_REPORT.md; tidak memulai evaluasi Task3-06.
